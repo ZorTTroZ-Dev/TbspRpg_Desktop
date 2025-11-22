@@ -1,0 +1,32 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:TbspRpgStudio.ViewModels"
+        xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="TbspRpgStudio.Views.AdventureNewWindow"
+        Title="New Adventure"
+        WindowStartupLocation="CenterOwner"
+        x:DataType="viewModels:AdventureNewViewModel">
+    
+    <Design.DataContext>
+        <vm:AdventureNewViewModel />
+    </Design.DataContext>
+    
+    <Grid RowDefinitions="4*, 1*">
+        <Panel Grid.Row="0">
+            <Border BorderBrush="Gray"
+                    BorderThickness="0, 0, 0, 1">
+                <Grid ColumnDefinitions="1*, 2*" RowDefinitions="Auto" Margin="50">
+                    <TextBlock Grid.Row="0" Grid.Column="0" FontSize="20">Name</TextBlock>
+                    <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Name}"></TextBox>
+                </Grid>
+            </Border>
+        </Panel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
+            <Button Margin="0, 0, 0, 0" Command="{Binding CancelAdventure}">Cancel</Button>
+            <Button Margin="0, 0, 25, 0" Command="{Binding SaveAdventure}">Save</Button>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -5,8 +5,8 @@ namespace TbspRpgProcessor.Entities;
 
 public class ScriptExecuteModel
 {
-    public Guid ScriptId { get; set; }
-    public Guid GameId { get; set; }
+    public int ScriptId { get; set; }
+    public int GameId { get; set; }
     public Script Script { get; set; }
     public Game Game { get; set; }
 }

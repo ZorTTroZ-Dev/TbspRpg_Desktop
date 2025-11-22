@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using TbspRpgSettings.Settings;
@@ -12,14 +11,15 @@ namespace TbspRpgDataLayer.Services
     public interface ISourcesService: IBaseService
     {
         Task<string> GetSourceTextForKey(Guid key, string language = null);
-        Task<Source> GetSourceForKey(Guid key, Guid adventureId, string language);
+        Task<Source> GetSourceForKey(Guid key, int? adventureId, string language);
         Task AddSource(Source source, string language = null);
-        Task RemoveAllSourceForAdventure(Guid adventureId);
-        Task RemoveSource(Guid sourceId);
-        Task RemoveScriptFromSources(Guid scriptId);
-        Task<List<Source>> GetAllSourceForAdventure(Guid adventureId, string language);
-        Task<List<Source>> GetAllSourceAllLanguagesForAdventure(Guid adventureId);
-        Task<Source> GetSourceById(Guid sourceId);
+        Task RemoveAllSourceForAdventure(int adventureId);
+        Task RemoveSource(int sourceId, string language);
+        Task RemoveScriptFromSources(int scriptId);
+        Task<List<Source>> GetAllSourceForAdventure(int adventureId, string language);
+        Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId);
+        Task<Source> GetSourceById(int sourceId, string language);
+        void Seed();
     }
     
     public class SourcesService : ISourcesService
@@ -40,7 +40,7 @@ namespace TbspRpgDataLayer.Services
             return _sourcesRepository.GetSourceTextForKey(key, language);
         }
 
-        public Task<Source> GetSourceForKey(Guid key, Guid adventureId, string language)
+        public Task<Source> GetSourceForKey(Guid key, int? adventureId, string language)
         {
             return _sourcesRepository.GetSourceForKey(key, adventureId, language);
         }
@@ -50,17 +50,17 @@ namespace TbspRpgDataLayer.Services
             await _sourcesRepository.AddSource(source, language);
         }
 
-        public async Task RemoveAllSourceForAdventure(Guid adventureId)
+        public async Task RemoveAllSourceForAdventure(int adventureId)
         {
             await _sourcesRepository.RemoveAllSourceForAdventure(adventureId);
         }
 
-        public async Task RemoveSource(Guid sourceId)
+        public async Task RemoveSource(int sourceId, string language)
         {
-            await _sourcesRepository.RemoveSource(sourceId);
+            await _sourcesRepository.RemoveSource(sourceId, language);
         }
 
-        public async Task RemoveScriptFromSources(Guid scriptId)
+        public async Task RemoveScriptFromSources(int scriptId)
         {
             var sources = await _sourcesRepository.GetSourcesWithScript(scriptId);
             foreach (var source in sources)
@@ -69,19 +69,24 @@ namespace TbspRpgDataLayer.Services
             }
         }
 
-        public Task<List<Source>> GetAllSourceForAdventure(Guid adventureId, string language)
+        public Task<List<Source>> GetAllSourceForAdventure(int adventureId, string language)
         {
             return _sourcesRepository.GetAllSourceForAdventure(adventureId, language);
         }
 
-        public Task<List<Source>> GetAllSourceAllLanguagesForAdventure(Guid adventureId)
+        public Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId)
         {
             return _sourcesRepository.GetAllSourceAllLanguagesForAdventure(adventureId);
         }
 
-        public Task<Source> GetSourceById(Guid sourceId)
+        public Task<Source> GetSourceById(int sourceId, string language)
         {
-            return _sourcesRepository.GetSourceById(sourceId);
+            return _sourcesRepository.GetSourceById(sourceId, language);
+        }
+
+        public void Seed()
+        {
+            _sourcesRepository.Seed();
         }
 
         public async Task SaveChanges()

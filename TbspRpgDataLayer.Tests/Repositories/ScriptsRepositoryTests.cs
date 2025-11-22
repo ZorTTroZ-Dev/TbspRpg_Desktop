@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using TbspRpgSettings.Settings;
@@ -8,21 +9,16 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories;
 
-public class ScriptsRepositoryTests: InMemoryTest
+public class ScriptsRepositoryTests() : InMemoryTest("ScriptsRepositoryTests")
 {
-    public ScriptsRepositoryTests() : base("ScriptsRepositoryTests")
-    {
-    }
-
     #region GetScriptById
 
     [Fact]
-    public async void GetScriptById_InvalidId_ReturnNull()
+    public async Task GetScriptById_InvalidId_ReturnNull()
     {
         // arrange
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test",
             Content = "print('banana');",
             Type = ScriptTypes.LuaScript,
@@ -34,27 +30,25 @@ public class ScriptsRepositoryTests: InMemoryTest
         var repository = new ScriptsRepository(context);
 
         // act
-        var script = await repository.GetScriptById(Guid.NewGuid());
+        var script = await repository.GetScriptById(687);
 
         // assert
         Assert.Null(script);
     }
 
     [Fact]
-    public async void GetScriptById_Valid_ReturnScriptIncludeIncludes()
+    public async Task GetScriptById_Valid_ReturnScriptIncludeIncludes()
     {
         // arrange
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test",
             Content = "print('banana');",
             Type = ScriptTypes.LuaScript,
             Includes = new List<Script>()
             {
-                new Script()
+                new()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test_base",
                     Content = "print('base banana');",
                     Type = ScriptTypes.LuaScript,
@@ -80,26 +74,22 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region GetScriptsForAdventure
 
     [Fact]
-    public async void GetScriptsForAdventure_ValidId_ReturnsScripts()
+    public async Task GetScriptsForAdventure_ValidId_ReturnsScripts()
     {
         // arrange
         var testScripts = new List<Script>()
         {
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test"
                 }
             },
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test two"
                 }
             }
@@ -118,26 +108,22 @@ public class ScriptsRepositoryTests: InMemoryTest
     }
 
     [Fact]
-    public async void GetScriptsForAdventure_InvalidId_ReturnEmptyList()
+    public async Task GetScriptsForAdventure_InvalidId_ReturnEmptyList()
     {
         // arrange
         var testScripts = new List<Script>()
         {
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test"
                 }
             },
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test two"
                 }
             }
@@ -148,7 +134,7 @@ public class ScriptsRepositoryTests: InMemoryTest
         var repository = new ScriptsRepository(context);
         
         // act
-        var scripts = await repository.GetScriptsForAdventure(Guid.NewGuid());
+        var scripts = await repository.GetScriptsForAdventure(367);
         
         // assert
         Assert.Empty(scripts);
@@ -159,13 +145,12 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region AddScript
 
     [Fact]
-    public async void AddScript_ScriptAdded()
+    public async Task AddScript_ScriptAdded()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var repository = new ScriptsRepository(context);
@@ -183,18 +168,16 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region RemoveScript
 
     [Fact]
-    public async void RemoveScript_ScriptRemoved()
+    public async Task RemoveScript_ScriptRemoved()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script Two"
         };
         context.Scripts.Add(testScript);
@@ -215,18 +198,16 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region RemoveScripts
 
     [Fact]
-    public async void RemoveScripts_ScriptsRemoved()
+    public async Task RemoveScripts_ScriptsRemoved()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script Two"
         };
         context.Scripts.Add(testScript);
@@ -247,18 +228,16 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region RemoveIncludes
 
     [Fact]
-    public async void RemoveIncludes_IncludesRemoved()
+    public async Task RemoveIncludes_IncludesRemoved()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script Two",
             Includes = new List<Script>() { testScript }
         };
@@ -282,14 +261,13 @@ public class ScriptsRepositoryTests: InMemoryTest
     #region GetAdventureScriptsWithSourceReference
 
     [Fact]
-    public async void GetAdventureScriptsWithSourceReference_ContainsReference_ReturnScript()
+    public async Task GetAdventureScriptsWithSourceReference_ContainsReference_ReturnScript()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);
@@ -306,14 +284,13 @@ public class ScriptsRepositoryTests: InMemoryTest
     }
     
     [Fact]
-    public async void GetAdventureScriptsWithSourceReference_NoContainsReference_ReturnEmpty()
+    public async Task GetAdventureScriptsWithSourceReference_NoContainsReference_ReturnEmpty()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);

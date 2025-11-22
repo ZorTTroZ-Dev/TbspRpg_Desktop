@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -9,12 +9,8 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Services;
 
-public class AdventureObjectServiceTests: InMemoryTest
+public class AdventureObjectServiceTests() : InMemoryTest("AdventureObjectServiceTests")
 {
-    public AdventureObjectServiceTests() : base("AdventureObjectServiceTests")
-    {
-    }
-    
     private static IAdventureObjectService CreateService(DatabaseContext context)
     {
         return new AdventureObjectService(
@@ -25,12 +21,12 @@ public class AdventureObjectServiceTests: InMemoryTest
     #region GetAdventureObjectById
 
     [Fact]
-    public async void GetAdventureObjectById_InvalidId_ReturnNull()
+    public async Task GetAdventureObjectById_InvalidId_ReturnNull()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic
@@ -41,19 +37,19 @@ public class AdventureObjectServiceTests: InMemoryTest
         var service = CreateService(context);
 
         // act
-        var adventureObject = await service.GetAdventureObjectById(Guid.NewGuid());
+        var adventureObject = await service.GetAdventureObjectById(42);
 
         // assert
         Assert.Null(adventureObject);
     }
 
     [Fact]
-    public async void GetAdventureObjectById_Valid_ReturnAdventureObject()
+    public async Task GetAdventureObjectById_Valid_ReturnAdventureObject()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic
@@ -76,30 +72,30 @@ public class AdventureObjectServiceTests: InMemoryTest
     #region GetAdventureObjectsForAdventure
 
     [Fact]
-    public async void GetAdventureObjectsForAdventure_ValidId_ReturnsAdventureObjects()
+    public async Task GetAdventureObjectsForAdventure_ValidId_ReturnsAdventureObjects()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 2,
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test two"
             }
         };
@@ -119,30 +115,30 @@ public class AdventureObjectServiceTests: InMemoryTest
     }
 
     [Fact]
-    public async void GetAdventureObjectsForAdventure_InvalidId_ReturnEmptyList()
+    public async Task GetAdventureObjectsForAdventure_InvalidId_ReturnEmptyList()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 2,
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test two"
             }
         };
@@ -153,7 +149,7 @@ public class AdventureObjectServiceTests: InMemoryTest
         var service = CreateService(context);
         
         // act
-        var adventureObjects = await service.GetAdventureObjectsForAdventure(Guid.NewGuid());
+        var adventureObjects = await service.GetAdventureObjectsForAdventure(42);
         
         // assert
         Assert.Empty(adventureObjects);
@@ -164,19 +160,19 @@ public class AdventureObjectServiceTests: InMemoryTest
     #region AddAdventureObject
 
     [Fact]
-    public async void AddAdventureObject_AdventureObjectAdded()
+    public async Task AddAdventureObject_AdventureObjectAdded()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             }
         };
@@ -195,30 +191,30 @@ public class AdventureObjectServiceTests: InMemoryTest
     #region RemoveAdventureObject
 
     [Fact]
-    public async void RemoveAdventureObject_AdventureObjectRemoved()
+    public async Task RemoveAdventureObject_AdventureObjectRemoved()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 2,
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test two"
             }
         };
@@ -241,30 +237,30 @@ public class AdventureObjectServiceTests: InMemoryTest
     #region RemoveAdventureObjects
 
     [Fact]
-    public async void RemoveAdventureObjects_AdventureObjectsRemoved()
+    public async Task RemoveAdventureObjects_AdventureObjectsRemoved()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 1,
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
+            Id = 2,
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test two"
             }
         };

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -13,15 +12,14 @@ namespace TbspRpgDataLayer.Services
     public interface IAdventuresService: IBaseService
     {
         Task<List<Adventure>> GetAllAdventures(AdventureFilter filters);
-        Task<List<Adventure>> GetPublishedAdventures(AdventureFilter filters);
         Task<Adventure> GetAdventureByName(string name);
-        Task<Adventure> GetAdventureById(Guid adventureId);
-        Task<Adventure> GetAdventureByIdIncludeAssociatedObjects(Guid adventureId);
+        Task<Adventure> GetAdventureById(int adventureId);
+        Task<Adventure> GetAdventureByIdIncludeAssociatedObjects(int adventureId);
         Task AddAdventure(Adventure adventure);
         void RemoveAdventure(Adventure adventure);
-        Task RemoveScriptFromAdventures(Guid scriptId);
-        Task<Adventure> GetAdventureWithSource(Guid adventureId, Guid sourceKey);
-        Task<bool> DoesAdventureUseSource(Guid adventureId, Guid sourceKey);
+        Task RemoveScriptFromAdventures(int scriptId);
+        Task<Adventure> GetAdventureWithSource(int adventureId, Guid sourceKey);
+        Task<bool> DoesAdventureUseSource(int adventureId, Guid sourceKey);
     }
     
     public class AdventuresService : IAdventuresService
@@ -41,22 +39,17 @@ namespace TbspRpgDataLayer.Services
             return _adventuresRepository.GetAllAdventures(filters);
         }
 
-        public Task<List<Adventure>> GetPublishedAdventures(AdventureFilter filters)
-        {
-            return _adventuresRepository.GetPublishedAdventures(filters);
-        }
-
         public Task<Adventure> GetAdventureByName(string name)
         {
             return _adventuresRepository.GetAdventureByName(name);
         }
 
-        public Task<Adventure> GetAdventureById(Guid adventureId)
+        public Task<Adventure> GetAdventureById(int adventureId)
         {
             return _adventuresRepository.GetAdventureById(adventureId);
         }
 
-        public Task<Adventure> GetAdventureByIdIncludeAssociatedObjects(Guid adventureId)
+        public Task<Adventure> GetAdventureByIdIncludeAssociatedObjects(int adventureId)
         {
             return _adventuresRepository.GetAdventureByIdIncludeAssociatedObjects(adventureId);
         }
@@ -64,6 +57,7 @@ namespace TbspRpgDataLayer.Services
         public async Task AddAdventure(Adventure adventure)
         {
             await _adventuresRepository.AddAdventure(adventure);
+            _logger.LogInformation("Adventure {@Adventure} added", adventure);
         }
 
         public void RemoveAdventure(Adventure adventure)
@@ -71,7 +65,7 @@ namespace TbspRpgDataLayer.Services
             _adventuresRepository.RemoveAdventure(adventure);
         }
 
-        public async Task RemoveScriptFromAdventures(Guid scriptId)
+        public async Task RemoveScriptFromAdventures(int scriptId)
         {
             var adventures = await _adventuresRepository.GetAdventuresWithScript(scriptId);
             foreach (var adventure in adventures)
@@ -83,12 +77,12 @@ namespace TbspRpgDataLayer.Services
             }
         }
 
-        public Task<Adventure> GetAdventureWithSource(Guid adventureId, Guid sourceKey)
+        public Task<Adventure> GetAdventureWithSource(int adventureId, Guid sourceKey)
         {
             return _adventuresRepository.GetAdventureWithSource(adventureId, sourceKey);
         }
 
-        public async Task<bool> DoesAdventureUseSource(Guid adventureId, Guid sourceKey)
+        public async Task<bool> DoesAdventureUseSource(int adventureId, Guid sourceKey)
         {
             var adventure = await GetAdventureWithSource(adventureId, sourceKey);
             return adventure != null;

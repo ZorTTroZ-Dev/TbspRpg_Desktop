@@ -6,4 +6,5 @@ This is a game engine for text based ~~online~~ single player role playing games
 ~~I have it designed in a way that I can put the 'business' logic in its own console app and parallelize that way.~~
 
 ## Building on Linux
+
 ## Building on Windows

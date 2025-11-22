@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -11,12 +11,8 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Services
 {
-    public class ContentsServiceTests : InMemoryTest
+    public class ContentsServiceTests() : InMemoryTest("ContentsServiceTests")
     {
-        public ContentsServiceTests() : base("ContentsServiceTests")
-        {
-        }
-
         private static IContentsService CreateService(DatabaseContext context)
         {
             return new ContentsService(new ContentsRepository(context),
@@ -26,14 +22,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region AddContent
 
         [Fact]
-        public async void AddContent_NotExist_ContentAdded()
+        public async Task AddContent_NotExist_ContentAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
-                GameId = Guid.NewGuid(),
+                Game = new Game(),
                 Position = 42
             };
             var service = CreateService(context);
@@ -48,14 +43,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void AddContent_Exists_ContentNotAdded()
+        public async Task AddContent_Exists_ContentNotAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
-                GameId = Guid.NewGuid(),
+                Game = new Game(),
                 Position = 42
             };
             context.Contents.Add(testContent);
@@ -76,14 +70,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetContentForGameAtPosition
 
         [Fact]
-        public async void GetContentForGameAtPosition_Exists_ReturnContent()
+        public async Task GetContentForGameAtPosition_Exists_ReturnContent()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
-                GameId = Guid.NewGuid(),
+                Game = new Game(),
                 Position = 42
             };
             context.Contents.Add(testContent);
@@ -99,14 +92,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetContentForGameAtPosition_NotExist_ReturnNull()
+        public async Task GetContentForGameAtPosition_NotExist_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
-                GameId = Guid.NewGuid(),
+                Game = new Game(),
                 Position = 42
             };
             context.Contents.Add(testContent);
@@ -114,7 +106,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var content = await service.GetContentForGameAtPosition(Guid.NewGuid(), 42);
+            var content = await service.GetContentForGameAtPosition(72, 42);
             
             // assert
             Assert.Null(content);
@@ -125,29 +117,26 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAllContent
 
         [Fact]
-        public async void GetAllContentForGame_GetsAllContent()
+        public async Task GetAllContentForGame_GetsAllContent()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -156,10 +145,10 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetAllContentForGame(testGameId);
+            var gameContents = await service.GetAllContentForGame(game.Id);
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(3, gameContents.Count);
             Assert.Equal(testContents[1].Id, gameContents.First().Id);
         }
@@ -169,29 +158,26 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetLatestForGame
 
         [Fact]
-        public async void GetLatestForGame_GetsLatest()
+        public async Task GetLatestForGame_GetsLatest()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -200,10 +186,10 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetLatestForGame(testGameId);
+            var gameContents = await service.GetLatestForGame(game.Id);
             
             //assert
-            Assert.Equal(testGameId, gameContents.GameId);
+            Assert.Equal(game.Id, gameContents.GameId);
             Assert.Equal(testContents[0].Id, gameContents.Id);
         }
 
@@ -212,29 +198,26 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetPartialContentForGame
 
         [Fact]
-        public async void GetPartialContentForGame_NoDirection_ContentsForward()
+        public async Task GetPartialContentForGame_NoDirection_ContentsForward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -243,38 +226,35 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest());
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest());
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(3, gameContents.Count);
             Assert.Equal(testContents[1].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_Forward_ContentsForward()
+        public async Task GetPartialContentForGame_Forward_ContentsForward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -283,41 +263,38 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "f"
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(3, gameContents.Count);
             Assert.Equal(testContents[1].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_ForwardStart_PartialContentsForward()
+        public async Task GetPartialContentForGame_ForwardStart_PartialContentsForward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -326,42 +303,39 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "f",
                 Start = 2
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Single(gameContents);
             Assert.Equal(testContents[0].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_ForwardCountStart_PartialContentsForward()
+        public async Task GetPartialContentForGame_ForwardCountStart_PartialContentsForward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -370,7 +344,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "f",
                 Start = 1,
@@ -378,35 +352,32 @@ namespace TbspRpgDataLayer.Tests.Services
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(2, gameContents.Count);
             Assert.Equal(testContents[2].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_ForwardCount_PartialContentsForward()
+        public async Task GetPartialContentForGame_ForwardCount_PartialContentsForward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -415,42 +386,39 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "f",
                 Count = 2
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(2, gameContents.Count);
             Assert.Equal(testContents[1].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_Backward_ContentsBackward()
+        public async Task GetPartialContentForGame_Backward_ContentsBackward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -459,41 +427,38 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "b"
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(3, gameContents.Count);
             Assert.Equal(testContents[0].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_BackwardStart_PartialContentsBackward()
+        public async Task GetPartialContentForGame_BackwardStart_PartialContentsBackward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -502,42 +467,39 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "b",
                 Start = 1
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(2, gameContents.Count);
             Assert.Equal(testContents[2].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_BackwardCount_PartialContentsBackward()
+        public async Task GetPartialContentForGame_BackwardCount_PartialContentsBackward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -546,42 +508,39 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "b",
                 Count = 2
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(2, gameContents.Count);
             Assert.Equal(testContents[0].Id, gameContents.First().Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_BackwardStartCount_PartialContentsBackward()
+        public async Task GetPartialContentForGame_BackwardStartCount_PartialContentsBackward()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -590,7 +549,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var gameContents = await service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+            var gameContents = await service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
             {
                 Direction = "b",
                 Start = 1,
@@ -598,35 +557,32 @@ namespace TbspRpgDataLayer.Tests.Services
             });
             
             //assert
-            Assert.Equal(testGameId, gameContents.First().GameId);
+            Assert.Equal(game.Id, gameContents.First().GameId);
             Assert.Equal(2, gameContents.Count);
             Assert.Equal(testContents[1].Id, gameContents[1].Id);
         }
         
         [Fact]
-        public async void GetPartialContentForGame_BadDirection_Error()
+        public async Task GetPartialContentForGame_BadDirection_Error()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -637,7 +593,7 @@ namespace TbspRpgDataLayer.Tests.Services
             //act
             //assert
             await Assert.ThrowsAsync<ArgumentException>(() =>
-                service.GetPartialContentForGame(testGameId, new ContentFilterRequest()
+                service.GetPartialContentForGame(game.Id, new ContentFilterRequest()
                 {
                     Direction = "zebra",
                     Start = -3,
@@ -650,29 +606,26 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetContentForGameAfterPosition
 
         [Fact]
-        public async void GetContentForGameAfterPosition_EarlyPosition_ReturnContent()
+        public async Task GetContentForGameAfterPosition_EarlyPosition_ReturnContent()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -681,7 +634,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var contents = await service.GetContentForGameAfterPosition(testGameId, 40);
+            var contents = await service.GetContentForGameAfterPosition(game.Id, 40);
             
             //assert
             Assert.Single(contents);
@@ -689,29 +642,26 @@ namespace TbspRpgDataLayer.Tests.Services
         }
         
         [Fact]
-        public async void GetContentForGameAfterPosition_LastPosition_ReturnNoContent()
+        public async Task GetContentForGameAfterPosition_LastPosition_ReturnNoContent()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -720,7 +670,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             //act
-            var contents = await service.GetContentForGameAfterPosition(testGameId, 42);
+            var contents = await service.GetContentForGameAfterPosition(game.Id, 42);
             
             //assert
             Assert.Empty(contents);
@@ -731,29 +681,26 @@ namespace TbspRpgDataLayer.Tests.Services
         #region RemoveContents
 
         [Fact]
-        public async void RemoveContents_ContentsRemoved()
+        public async Task RemoveContents_ContentsRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 42
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 0
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
+                    Game = game,
                     Position = 1
                 }
             };
@@ -774,21 +721,16 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAdventureContentsWithSource
 
         [Fact]
-        public async void GetAdventureContentsWithSource_HasSource_ReturnsContents()
+        public async Task GetAdventureContentsWithSource_HasSource_ReturnsContents()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);
@@ -805,21 +747,16 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetAdventureContentsWithSource_NoHasSource_ReturnsEmptyList()
+        public async Task GetAdventureContentsWithSource_NoHasSource_ReturnsEmptyList()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);
@@ -839,21 +776,16 @@ namespace TbspRpgDataLayer.Tests.Services
         #region DoesAdventureContentUseSource
 
         [Fact]
-        public async void DoesAdventureContentUseSource_UsesSource_ReturnTrue()
+        public async Task DoesAdventureContentUseSource_UsesSource_ReturnTrue()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);
@@ -869,21 +801,16 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void DoesAdventurecontentUseSource_NoUseSource_ReturnFalse()
+        public async Task DoesAdventurecontentUseSource_NoUseSource_ReturnFalse()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);
@@ -892,7 +819,7 @@ namespace TbspRpgDataLayer.Tests.Services
             
             // act
             var usesSource = await service.DoesAdventureContentUseSource(
-                Guid.NewGuid(), testContent.SourceKey);
+                74, testContent.SourceKey);
             
             // assert
             Assert.False(usesSource);

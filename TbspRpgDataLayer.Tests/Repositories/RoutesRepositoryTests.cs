@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using TbspRpgApi.Entities;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -10,30 +9,25 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories
 {
-    public class RoutesRepositoryTests : InMemoryTest
+    public class RoutesRepositoryTests() : InMemoryTest("RoutesRepositoryTests")
     {
-        public RoutesRepositoryTests() : base("RoutesRepositoryTests")
-        {
-        }
-        
         #region GetRoutesForLocation
 
         [Fact]
-        public async void GetRoutesForLocation_ValidLocation_RoutesReturned()
+        public async Task GetRoutesForLocation_ValidLocation_RoutesReturned()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
+            var testLocation = new Location();
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test",
-                LocationId = Guid.NewGuid()
+                Location = testLocation
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test_two",
-                LocationId = testRoute.LocationId
+                Location = testLocation
             };
             context.Routes.AddRange(testRoute, testRouteTwo);
             await context.SaveChangesAsync();
@@ -48,22 +42,21 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetRoutesForLocation_InvalidLocation_NoRoutes()
+        public async Task GetRoutesForLocation_InvalidLocation_NoRoutes()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test",
-                LocationId = Guid.NewGuid()
+                Location = new Location()
             };
             context.Routes.Add(testRoute);
             await context.SaveChangesAsync();
             var repo = new RoutesRepository(context);
             
             //act
-            var routes = await repo.GetRoutesForLocation(Guid.NewGuid());
+            var routes = await repo.GetRoutesForLocation(84);
             
             //assert
             Assert.Empty(routes);
@@ -74,39 +67,33 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetRoutesForAdventure
 
         [Fact]
-        public async void GetRoutesForAdventure_ValidAdventure_RoutesReturned()
+        public async Task GetRoutesForAdventure_ValidAdventure_RoutesReturned()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var locationOne = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test adventure"
                 }
             };
             var locationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location two",
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test adventure two"
                 }
             };
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test",
                 Location = locationOne
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test_two",
                 Location = locationTwo
             };
@@ -124,39 +111,33 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetRoutesForAdventure_InvalidAdventure_NoRoutes()
+        public async Task GetRoutesForAdventure_InvalidAdventure_NoRoutes()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var locationOne = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test adventure"
                 }
             };
             var locationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location two",
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test adventure two"
                 }
             };
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test",
                 Location = locationOne
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test_two",
                 Location = locationTwo
             };
@@ -166,7 +147,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repo = new RoutesRepository(context);
             
             //act
-            var routes = await repo.GetRoutesForLocation(Guid.NewGuid());
+            var routes = await repo.GetRoutesForLocation(65);
             
             //assert
             Assert.Empty(routes);
@@ -177,23 +158,16 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetRouteById
 
         [Fact]
-        public async void GetRouteById_Valid_ReturnRoute()
+        public async Task GetRouteById_Valid_ReturnRoute()
         {
             // arrange
-            var testDestinationLocation = new Location()
-            {
-                Id = Guid.NewGuid()
-            };
-            var testLocation = new Location()
-            {
-                Id = Guid.NewGuid()
-            };
+            var testDestinationLocation = new Location();
+            var testLocation = new Location();
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route",
-                DestinationLocationId = testDestinationLocation.Id,
-                LocationId = testLocation.Id
+                DestinationLocation = testDestinationLocation,
+                Location = testLocation
             };
             await using var context = new DatabaseContext(DbContextOptions);
             context.Routes.Add(testRoute);
@@ -211,12 +185,11 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetRouteById_InValid_ReturnNull()
+        public async Task GetRouteById_InValid_ReturnNull()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route"
             };
             await using var context = new DatabaseContext(DbContextOptions);
@@ -225,7 +198,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new RoutesRepository(context);
             
             // act
-            var route = await repository.GetRouteById(Guid.NewGuid());
+            var route = await repository.GetRouteById(68);
             
             // assert
             Assert.Null(route);
@@ -236,22 +209,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetRoutes
         
         [Fact]
-        public async void GetRoutes_FilterByDestinationLocationId_ReturnsRoutes()
+        public async Task GetRoutes_FilterByDestinationLocationId_ReturnsRoutes()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testroute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route"
             };
             var testroute2 = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route two"
             };
             context.Routes.AddRange(testroute, testroute2);
@@ -270,20 +241,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetRoutes_FilterByLocationId_ReturnsRoutes()
+        public async Task GetRoutes_FilterByLocationId_ReturnsRoutes()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testroute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
+                Location = new Location(),
                 Name = "test route"
             };
             var testroute2 = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
+                Location = new Location(),
                 Name = "test route two"
             };
             context.Routes.AddRange(testroute, testroute2);
@@ -302,20 +271,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetRoutes_NoFilter_ReturnsAll()
+        public async Task GetRoutes_NoFilter_ReturnsAll()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testroute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
+                Location = new Location(),
                 Name = "test route"
             };
             var testroute2 = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
+                Location = new Location(),
                 Name = "test route two"
             };
             context.Routes.AddRange(testroute, testroute2);
@@ -334,22 +301,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region RemoveRoute
 
         [Fact]
-        public async void RemoveRoute_RouteRemoved()
+        public async Task RemoveRoute_RouteRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testroute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route"
             };
             var testroute2 = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route two"
             };
             context.Routes.AddRange(testroute, testroute2);
@@ -371,22 +336,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region RemoveRoutes
 
         [Fact]
-        public async void RemoveRoutes_RoutesRemoved()
+        public async Task RemoveRoutes_RoutesRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testroute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route"
             };
             var testroute2 = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Location = new Location(),
+                DestinationLocation = new Location(),
                 Name = "test route two"
             };
             context.Routes.AddRange(testroute, testroute2);
@@ -406,7 +369,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region AddRoute
 
         [Fact]
-        public async void AddRoute_RouteAdded()
+        public async Task AddRoute_RouteAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
@@ -415,9 +378,8 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // act
             await repository.AddRoute(new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route",
-                LocationId = Guid.NewGuid(),
+                Location = new Location(),
                 SourceKey = Guid.NewGuid()
             });
             await repository.SaveChanges();
@@ -432,22 +394,19 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetRoutesWithScript
 
         [Fact]
-        public async void GetRoutesWithScript_HasRoutes_RoutesReturned()
+        public async Task GetRoutesWithScript_HasRoutes_RoutesReturned()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route",
                 RouteTakenScript = new Script()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test script"
                 }
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route two" 
             };
             await using var context = new DatabaseContext(DbContextOptions);
@@ -464,22 +423,19 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetRoutesWithScript_NoRoutes_ReturnEmpty()
+        public async Task GetRoutesWithScript_NoRoutes_ReturnEmpty()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route",
                 RouteTakenScript = new Script()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test script"
                 }
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
                 Name = "test route two" 
             };
             await using var context = new DatabaseContext(DbContextOptions);
@@ -488,7 +444,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new RoutesRepository(context);
             
             // act
-            var routes = await repository.GetRoutesWithScript(Guid.NewGuid());
+            var routes = await repository.GetRoutesWithScript(71);
             
             // assert
             Assert.Empty(routes);
@@ -499,20 +455,15 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetAdventureRoutesWithSource
 
         [Fact]
-        public async void GetAdventureRoutesWithSource_SourceKeyMatches_ReturnRoutes()
+        public async Task GetAdventureRoutesWithSource_SourceKeyMatches_ReturnRoutes()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Location = new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 },
                 SourceKey = Guid.NewGuid(),
                 RouteTakenSourceKey = Guid.NewGuid()
@@ -531,20 +482,15 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetAdventureRoutesWithSource_RouteTakenKeyMatches_ReturnRoutes()
+        public async Task GetAdventureRoutesWithSource_RouteTakenKeyMatches_ReturnRoutes()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Location = new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 },
                 SourceKey = Guid.NewGuid(),
                 RouteTakenSourceKey = Guid.NewGuid()
@@ -563,20 +509,15 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetAdventureRoutesWithSource_NoMatch_ReturnEmptyList()
+        public async Task GetAdventureRoutesWithSource_NoMatch_ReturnEmptyList()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
                 Location = new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 },
                 SourceKey = Guid.NewGuid(),
                 RouteTakenSourceKey = Guid.NewGuid()
@@ -587,7 +528,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             
             // act
             var routes = await repository.GetAdventureRoutesWithSource(
-                Guid.NewGuid(), testRoute.SourceKey);
+                75, testRoute.SourceKey);
             
             // assert
             Assert.Empty(routes);

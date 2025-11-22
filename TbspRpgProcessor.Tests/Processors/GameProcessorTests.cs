@@ -12,37 +12,28 @@ namespace TbspRpgProcessor.Tests.Processors
     public class GameProcessorTests : ProcessorTest
     {
         #region StartGame
-
+        
         [Fact]
-        public async void StartGame_InvalidUserId_ThrowsException()
+        public async Task StartGame_InvalidAdventureId_ThrowsException()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
                 }
             };
-            var testUsers = new List<User>()
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
             {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
-                }
-            };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures);
+                Adventures = testAdventures
+            });
             
             // act
             Task Act() => processor.StartGame(new GameStartModel()
             {
-                UserId = Guid.NewGuid(),
-                AdventureId = testAdventures[0].Id,
+                AdventureId = 2,
                 TimeStamp = DateTime.Now
             });
 
@@ -51,84 +42,34 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void StartGame_InvalidAdventureId_ThrowsException()
+        public async Task StartGame_GameExists_ReturnsGame()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
-                }
-            };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures);
-            
-            // act
-            Task Act() => processor.StartGame(new GameStartModel()
-            {
-                UserId = testUsers[0].Id,
-                AdventureId = Guid.NewGuid(),
-                TimeStamp = DateTime.Now
-            });
-
-            // assert
-            await Assert.ThrowsAsync<ArgumentException>(Act);
-        }
-        
-        [Fact]
-        public async void StartGame_GameExists_ReturnsGame()
-        {
-            // arrange
-            var testAdventures = new List<Adventure>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventures[0].Id
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                null,
-                null,
-                testGames);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = testAdventures,
+                Games = testGames
+            });
 
             // act
             var game = await processor.StartGame(new GameStartModel()
             {
-                UserId = testUsers[0].Id,
                 AdventureId = testAdventures[0].Id,
                 TimeStamp = DateTime.Now
             });
@@ -137,42 +78,30 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.Single(testGames);
             Assert.NotNull(game);
             Assert.Equal(testAdventures[0].Id, game.AdventureId);
-            Assert.Equal(testUsers[0].Id, game.UserId);
         }
         
         [Fact]
-        public async void StartGame_LocationDoesntExist_ThrowsException()
+        public async Task StartGame_LocationDoesntExist_ThrowsException()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
                 }
             };
-            var testUsers = new List<User>()
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
             {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
-                }
-            };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                new List<Location>(),
-                null,
-                new List<Game>());
+                Adventures = testAdventures,
+                Locations = new List<Location>(),
+                Games = new List<Game>()
+            });
             
             // act
             Task Act() => processor.StartGame(new GameStartModel()
             {
-                UserId = testUsers[0].Id,
                 AdventureId = testAdventures[0].Id,
                 TimeStamp = DateTime.Now
             });
@@ -182,12 +111,12 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void StartGame_ValidWithInitScript_GameCreatedStateUpdated()
+        public async Task StartGame_ValidWithInitScript_GameCreatedStateUpdated()
         {
             // arrange
             var testScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -201,25 +130,17 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure",
                     InitialSourceKey = Guid.NewGuid(),
                     InitializationScriptId = testScript.Id
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testLocations = new List<Location>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     AdventureId = testAdventures[0].Id,
                     Initial = true,
                     SourceKey = Guid.NewGuid()
@@ -228,20 +149,17 @@ namespace TbspRpgProcessor.Tests.Processors
             var testContents = new List<Content>();
             var testGames = new List<Game>();
             var testScripts = new List<Script>() { testScript };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                testScripts,
-                testAdventures,
-                null,
-                testLocations,
-                null,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Scripts = testScripts,
+                Adventures = testAdventures,
+                Locations = testLocations,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             var game = await processor.StartGame(new GameStartModel()
             {
-                UserId = testUsers[0].Id,
                 AdventureId = testAdventures[0].Id,
                 TimeStamp = DateTime.UtcNow
             });
@@ -251,7 +169,6 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.NotNull(game);
             Assert.True(game.LocationUpdateTimeStamp > 0);
             Assert.Equal(testAdventures[0].Id, game.AdventureId);
-            Assert.Equal(testUsers[0].Id, game.UserId);
             Assert.Equal(testLocations[0].Id, game.LocationId);
             Assert.Equal(2, testContents.Count);
             Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialSourceKey));
@@ -260,32 +177,24 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void StartGame_ValidWithoutInitScript_GameCreated()
+        public async Task StartGame_ValidWithoutInitScript_GameCreated()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure",
                     InitialSourceKey = Guid.NewGuid(),
                     InitializationScriptId = null
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testLocations = new List<Location>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     AdventureId = testAdventures[0].Id,
                     Initial = true,
                     SourceKey = Guid.NewGuid()
@@ -294,20 +203,17 @@ namespace TbspRpgProcessor.Tests.Processors
             var testContents = new List<Content>();
             var testGames = new List<Game>();
             var testScripts = new List<Script>();
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                testScripts,
-                testAdventures,
-                null,
-                testLocations,
-                null,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Scripts = testScripts,
+                Adventures = testAdventures,
+                Locations = testLocations,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             var game = await processor.StartGame(new GameStartModel()
             {
-                UserId = testUsers[0].Id,
                 AdventureId = testAdventures[0].Id,
                 TimeStamp = DateTime.UtcNow
             });
@@ -317,7 +223,6 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.NotNull(game);
             Assert.True(game.LocationUpdateTimeStamp > 0);
             Assert.Equal(testAdventures[0].Id, game.AdventureId);
-            Assert.Equal(testUsers[0].Id, game.UserId);
             Assert.Equal(testLocations[0].Id, game.LocationId);
             Assert.Equal(2, testContents.Count);
             Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialSourceKey));
@@ -329,47 +234,34 @@ namespace TbspRpgProcessor.Tests.Processors
         #region RemoveGame
 
         [Fact]
-        public async void RemoveGame_InvalidGameId_ExceptionThrown()
+        public async Task RemoveGame_InvalidGameId_ExceptionThrown()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventures[0].Id
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                null,
-                null,
-                testGames);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Adventures = testAdventures,
+                Games = testGames
+            });
             
             // act
             Task Act() => processor.RemoveGame(new GameRemoveModel()
             {
-                GameId = Guid.NewGuid()
+                GameId = 2
             });
 
             // assert
@@ -377,43 +269,30 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void RemoveGame_NoContent_GameRemoved()
+        public async Task RemoveGame_NoContent_GameRemoved()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventures[0].Id
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                null,
-                null,
-                testGames,
-                new List<Content>());
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Adventures = testAdventures,
+                Games = testGames,
+                Contents = new List<Content>()
+            });
             
             // act
             await processor.RemoveGame(new GameRemoveModel()
@@ -426,60 +305,47 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void RemoveGame_Valid_GameAndContentRemoved()
+        public async Task RemoveGame_Valid_GameAndContentRemoved()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventures[0].Id
                 }
             };
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     GameId = testGames[0].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     GameId = testGames[0].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                null,
-                null,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Adventures = testAdventures,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             await processor.RemoveGame(new GameRemoveModel()
@@ -497,80 +363,66 @@ namespace TbspRpgProcessor.Tests.Processors
         #region RemoveGames
 
         [Fact]
-        public async void RemoveGames_AllGamesRemoved()
+        public async Task RemoveGames_AllGamesRemoved()
         {
             // arrange
             var testAdventures = new List<Adventure>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test adventure"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventures[0].Id
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventures[0].Id,
-                    UserId = testUsers[0].Id
+                    Id = 2,
+                    AdventureId = testAdventures[0].Id
                 }
             };
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     GameId = testGames[0].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     GameId = testGames[0].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 3,
                     GameId = testGames[1].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 4,
                     GameId = testGames[1].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                null,
-                null,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Adventures = testAdventures,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             await processor.RemoveGames(new GamesRemoveModel()

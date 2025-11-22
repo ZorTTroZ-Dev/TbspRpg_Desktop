@@ -2,11 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Moq;
-using TbspRpgApi.Entities;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
-using TbspRpgDataLayer.Migrations;
 using TbspRpgDataLayer.Services;
 using TbspRpgSettings.Settings;
 
@@ -14,42 +12,6 @@ namespace TbspRpgDataLayer.Tests
 {
     public static class MockServices
     {
-        public static IUsersService MockDataLayerUsersService(ICollection<User> users)
-        {
-            var usersService = new Mock<IUsersService>();
-            
-            usersService.Setup(service =>
-                service.Authenticate(It.IsAny<string>(), It.IsAny<string>())
-            ).ReturnsAsync((string userName, string password) =>
-            {
-                return users.FirstOrDefault(user => user.Email == userName && user.Password == password);
-            });
-            
-            usersService.Setup(service =>
-                service.GetById(It.IsAny<Guid>())
-            ).ReturnsAsync((Guid userId) =>
-            {
-                return users.FirstOrDefault(user => user.Id == userId);
-            });
-
-            usersService.Setup(service =>
-                service.GetUserByEmail(It.IsAny<string>())
-            ).ReturnsAsync((string email) =>
-            {
-                return users.FirstOrDefault(user => user.Email == email);
-            });
-
-            usersService.Setup(service =>
-                service.AddUser(It.IsAny<User>())
-            ).Callback((User user) =>
-            {
-                user.Id = Guid.NewGuid();
-                users.Add(user);
-            });
-
-            return usersService.Object;
-        }
-
         public static IAdventuresService MockDataLayerAdventuresService(ICollection<Adventure> adventures)
         {
             var adventuresService = new Mock<IAdventuresService>();
@@ -59,29 +21,25 @@ namespace TbspRpgDataLayer.Tests
                 .ReturnsAsync(adventures.ToList());
             
             adventuresService.Setup(service =>
-                    service.GetPublishedAdventures(It.IsAny<AdventureFilter>()))
-                .ReturnsAsync(adventures.Where(adventure => adventure.PublishDate <= DateTime.UtcNow).ToList());
-            
-            adventuresService.Setup(service =>
                     service.GetAdventureByName(It.IsAny<string>()))
                 .ReturnsAsync((string name) =>
                     adventures.FirstOrDefault(a => a.Name == name));
             
             adventuresService.Setup(service =>
-                    service.GetAdventureById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid Id) =>
+                    service.GetAdventureById(It.IsAny<int>()))
+                .ReturnsAsync((int Id) =>
                     adventures.FirstOrDefault(a => a.Id == Id));
             
             adventuresService.Setup(service =>
-                    service.GetAdventureByIdIncludeAssociatedObjects(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid Id) =>
+                    service.GetAdventureByIdIncludeAssociatedObjects(It.IsAny<int>()))
+                .ReturnsAsync((int Id) =>
                     adventures.FirstOrDefault(a => a.Id == Id));
 
             adventuresService.Setup(service =>
                     service.AddAdventure(It.IsAny<Adventure>()))
                 .Callback((Adventure adventure) =>
                 {
-                    adventure.Id = Guid.NewGuid();
+                    //adventure.Id = Guid.NewGuid();
                     adventures.Add(adventure);
                 });
             
@@ -90,8 +48,8 @@ namespace TbspRpgDataLayer.Tests
                 .Callback((Adventure adventure) => adventures.Remove(adventure));
             
             adventuresService.Setup(service =>
-                    service.RemoveScriptFromAdventures(It.IsAny<Guid>()))
-                .Callback((Guid scriptId) =>
+                    service.RemoveScriptFromAdventures(It.IsAny<int>()))
+                .Callback((int scriptId) =>
                 {
                     foreach (var adventure in adventures)
                     {
@@ -109,8 +67,8 @@ namespace TbspRpgDataLayer.Tests
                 });
 
             adventuresService.Setup(service =>
-                    service.DoesAdventureUseSource(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid sourceKey) =>
+                    service.DoesAdventureUseSource(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var advs = adventures.Where(a => a.Id == adventureId && (
                         a.DescriptionSourceKey == sourceKey || a.InitialSourceKey == sourceKey));
@@ -125,25 +83,25 @@ namespace TbspRpgDataLayer.Tests
             var gamesService = new Mock<IGamesService>();
             
             gamesService.Setup(service =>
-                    service.GetGameByAdventureIdAndUserId(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid userId) =>
-                    games.FirstOrDefault(g => g.AdventureId == adventureId && g.UserId == userId));
+                    service.GetGameByAdventureId(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) =>
+                    games.FirstOrDefault(g => g.AdventureId == adventureId));
             
             gamesService.Setup(service =>
                     service.AddGame(It.IsAny<Game>()))
                 .Callback((Game game) => games.Add(game));
 
             gamesService.Setup(service =>
-                    service.GetGameByIdIncludeLocation(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid gameId) => games.FirstOrDefault(g => g.Id == gameId));
+                    service.GetGameByIdIncludeLocation(It.IsAny<int>()))
+                .ReturnsAsync((int gameId) => games.FirstOrDefault(g => g.Id == gameId));
             
             gamesService.Setup(service =>
-                    service.GetGameById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid gameId) => games.FirstOrDefault(g => g.Id == gameId));
+                    service.GetGameById(It.IsAny<int>()))
+                .ReturnsAsync((int gameId) => games.FirstOrDefault(g => g.Id == gameId));
             
             gamesService.Setup(service =>
-                    service.GetGameByIdIncludeAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid gameId) => games.FirstOrDefault(g => g.Id == gameId));
+                    service.GetGameByIdIncludeAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int gameId) => games.FirstOrDefault(g => g.Id == gameId));
 
             // doesn't do any actual filtering
             gamesService.Setup(service =>
@@ -166,32 +124,32 @@ namespace TbspRpgDataLayer.Tests
             var locationsService = new Mock<ILocationsService>();
             
             locationsService.Setup(service =>
-                    service.GetInitialLocationForAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId) =>
+                    service.GetInitialLocationForAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) =>
                     locations.FirstOrDefault(l => l.AdventureId == adventureId && l.Initial));
             
             locationsService.Setup(service =>
-                    service.GetLocationsForAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId) =>
+                    service.GetLocationsForAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) =>
                     locations.Where(l => l.AdventureId == adventureId).ToList());
 
             locationsService.Setup(service =>
-                    service.GetLocationById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid locationId) => locations.FirstOrDefault(l => l.Id == locationId));
+                    service.GetLocationById(It.IsAny<int>()))
+                .ReturnsAsync((int locationId) => locations.FirstOrDefault(l => l.Id == locationId));
             
             locationsService.Setup(service =>
-                    service.GetLocationByIdWithRoutes(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid locationId) => locations.FirstOrDefault(l => l.Id == locationId));
+                    service.GetLocationByIdWithRoutes(It.IsAny<int>()))
+                .ReturnsAsync((int locationId) => locations.FirstOrDefault(l => l.Id == locationId));
             
             locationsService.Setup(service =>
-                    service.GetLocationByIdWithObjects(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid locationId) => locations.FirstOrDefault(l => l.Id == locationId));
+                    service.GetLocationByIdWithObjects(It.IsAny<int>()))
+                .ReturnsAsync((int locationId) => locations.FirstOrDefault(l => l.Id == locationId));
             
             locationsService.Setup(service =>
                     service.AddLocation(It.IsAny<Location>()))
                 .Callback((Location location) =>
                 {
-                    location.Id = Guid.NewGuid();
+                    // location.Id = Guid.NewGuid();
                     locations.Add(location);
                 });
             
@@ -200,8 +158,8 @@ namespace TbspRpgDataLayer.Tests
                 .Callback((Location location) => locations.Remove(location));
             
             locationsService.Setup(service =>
-                    service.RemoveScriptFromLocations(It.IsAny<Guid>()))
-                .Callback((Guid scriptId) =>
+                    service.RemoveScriptFromLocations(It.IsAny<int>()))
+                .Callback((int scriptId) =>
                 {
                     foreach (var location in locations)
                     {
@@ -219,8 +177,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             locationsService.Setup(service =>
-                    service.DoesAdventureLocationUseSource(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid sourceKey) =>
+                    service.DoesAdventureLocationUseSource(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var locs = locations.Where(a => a.AdventureId == adventureId && a.SourceKey == sourceKey);
                     return locs.Any();
@@ -234,28 +192,28 @@ namespace TbspRpgDataLayer.Tests
             var scriptsService = new Mock<IScriptsService>();
 
             scriptsService.Setup(service =>
-                    service.GetScriptById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid scriptId) => scripts.FirstOrDefault(s => s.Id == scriptId));
+                    service.GetScriptById(It.IsAny<int>()))
+                .ReturnsAsync((int scriptId) => scripts.FirstOrDefault(s => s.Id == scriptId));
             
             scriptsService.Setup(service =>
-                    service.GetScriptsForAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId) => scripts.Where(s => s.AdventureId == adventureId).ToList());
+                    service.GetScriptsForAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) => scripts.Where(s => s.AdventureId == adventureId).ToList());
 
             scriptsService.Setup(service =>
                     service.AddScript(It.IsAny<Script>()))
                 .Callback((Script script) => scripts.Add(script));
             
             scriptsService.Setup(service =>
-                    service.GetScriptWithIncludedIn(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid scriptId) => scripts.FirstOrDefault(s => s.Id == scriptId));
+                    service.GetScriptWithIncludedIn(It.IsAny<int>()))
+                .ReturnsAsync((int scriptId) => scripts.FirstOrDefault(s => s.Id == scriptId));
             
             scriptsService.Setup(service =>
                     service.RemoveScript(It.IsAny<Script>()))
                 .Callback((Script script) => scripts.Remove(script));
             
             scriptsService.Setup(service =>
-                    service.RemoveAllScriptsForAdventure(It.IsAny<Guid>()))
-                .Callback((Guid adventureId) =>
+                    service.RemoveAllScriptsForAdventure(It.IsAny<int>()))
+                .Callback((int adventureId) =>
                 {
                     for (int i = scripts.Count - 1; i >= 0; i--)
                     {
@@ -268,8 +226,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             scriptsService.Setup(service =>
-                    service.IsSourceKeyReferenced(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid sourceKey) =>
+                    service.IsSourceKeyReferenced(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var locs = scripts.Where(a => a.AdventureId == adventureId && 
                                                    a.Content.Contains(sourceKey.ToString()));
@@ -284,12 +242,12 @@ namespace TbspRpgDataLayer.Tests
             var routesService = new Mock<IRoutesService>();
 
             routesService.Setup(service =>
-                    service.GetRoutesForLocation(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid locationId) => routes.Where(r => r.LocationId == locationId).ToList());
+                    service.GetRoutesForLocation(It.IsAny<int>()))
+                .ReturnsAsync((int locationId) => routes.Where(r => r.LocationId == locationId).ToList());
 
             routesService.Setup(service =>
-                    service.GetRouteById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid routeId) => routes.FirstOrDefault(r => r.Id == routeId));
+                    service.GetRouteById(It.IsAny<int>()))
+                .ReturnsAsync((int routeId) => routes.FirstOrDefault(r => r.Id == routeId));
 
             routesService.Setup(service =>
                     service.GetRoutes(It.IsAny<RouteFilter>()))
@@ -308,7 +266,7 @@ namespace TbspRpgDataLayer.Tests
                     service.AddRoute(It.IsAny<Route>()))
                 .Callback((Route route) =>
                 {
-                    route.Id = Guid.NewGuid();
+                    // route.Id = Guid.NewGuid();
                     routes.Add(route);
                 });
             
@@ -333,8 +291,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             routesService.Setup(service =>
-                    service.RemoveScriptFromRoutes(It.IsAny<Guid>()))
-                .Callback((Guid scriptId) =>
+                    service.RemoveScriptFromRoutes(It.IsAny<int>()))
+                .Callback((int scriptId) =>
                 {
                     foreach (var route in routes)
                     {
@@ -347,8 +305,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             routesService.Setup(service =>
-                    service.DoesAdventureRouteUseSource(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid sourceKey) =>
+                    service.DoesAdventureRouteUseSource(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var locs = routes.Where(a => a.Location.AdventureId == adventureId && 
                                                  (a.SourceKey == sourceKey || a.RouteTakenSourceKey == sourceKey));
@@ -371,8 +329,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             sourcesService.Setup(service =>
-                    service.GetSourceForKey(It.IsAny<Guid>(), It.IsAny<Guid>(),It.IsAny<string>()))
-                .ReturnsAsync((Guid key, Guid adventureId, string language) =>
+                    service.GetSourceForKey(It.IsAny<Guid>(), It.IsAny<int>(),It.IsAny<string>()))
+                .ReturnsAsync((Guid key, int adventureId, string language) =>
                 {
                     En source = null;
                     if (key == Guid.Empty)
@@ -386,7 +344,7 @@ namespace TbspRpgDataLayer.Tests
                     service.AddSource(It.IsAny<Source>(), It.IsAny<string>()))
                 .Callback((Source source, string language) => sources.Add(new En()
                 {
-                    Id = Guid.NewGuid(),
+                    // Id = Guid.NewGuid(),
                     Key = source.Key,
                     AdventureId = source.AdventureId,
                     Name = source.Name,
@@ -394,8 +352,8 @@ namespace TbspRpgDataLayer.Tests
                 }));
             
             sourcesService.Setup(service =>
-                    service.RemoveAllSourceForAdventure(It.IsAny<Guid>()))
-                .Callback((Guid adventureId) =>
+                    service.RemoveAllSourceForAdventure(It.IsAny<int>()))
+                .Callback((int adventureId) =>
                 {
                     for (int i = sources.Count - 1; i >= 0; i--)
                     {
@@ -408,8 +366,8 @@ namespace TbspRpgDataLayer.Tests
                 });
 
             sourcesService.Setup(service =>
-                    service.RemoveSource(It.IsAny<Guid>()))
-                .Callback((Guid sourceId) =>
+                    service.RemoveSource(It.IsAny<int>(), It.IsAny<string>()))
+                .Callback((int sourceId, string language) =>
                 {
                     for (int i = sources.Count - 1; i >= 0; i--)
                     {
@@ -422,15 +380,15 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             sourcesService.Setup(service =>
-                    service.GetSourceById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid sourceId) =>
+                    service.GetSourceById(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync((int sourceId, string language) =>
                 {
                     return sources.FirstOrDefault(en => en.Id == sourceId);
                 });
             
             sourcesService.Setup(service =>
-                    service.RemoveScriptFromSources(It.IsAny<Guid>()))
-                .Callback((Guid scriptId) =>
+                    service.RemoveScriptFromSources(It.IsAny<int>()))
+                .Callback((int scriptId) =>
                 {
                     foreach (var en in sources)
                     {
@@ -443,8 +401,8 @@ namespace TbspRpgDataLayer.Tests
                 });
 
             sourcesService.Setup(service =>
-                    service.GetAllSourceForAdventure(It.IsAny<Guid>(), It.IsAny<string>()))
-                .ReturnsAsync((Guid adventureId, string language) =>
+                    service.GetAllSourceForAdventure(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync((int adventureId, string language) =>
                 {
                     var enSources = sources
                         .Where(source => source.AdventureId == adventureId)
@@ -462,8 +420,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             sourcesService.Setup(service =>
-                    service.GetAllSourceAllLanguagesForAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId) =>
+                    service.GetAllSourceAllLanguagesForAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) =>
                     {
                         var enSources = sources
                             .Where(source => source.AdventureId == adventureId)
@@ -489,8 +447,8 @@ namespace TbspRpgDataLayer.Tests
             var contentsService = new Mock<IContentsService>();
             
             contentsService.Setup(service =>
-                    service.GetContentForGameAtPosition(It.IsAny<Guid>(), It.IsAny<ulong>()))
-                .ReturnsAsync((Guid gameId, ulong position) =>
+                    service.GetContentForGameAtPosition(It.IsAny<int>(), It.IsAny<ulong>()))
+                .ReturnsAsync((int gameId, ulong position) =>
                     contents.FirstOrDefault(c => c.GameId == gameId && c.Position == position));
             
             contentsService.Setup(service =>
@@ -498,22 +456,22 @@ namespace TbspRpgDataLayer.Tests
                 .Callback((Content content) => contents.Add(content));
             
             contentsService.Setup(service =>
-                    service.GetAllContentForGame(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid gameId) => 
+                    service.GetAllContentForGame(It.IsAny<int>()))
+                .ReturnsAsync((int gameId) => 
                     contents.
                         OrderBy(c => c.Position).
                         Where(c => c.GameId == gameId).ToList());
             
             contentsService.Setup(service =>
-                    service.GetLatestForGame(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid gameId) => 
+                    service.GetLatestForGame(It.IsAny<int>()))
+                .ReturnsAsync((int gameId) => 
                     contents.
                         OrderByDescending(c => c.Position).
                         FirstOrDefault(c => c.GameId == gameId));
             
             contentsService.Setup(service =>
-                    service.GetContentForGameAfterPosition(It.IsAny<Guid>(), It.IsAny<ulong>()))
-                .ReturnsAsync((Guid gameId, ulong position) => 
+                    service.GetContentForGameAfterPosition(It.IsAny<int>(), It.IsAny<ulong>()))
+                .ReturnsAsync((int gameId, ulong position) => 
                     contents.
                         OrderBy(c => c.Position).
                         Where(c => c.GameId == gameId && c.Position > position).ToList());
@@ -529,8 +487,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             contentsService.Setup(service =>
-                    service.RemoveAllContentsForGame(It.IsAny<Guid>()))
-                .Callback((Guid gameId) =>
+                    service.RemoveAllContentsForGame(It.IsAny<int>()))
+                .Callback((int gameId) =>
                 {
                     for (int i = contents.Count - 1; i >= 0; i--)
                     {
@@ -543,8 +501,8 @@ namespace TbspRpgDataLayer.Tests
                 });
 
             contentsService.Setup(service =>
-                    service.GetPartialContentForGame(It.IsAny<Guid>(), It.IsAny<ContentFilterRequest>()))
-                .ReturnsAsync((Guid gameId, ContentFilterRequest cfr) =>
+                    service.GetPartialContentForGame(It.IsAny<int>(), It.IsAny<ContentFilterRequest>()))
+                .ReturnsAsync((int gameId, ContentFilterRequest cfr) =>
                 {
                     var start = 0;
                     var count = 0;
@@ -576,8 +534,8 @@ namespace TbspRpgDataLayer.Tests
                 });
             
             contentsService.Setup(service =>
-                    service.DoesAdventureContentUseSource(It.IsAny<Guid>(), It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId, Guid sourceKey) =>
+                    service.DoesAdventureContentUseSource(It.IsAny<int>(), It.IsAny<Guid>()))
+                .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var locs = contents.Where(a => a.Game.AdventureId == adventureId && 
                                                  a.SourceKey == sourceKey);
@@ -592,18 +550,18 @@ namespace TbspRpgDataLayer.Tests
             var objectsService = new Mock<IAdventureObjectService>();
             
             objectsService.Setup(service =>
-                    service.GetAdventureObjectsForAdventure(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid adventureId) =>
+                    service.GetAdventureObjectsForAdventure(It.IsAny<int>()))
+                .ReturnsAsync((int adventureId) =>
                     objects.Where(ao => ao.AdventureId == adventureId).ToList());
             
             objectsService.Setup(service =>
-                    service.GetAdventureObjectsByLocation(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid locationId) =>
+                    service.GetAdventureObjectsByLocation(It.IsAny<int>()))
+                .ReturnsAsync((int locationId) =>
                     objects.Where(ao => ao.Locations.Any(location => location.Id == locationId)).ToList());
 
             objectsService.Setup(service =>
-                    service.GetAdventureObjectById(It.IsAny<Guid>()))
-                .ReturnsAsync((Guid objectId) => 
+                    service.GetAdventureObjectById(It.IsAny<int>()))
+                .ReturnsAsync((int objectId) => 
                     objects.FirstOrDefault(ao => ao.Id == objectId));
             
             objectsService.Setup(service =>
@@ -623,8 +581,8 @@ namespace TbspRpgDataLayer.Tests
             var objectSourceService = new Mock<IAdventureObjectSourceService>();
 
             objectSourceService.Setup(service =>
-                    service.GetAdventureObjectsWithSourceById(It.IsAny<List<Guid>>(), It.IsAny<string>()))
-                .ReturnsAsync((List<Guid> objectIds, string language) =>
+                    service.GetAdventureObjectsWithSourceById(It.IsAny<List<int>>(), It.IsAny<string>()))
+                .ReturnsAsync((List<int> objectIds, string language) =>
                 {
                     var objs = objects.Where(obj => objectIds.Contains(obj.Id));
                     var objectSources = new List<AdventureObjectSource>();

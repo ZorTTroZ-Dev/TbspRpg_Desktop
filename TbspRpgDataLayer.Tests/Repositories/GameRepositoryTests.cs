@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TbspRpgApi.Entities;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -9,21 +9,16 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories
 {
-    public class GameRepositoryTests : InMemoryTest
+    public class GameRepositoryTests() : InMemoryTest("GameRepositoryTests")
     {
-        public GameRepositoryTests() : base("GameRepositoryTests") {}
-
         #region GetGameById
 
         [Fact]
-        public async void GetGameById_Valid_ReturnGame()
+        public async Task GetGameById_Valid_ReturnGame()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGame = new Game()
-            {
-                Id = Guid.NewGuid()
-            };
+            var testGame = new Game();
             context.Games.Add(testGame);
             await context.SaveChangesAsync();
             var gameRepository = new GameRepository(context);
@@ -37,20 +32,17 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetGameById_Invalid_ReturnNull()
+        public async Task GetGameById_Invalid_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGame = new Game()
-            {
-                Id = Guid.NewGuid()
-            };
+            var testGame = new Game();
             context.Games.Add(testGame);
             await context.SaveChangesAsync();
             var gameRepository = new GameRepository(context);
             
             // act
-            var game = await gameRepository.GetGameById(Guid.NewGuid());
+            var game = await gameRepository.GetGameById(42);
             
             // assert
             Assert.Null(game);
@@ -61,23 +53,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetGameByAdventureIdAndUserId
 
         [Fact]
-        public async void GetGameByAdventureIdAndUserId_Valid_ReturnGame()
+        public async Task GetGameByAdventureIdAndUserId_Valid_ReturnGame()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
+                Adventure = new Adventure()
             };
             context.Games.Add(testGame);
             await context.SaveChangesAsync();
             var gameRepository = new GameRepository(context);
             
             // act
-            var game = await gameRepository.GetGameByAdventureIdAndUserId(
-                testGame.AdventureId, testGame.UserId);
+            var game = await gameRepository.GetGameByAdventureId(testGame.AdventureId);
             
             // assert
             Assert.NotNull(game);
@@ -85,46 +74,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetGameByAdventureIdAndUserId_InValidAdventureId_ReturnNull()
+        public async Task GetGameByAdventureIdAndUserId_InValidAdventureId_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
+                Adventure = new Adventure()
             };
             context.Games.Add(testGame);
             await context.SaveChangesAsync();
             var gameRepository = new GameRepository(context);
             
             // act
-            var game = await gameRepository.GetGameByAdventureIdAndUserId(
-                Guid.NewGuid(), testGame.UserId);
-            
-            // assert
-            Assert.Null(game);
-        }
-        
-        [Fact]
-        public async void GetGameByAdventureIdAndUserId_InValidUserId_ReturnNull()
-        {
-            // arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testGame = new Game()
-            {
-                Id = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
-                UserId = Guid.NewGuid()
-            };
-            context.Games.Add(testGame);
-            await context.SaveChangesAsync();
-            var gameRepository = new GameRepository(context);
-            
-            // game
-            var game = await gameRepository.GetGameByAdventureIdAndUserId(
-                testGame.AdventureId, Guid.NewGuid());
+            var game = await gameRepository.GetGameByAdventureId(13);
             
             // assert
             Assert.Null(game);
@@ -135,14 +98,11 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region AddGame
 
         [Fact]
-        public async void AddGame_Valid_GameAdded()
+        public async Task AddGame_Valid_GameAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var game = new Game()
-            {
-                Id = Guid.NewGuid()
-            };
+            var game = new Game();
             var gameRepository = new GameRepository(context);
 
             // act
@@ -161,18 +121,14 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetGameByIdIncludeLocation
 
         [Fact]
-        public async void GetGameByIdIncludeLocation()
+        public async Task GetGameByIdIncludeLocation()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testLocationId = Guid.NewGuid();
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
-                LocationId = testLocationId,
                 Location = new Location()
                 {
-                    Id = testLocationId,
                     Name = "test location",
                     Initial = true
                 }
@@ -187,7 +143,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.NotNull(game);
             Assert.NotNull(game.Location);
-            Assert.Equal(testLocationId, game.Location.Id);
+            Assert.Equal("test location", game.Location.Name);
         }
 
         #endregion
@@ -195,25 +151,19 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetGameByIdIncludeAdventure
 
         [Fact]
-        public async void GetGameByIdIncludeAdventure()
+        public async Task GetGameByIdIncludeAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testLocationId = Guid.NewGuid();
-            var testAdventureId = Guid.NewGuid();
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
-                LocationId = testLocationId,
                 Location = new Location()
                 {
-                    Id = testLocationId,
                     Name = "test location",
                     Initial = true
                 },
                 Adventure = new Adventure()
                 {
-                    Id = testAdventureId,
                     Name = "test"
                 }
             };
@@ -227,7 +177,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.NotNull(game);
             Assert.NotNull(game.Adventure);
-            Assert.Equal(testAdventureId, game.Adventure.Id);
+            Assert.Equal("test", game.Adventure.Name);
         }
 
         #endregion
@@ -235,17 +185,17 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetGames
 
         [Fact]
-        public async void GetGames_FilterByAdventureId_ReturnsGames()
+        public async Task GetGames_FilterByAdventureId_ReturnsGames()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             var testGameTwo = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             await context.Games.AddAsync(testGame);
             await context.Games.AddAsync(testGameTwo);
@@ -264,17 +214,17 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetGames_NoFilter_ReturnsAll()
+        public async Task GetGames_NoFilter_ReturnsAll()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             var testGameTwo = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             await context.Games.AddAsync(testGame);
             await context.Games.AddAsync(testGameTwo);
@@ -289,105 +239,21 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         #endregion
-        
-        #region GetGamesIncludeUsers
-        
-        [Fact]
-        public async void GetGamesIncludeUsers_FilterByAdventureId_ReturnsGames()
-        {
-            // arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testGame = new Game()
-            {
-                AdventureId = Guid.NewGuid(),
-                User = new User()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test@test.com",
-                    RegistrationComplete = true
-                }
-            };
-            var testGameTwo = new Game()
-            {
-                AdventureId = Guid.NewGuid(),
-                User = new User()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test@test.com",
-                    RegistrationComplete = true
-                }
-            };
-            await context.Games.AddAsync(testGame);
-            await context.Games.AddAsync(testGameTwo);
-            await context.SaveChangesAsync();
-            var repository = new GameRepository(context);
-            
-            // act
-            var games = await repository.GetGamesIncludeUsers(new GameFilter()
-            {
-                AdventureId = testGame.AdventureId
-            });
-            
-            // assert
-            Assert.Single(games);
-            Assert.Equal("test@test.com", games[0].User.Email);
-            Assert.Equal(testGame.AdventureId, games[0].AdventureId);
-        }
-        
-        [Fact]
-        public async void GetGamesIncludeUsers_NoFilter_ReturnsAll()
-        {
-            // arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testGame = new Game()
-            {
-                AdventureId = Guid.NewGuid(),
-                User = new User()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test@test.com",
-                    RegistrationComplete = true
-                }
-            };
-            var testGameTwo = new Game()
-            {
-                AdventureId = Guid.NewGuid(),
-                User = new User()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test2@test.com",
-                    RegistrationComplete = true
-                }
-            };
-            await context.Games.AddAsync(testGame);
-            await context.Games.AddAsync(testGameTwo);
-            await context.SaveChangesAsync();
-            var repository = new GameRepository(context);
-            
-            // act
-            var games = await repository.GetGamesIncludeUsers(null);
-            
-            // assert
-            Assert.Equal(2, games.Count);
-            Assert.Equal("test@test.com", games[0].User.Email);
-        }
-        
-        #endregion
 
         #region RemoveGame
 
         [Fact]
-        public async void RemoveGame_GameRemoved()
+        public async Task RemoveGame_GameRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             var testGameTwo = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             await context.Games.AddAsync(testGame);
             await context.Games.AddAsync(testGameTwo);
@@ -407,17 +273,17 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region RemoveGames
 
         [Fact]
-        public async void RemoveGames_GamesRemoved()
+        public async Task RemoveGames_GamesRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testGame = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             var testGameTwo = new Game()
             {
-                AdventureId = Guid.NewGuid()
+                Adventure =  new Adventure()
             };
             await context.Games.AddAsync(testGame);
             await context.Games.AddAsync(testGameTwo);

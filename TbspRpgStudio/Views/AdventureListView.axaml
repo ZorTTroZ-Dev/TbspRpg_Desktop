@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:TbspRpgStudio.ViewModels"
+             xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TbspRpgStudio.Views.AdventureListView"
+             x:DataType="viewModels:AdventureListViewModel">
+    
+    <Design.DataContext>
+        <vm:AdventureListViewModel/>
+    </Design.DataContext>
+    
+    <StackPanel>
+        <StackPanel Margin="0, 25, 25, 0">
+            <Button HorizontalAlignment="Right" Command="{Binding AddAdventureCommand}">
+                New Adventure
+            </Button>
+        </StackPanel>
+        <StackPanel>
+            <ItemsControl ItemsSource="{Binding Adventures}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Width="256" Margin="25">
+                            <Rectangle Fill="Navy" Width="256" Height="144" />
+                            <TextBlock FontSize="20" Text="{Binding Name}"/>
+                            <TextBlock TextWrapping="Wrap">Lorem ipsum dolor sit amet consectetur adipiscing elit. Amet consectetur adipiscing elit quisque faucibus ex sapien. Quisque faucibus ex sapien vitae pellentesque sem placerat. Vitae pellentesque sem placerat in id cursus mi.</TextBlock>
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </StackPanel>
+    </StackPanel>
+    
+</UserControl>

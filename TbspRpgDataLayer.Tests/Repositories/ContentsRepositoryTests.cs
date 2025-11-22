@@ -1,19 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using TbspRpgApi.Entities;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories
 {
-    public class ContentsRepositoryTests : InMemoryTest
+    public class ContentsRepositoryTests() : InMemoryTest("ContentsRepositoryTests")
     {
-        public ContentsRepositoryTests() : base("ContentsRepositoryTests")
-        {
-        }
-
         private static IContentsRepository CreateRepository(DatabaseContext context)
         {
             return new ContentsRepository(context);
@@ -22,13 +18,12 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region AddContent
 
         [Fact]
-        public async void AddContent_ContentAdded()
+        public async Task AddContent_ContentAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 Position = 42
             };
             var repository = CreateRepository(context);
@@ -47,15 +42,15 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetContentForGameAtPosition
 
         [Fact]
-        public async void GetContentForGameAtPosition_Exists_ReturnContent()
+        public async Task GetContentForGameAtPosition_Exists_ReturnContent()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
+            var game = new Game();
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 Position = 42,
-                GameId = Guid.NewGuid()
+                Game = new Game()
             };
             context.Contents.Add(testContent);
             await context.SaveChangesAsync();
@@ -70,37 +65,35 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGameAtPosition_InvalidGame_ReturnNull()
+        public async Task GetContentForGameAtPosition_InvalidGame_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 Position = 42,
-                GameId = Guid.NewGuid()
+                Game = new Game()
             };
             context.Contents.Add(testContent);
             await context.SaveChangesAsync();
             var repository = CreateRepository(context);
             
             // act
-            var content = await repository.GetContentForGameAtPosition(Guid.NewGuid(), 42);
+            var content = await repository.GetContentForGameAtPosition(74, 42);
             
             // assert
             Assert.Null(content);
         }
         
         [Fact]
-        public async void GetContentForGameAtPosition_InvalidPosition_ReturnNull()
+        public async Task GetContentForGameAtPosition_InvalidPosition_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 Position = 42,
-                GameId = Guid.NewGuid()
+                Game = new Game()
             };
             context.Contents.Add(testContent);
             await context.SaveChangesAsync();
@@ -118,30 +111,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetContentForGame
 
         [Fact]
-        public async void GetContentForGame_NoCountNoOffset_ReturnsAll()
+        public async Task GetContentForGame_NoCountNoOffset_ReturnsAll()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -149,7 +139,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGame(testGameId);
+            var contents = await repository.GetContentForGame(game.Id);
             
             //assert
             Assert.Equal(3, contents.Count);
@@ -158,30 +148,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGame_NoOffset_ReturnPartial()
+        public async Task GetContentForGame_NoOffset_ReturnPartial()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -189,7 +176,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGame(testGameId, null, 2);
+            var contents = await repository.GetContentForGame(game.Id, null, 2);
             
             //assert
             Assert.Equal(2, contents.Count);
@@ -198,30 +185,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGame_NoCount_ReturnPartial()
+        public async Task GetContentForGame_NoCount_ReturnPartial()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -229,7 +213,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGame(testGameId, 2);
+            var contents = await repository.GetContentForGame(game.Id, 2);
             
             //assert
             Assert.Single(contents);
@@ -238,30 +222,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGame_OffsetCount_ReturnPartial()
+        public async Task GetContentForGame_OffsetCount_ReturnPartial()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -269,7 +250,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGame(testGameId, 1, 2);
+            var contents = await repository.GetContentForGame(game.Id, 1, 2);
             
             //assert
             Assert.Equal(2, contents.Count);
@@ -282,30 +263,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetContentForGameReverse
 
         [Fact]
-        public async void GetContentForGameReverse_NoCountNoOffset_ReturnsAll()
+        public async Task GetContentForGameReverse_NoCountNoOffset_ReturnsAll()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -313,7 +291,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameReverse(testGameId);
+            var contents = await repository.GetContentForGameReverse(game.Id);
             
             //assert
             Assert.Equal(3, contents.Count);
@@ -322,30 +300,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGameReverse_NoOffset_ReturnPartial()
+        public async Task GetContentForGameReverse_NoOffset_ReturnPartial()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -353,7 +328,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameReverse(testGameId, null, 2);
+            var contents = await repository.GetContentForGameReverse(game.Id, null, 2);
             
             //assert
             Assert.Equal(2, contents.Count);
@@ -362,30 +337,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetContentForGameReverse_NoCount_ReturnPartial()
+        public async Task GetContentForGameReverse_NoCount_ReturnPartial()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -393,7 +365,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameReverse(testGameId, 2);
+            var contents = await repository.GetContentForGameReverse(game.Id, 2);
             
             //assert
             Assert.Single(contents);
@@ -401,30 +373,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGameReverse_OffsetCount_ReturnPartial()
+        public async Task GetContentForGameReverse_OffsetCount_ReturnPartial()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -432,7 +401,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameReverse(testGameId, 1, 2);
+            var contents = await repository.GetContentForGameReverse(game.Id, 1, 2);
             
             //assert
             Assert.Equal(2, contents.Count);
@@ -445,30 +414,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetContentForGameAfterPosition
 
         [Fact]
-        public async void GetContentForGameAfterPosition_EarlyPosition_ReturnContent()
+        public async Task GetContentForGameAfterPosition_EarlyPosition_ReturnContent()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -476,7 +442,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameAfterPosition(testGameId, 40);
+            var contents = await repository.GetContentForGameAfterPosition(game.Id, 40);
             
             //assert
             Assert.Single(contents);
@@ -484,30 +450,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void GetContentForGameAfterPosition_LastPosition_ReturnNoContent()
+        public async Task GetContentForGameAfterPosition_LastPosition_ReturnNoContent()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -515,7 +478,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             //act
-            var contents = await repository.GetContentForGameAfterPosition(testGameId, 42);
+            var contents = await repository.GetContentForGameAfterPosition(game.Id, 42);
             
             //assert
             Assert.Empty(contents);
@@ -526,30 +489,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region RemoveContents
 
         [Fact]
-        public async void RemoveContents_ContentsRemoved()
+        public async Task RemoveContents_ContentsRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -569,18 +529,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region RemoveAllContentsForGame
 
         [Fact]
-        public async void RemoveAllContentsForGame_NoContents_NothingRemoved()
+        public async Task RemoveAllContentsForGame_NoContents_NothingRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>();
             context.Contents.AddRange(testContents);
             await context.SaveChangesAsync();
             var repository = new ContentsRepository(context);
             
             // act
-            await repository.RemoveAllContentsForGame(testGameId);
+            await repository.RemoveAllContentsForGame(game.Id);
             await repository.SaveChanges();
             
             // assert
@@ -588,30 +548,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void RemoveAllContentsForGame_InvalidGameId_NothingRemoved()
+        public async Task RemoveAllContentsForGame_InvalidGameId_NothingRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -619,7 +576,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             // act
-            await repository.RemoveAllContentsForGame(Guid.NewGuid());
+            await repository.RemoveAllContentsForGame(74);
             await repository.SaveChanges();
             
             // assert
@@ -627,30 +584,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         [Fact]
-        public async void RemoveAllContentsForGame_Valid_ContentsRemoved()
+        public async Task RemoveAllContentsForGame_Valid_ContentsRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testGameId = Guid.NewGuid();
+            var game = new Game();
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 42
+                    Position = 42,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 0
+                    Position = 0,
+                    Game = game
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    GameId = testGameId,
-                    Position = 1
+                    Position = 1,
+                    Game = game
                 }
             };
             context.Contents.AddRange(testContents);
@@ -658,7 +612,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new ContentsRepository(context);
             
             // act
-            await repository.RemoveAllContentsForGame(testGameId);
+            await repository.RemoveAllContentsForGame(game.Id);
             await repository.SaveChanges();
             
             // assert
@@ -670,21 +624,16 @@ namespace TbspRpgDataLayer.Tests.Repositories
         #region GetAdventureContentsWithSource
 
         [Fact]
-        public async void GetAdventureContentsWithSource_HasSource_ReturnsContents()
+        public async Task GetAdventureContentsWithSource_HasSource_ReturnsContents()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);
@@ -701,21 +650,16 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
 
         [Fact]
-        public async void GetAdventureContentsWithSource_NoHasSource_ReturnsEmptyList()
+        public async Task GetAdventureContentsWithSource_NoHasSource_ReturnsEmptyList()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testContent = new Content()
             {
-                Id = Guid.NewGuid(),
                 SourceKey = Guid.NewGuid(),
                 Game = new Game()
                 {
-                    Id = Guid.NewGuid(),
                     Adventure = new Adventure()
-                    {
-                        Id = Guid.NewGuid()
-                    }
                 }
             };
             await context.Contents.AddAsync(testContent);

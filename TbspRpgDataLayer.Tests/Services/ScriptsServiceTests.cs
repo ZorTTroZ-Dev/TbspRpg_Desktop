@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -9,12 +10,8 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Services;
 
-public class ScriptsServiceTests: InMemoryTest
+public class ScriptsServiceTests() : InMemoryTest("ScriptsServiceTests")
 {
-    public ScriptsServiceTests() : base("ScriptsServiceTests")
-    {
-    }
-    
     private static IScriptsService CreateService(DatabaseContext context)
     {
         return new ScriptsService(
@@ -25,12 +22,11 @@ public class ScriptsServiceTests: InMemoryTest
     #region GetScriptById
 
     [Fact]
-    public async void GetScriptById_InvalidId_ReturnNull()
+    public async Task GetScriptById_InvalidId_ReturnNull()
     {
         // arrange
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test",
             Content = "print('banana');",
             Type = ScriptTypes.LuaScript,
@@ -42,27 +38,25 @@ public class ScriptsServiceTests: InMemoryTest
         var service = CreateService(context);
 
         // act
-        var script = await service.GetScriptById(Guid.NewGuid());
+        var script = await service.GetScriptById(676);
 
         // assert
         Assert.Null(script);
     }
 
     [Fact]
-    public async void GetScriptById_Valid_ReturnScriptIncludeIncludes()
+    public async Task GetScriptById_Valid_ReturnScriptIncludeIncludes()
     {
         // arrange
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test",
             Content = "print('banana');",
             Type = ScriptTypes.LuaScript,
             Includes = new List<Script>()
             {
-                new Script()
+                new()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test_base",
                     Content = "print('base banana');",
                     Type = ScriptTypes.LuaScript,
@@ -88,26 +82,22 @@ public class ScriptsServiceTests: InMemoryTest
     #region GetScriptsForAdventure
 
     [Fact]
-    public async void GetScriptsForAdventure_ValidId_ReturnsScripts()
+    public async Task GetScriptsForAdventure_ValidId_ReturnsScripts()
     {
         // arrange
         var testScripts = new List<Script>()
         {
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test"
                 }
             },
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test two"
                 }
             }
@@ -126,26 +116,22 @@ public class ScriptsServiceTests: InMemoryTest
     }
 
     [Fact]
-    public async void GetScriptsForAdventure_InvalidId_ReturnEmptyList()
+    public async Task GetScriptsForAdventure_InvalidId_ReturnEmptyList()
     {
         // arrange
         var testScripts = new List<Script>()
         {
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test"
                 }
             },
-            new Script()
+            new()
             {
-                Id = Guid.NewGuid(),
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test two"
                 }
             }
@@ -156,7 +142,7 @@ public class ScriptsServiceTests: InMemoryTest
         var service = CreateService(context);
         
         // act
-        var scripts = await service.GetScriptsForAdventure(Guid.NewGuid());
+        var scripts = await service.GetScriptsForAdventure(88);
         
         // assert
         Assert.Empty(scripts);
@@ -167,13 +153,12 @@ public class ScriptsServiceTests: InMemoryTest
     #region AddScript
 
     [Fact]
-    public async void AddScript_ScriptAdded()
+    public async Task AddScript_ScriptAdded()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var service = CreateService(context);
@@ -191,18 +176,16 @@ public class ScriptsServiceTests: InMemoryTest
     #region RemoveScript
 
     [Fact]
-    public async void RemoveScript_ScriptRemoved()
+    public async Task RemoveScript_ScriptRemoved()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script Two"
         };
         context.Scripts.Add(testScript);
@@ -223,18 +206,16 @@ public class ScriptsServiceTests: InMemoryTest
     #region RemoveScripts
 
     [Fact]
-    public async void RemoveScripts_ScriptsRemoved()
+    public async Task RemoveScripts_ScriptsRemoved()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script"
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script Two"
         };
         context.Scripts.Add(testScript);
@@ -255,23 +236,20 @@ public class ScriptsServiceTests: InMemoryTest
     #region RemoveAllScriptsForAdventure
 
     [Fact]
-    public async void RemoveAllScriptsForAdventure_ScriptsRemoved()
+    public async Task RemoveAllScriptsForAdventure_ScriptsRemoved()
     {
         // arrange
         var testAdventure = new Adventure()
         {
-            Id = Guid.NewGuid(),
             Name = "test adventure"
         };
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script",
             Adventure = testAdventure
         };
         var testScriptTwo = new Script()
         {
-            Id = Guid.NewGuid(),
             Name = "test script two",
             Adventure = testAdventure
         };
@@ -294,14 +272,13 @@ public class ScriptsServiceTests: InMemoryTest
     #region GetAdventureScriptsWithSourceReference
 
     [Fact]
-    public async void GetAdventureScriptsWithSourceReference_ContainsReference_ReturnScript()
+    public async Task GetAdventureScriptsWithSourceReference_ContainsReference_ReturnScript()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);
@@ -318,14 +295,13 @@ public class ScriptsServiceTests: InMemoryTest
     }
     
     [Fact]
-    public async void GetAdventureScriptsWithSourceReference_NoContainsReference_ReturnEmpty()
+    public async Task GetAdventureScriptsWithSourceReference_NoContainsReference_ReturnEmpty()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);
@@ -345,14 +321,13 @@ public class ScriptsServiceTests: InMemoryTest
     #region IsSourceKeyReferenced
 
     [Fact]
-    public async void IsSourceKeyReferenced_Referenced_ReturnTrue()
+    public async Task IsSourceKeyReferenced_Referenced_ReturnTrue()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);
@@ -368,14 +343,13 @@ public class ScriptsServiceTests: InMemoryTest
     }
     
     [Fact]
-    public async void IsSourceKeyReferenced_NotReferenced_ReturnFalse()
+    public async Task IsSourceKeyReferenced_NotReferenced_ReturnFalse()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testScript = new Script()
         {
-            Id = Guid.NewGuid(),
-            AdventureId = Guid.NewGuid(),
+            Adventure = new Adventure(),
             Content = Guid.NewGuid().ToString()
         };
         await context.Scripts.AddAsync(testScript);
@@ -383,7 +357,7 @@ public class ScriptsServiceTests: InMemoryTest
         var service = CreateService(context);
         
         // act
-        var referenced = await service.IsSourceKeyReferenced(Guid.NewGuid(), 
+        var referenced = await service.IsSourceKeyReferenced(6745, 
             Guid.Parse(testScript.Content));
         
         // assert

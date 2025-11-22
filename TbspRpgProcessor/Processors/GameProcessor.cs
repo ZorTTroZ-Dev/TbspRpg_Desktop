@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using TbspRpgDataLayer.Entities;
@@ -18,7 +17,6 @@ namespace TbspRpgProcessor.Processors
     public class GameProcessor : IGameProcessor
     {
         private readonly IAdventuresService _adventuresService;
-        private readonly IUsersService _usersService;
         private readonly IGamesService _gamesService;
         private readonly ILocationsService _locationsService;
         private readonly IContentsService _contentsService;
@@ -28,7 +26,6 @@ namespace TbspRpgProcessor.Processors
         public GameProcessor(
             IScriptProcessor scriptProcessor,
             IAdventuresService adventuresService,
-            IUsersService usersService,
             IGamesService gamesService,
             ILocationsService locationsService,
             IContentsService contentsService,
@@ -36,7 +33,6 @@ namespace TbspRpgProcessor.Processors
         {
             _scriptProcessor = scriptProcessor;
             _adventuresService = adventuresService;
-            _usersService = usersService;
             _gamesService = gamesService;
             _locationsService = locationsService;
             _contentsService = contentsService;
@@ -45,16 +41,12 @@ namespace TbspRpgProcessor.Processors
         
         public async Task<Game> StartGame(GameStartModel gameStartModel)
         {
-            var user = await _usersService.GetById(gameStartModel.UserId);
-            if (user == null)
-                throw new ArgumentException("invalid user id");
-
             var adventure = await _adventuresService.GetAdventureById(gameStartModel.AdventureId);
             if (adventure == null)
                 throw new ArgumentException("invalid adventure id");
             
             // check if the user already has a game of this adventure
-            var game = await _gamesService.GetGameByAdventureIdAndUserId(adventure.Id, user.Id);
+            var game = await _gamesService.GetGameByAdventureId(adventure.Id);
             if (game != null)
                 return game;
             
@@ -67,9 +59,7 @@ namespace TbspRpgProcessor.Processors
             var secondsSinceEpoch = new DateTimeOffset(gameStartModel.TimeStamp).ToUnixTimeMilliseconds();
             game = new Game()
             {
-                Id = Guid.NewGuid(),
                 AdventureId = adventure.Id,
-                UserId = user.Id,
                 LocationId = location.Id,
                 LocationUpdateTimeStamp = secondsSinceEpoch
             };
@@ -88,7 +78,6 @@ namespace TbspRpgProcessor.Processors
             // create content entry for adventure's source key
             await _contentsService.AddContent(new Content()
             {
-                Id = Guid.NewGuid(),
                 GameId = game.Id,
                 Position = (ulong)secondsSinceEpoch,
                 SourceKey = adventure.InitialSourceKey
@@ -97,7 +86,6 @@ namespace TbspRpgProcessor.Processors
             // create content entry for the initial location source key
             await _contentsService.AddContent(new Content()
             {
-                Id = Guid.NewGuid(),
                 GameId = game.Id,
                 Position = (ulong)secondsSinceEpoch + 1,
                 SourceKey = location.SourceKey

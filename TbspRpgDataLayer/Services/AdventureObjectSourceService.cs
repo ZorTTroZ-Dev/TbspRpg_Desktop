@@ -9,7 +9,7 @@ namespace TbspRpgDataLayer.Services;
 
 public interface IAdventureObjectSourceService
 {
-    Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<Guid> adventureObjectIds, string language);
+    Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<int> adventureObjectIds, string language);
 }
 
 public class AdventureObjectSourceService: IAdventureObjectSourceService
@@ -24,7 +24,7 @@ public class AdventureObjectSourceService: IAdventureObjectSourceService
         _logger = logger;
     }
     
-    public Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<Guid> adventureObjectIds, string language)
+    public Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<int> adventureObjectIds, string language)
     {
         return _adventureObjectSourceRepository.GetAdventureObjectsWithSourceById(adventureObjectIds, language);
     }

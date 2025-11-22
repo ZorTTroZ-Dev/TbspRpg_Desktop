@@ -4,5 +4,6 @@ namespace TbspRpgProcessor.Entities;
 
 public class SourceRemoveModel
 {
-    public Guid SourceId { get; set; }
+    public int SourceId { get; set; }
+    public string Language { get; set; }
 }

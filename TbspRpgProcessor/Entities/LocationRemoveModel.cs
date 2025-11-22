@@ -4,5 +4,5 @@ namespace TbspRpgProcessor.Entities;
 
 public class LocationRemoveModel
 {
-    public Guid LocationId { get; set; }
+    public int LocationId { get; set; }
 }

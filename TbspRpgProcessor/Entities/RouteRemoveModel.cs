@@ -4,5 +4,5 @@ namespace TbspRpgProcessor.Entities;
 
 public class RouteRemoveModel
 {
-    public Guid RouteId { get; set; }
+    public int RouteId { get; set; }
 }
