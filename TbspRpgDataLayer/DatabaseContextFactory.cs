@@ -10,7 +10,7 @@ namespace TbspRpgDataLayer
         {
             var builder = new DbContextOptionsBuilder<DatabaseContext>();
             var connectionString = Environment.GetEnvironmentVariable("CONNECTION_STRING");
-            builder.UseNpgsql(connectionString);
+            builder.UseSqlite(connectionString);
 
             return new DatabaseContext(builder.Options);
         }

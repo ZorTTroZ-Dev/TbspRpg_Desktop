@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -11,12 +10,12 @@ namespace TbspRpgDataLayer.Services
 {
     public interface IGamesService : IBaseService
     {
-        Task<Game> GetGameByAdventureIdAndUserId(Guid adventureId, Guid userId);
+        Task<Game> GetGameByAdventureId(int adventureId);
         Task AddGame(Game game);
-        Task<Game> GetGameByIdIncludeLocation(Guid gameId);
-        Task<Game> GetGameById(Guid gameId);
-        Task<Game> GetGameByIdIncludeAdventure(Guid gameId);
-        Task<List<Game>> GetGamesByAdventureId(Guid adventureId);
+        Task<Game> GetGameByIdIncludeLocation(int gameId);
+        Task<Game> GetGameById(int gameId);
+        Task<Game> GetGameByIdIncludeAdventure(int gameId);
+        Task<List<Game>> GetGamesByAdventureId(int adventureId);
         Task<List<Game>> GetGames(GameFilter filters);
         Task<List<Game>> GetGamesIncludeUsers(GameFilter filters);
         void RemoveGame(Game game);
@@ -35,9 +34,9 @@ namespace TbspRpgDataLayer.Services
             _logger = logger;
         }
 
-        public Task<Game> GetGameByAdventureIdAndUserId(Guid adventureId, Guid userId)
+        public Task<Game> GetGameByAdventureId(int adventureId)
         {
-            return _gameRepository.GetGameByAdventureIdAndUserId(adventureId, userId);
+            return _gameRepository.GetGameByAdventureId(adventureId);
         }
 
         public async Task AddGame(Game game)
@@ -45,22 +44,22 @@ namespace TbspRpgDataLayer.Services
             await _gameRepository.AddGame(game);
         }
 
-        public Task<Game> GetGameByIdIncludeLocation(Guid gameId)
+        public Task<Game> GetGameByIdIncludeLocation(int gameId)
         {
             return _gameRepository.GetGameByIdWithLocation(gameId);
         }
 
-        public Task<Game> GetGameById(Guid gameId)
+        public Task<Game> GetGameById(int gameId)
         {
             return _gameRepository.GetGameById(gameId);
         }
         
-        public Task<Game> GetGameByIdIncludeAdventure(Guid gameId)
+        public Task<Game> GetGameByIdIncludeAdventure(int gameId)
         {
             return _gameRepository.GetGameByIdWithAdventure(gameId);
         }
 
-        public Task<List<Game>> GetGamesByAdventureId(Guid adventureId)
+        public Task<List<Game>> GetGamesByAdventureId(int adventureId)
         {
             return GetGames(new GameFilter()
             {
@@ -75,7 +74,7 @@ namespace TbspRpgDataLayer.Services
 
         public Task<List<Game>> GetGamesIncludeUsers(GameFilter filters)
         {
-            return _gameRepository.GetGamesIncludeUsers(filters);
+            return _gameRepository.GetGames(filters);
         }
 
         public void RemoveGame(Game game)

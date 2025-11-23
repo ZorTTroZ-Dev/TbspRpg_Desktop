@@ -9,9 +9,9 @@ namespace TbspRpgDataLayer.Services;
 
 public interface IAdventureObjectService : IBaseService
 {
-    Task<AdventureObject> GetAdventureObjectById(Guid adventureObjectId);
-    Task<List<AdventureObject>> GetAdventureObjectsForAdventure(Guid adventureId);
-    Task<List<AdventureObject>> GetAdventureObjectsByLocation(Guid locationId);
+    Task<AdventureObject> GetAdventureObjectById(int adventureObjectId);
+    Task<List<AdventureObject>> GetAdventureObjectsForAdventure(int adventureId);
+    Task<List<AdventureObject>> GetAdventureObjectsByLocation(int locationId);
     Task AddAdventureObject(AdventureObject adventureObject);
     void RemoveAdventureObject(AdventureObject adventureObject);
     void RemoveAdventureObjects(ICollection<AdventureObject> adventureObjects);
@@ -35,17 +35,17 @@ public class AdventureObjectService: IAdventureObjectService
         await _adventureObjectRepository.SaveChanges();
     }
 
-    public Task<AdventureObject> GetAdventureObjectById(Guid adventureObjectId)
+    public Task<AdventureObject> GetAdventureObjectById(int adventureObjectId)
     {
         return _adventureObjectRepository.GetAdventureObjectById(adventureObjectId);
     }
 
-    public Task<List<AdventureObject>> GetAdventureObjectsForAdventure(Guid adventureId)
+    public Task<List<AdventureObject>> GetAdventureObjectsForAdventure(int adventureId)
     {
         return _adventureObjectRepository.GetAdventureObjectsForAdventure(adventureId);
     }
 
-    public Task<List<AdventureObject>> GetAdventureObjectsByLocation(Guid locationId)
+    public Task<List<AdventureObject>> GetAdventureObjectsByLocation(int locationId)
     {
         return _adventureObjectRepository.GetAdventureObjectsByLocation(locationId);
     }

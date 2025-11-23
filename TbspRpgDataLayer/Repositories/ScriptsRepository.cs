@@ -9,14 +9,14 @@ namespace TbspRpgDataLayer.Repositories;
 
 public interface IScriptsRepository: IBaseRepository
 {
-    Task<Script> GetScriptById(Guid scriptId);
-    Task<Script> GetScriptWithIncludedIn(Guid scriptId);
-    Task<List<Script>> GetScriptsForAdventure(Guid adventureId);
+    Task<Script> GetScriptById(int scriptId);
+    Task<Script> GetScriptWithIncludedIn(int scriptId);
+    Task<List<Script>> GetScriptsForAdventure(int adventureId);
     Task AddScript(Script script);
     void RemoveScript(Script script);
     void RemoveScripts(ICollection<Script> scripts);
     void AttachScript(Script script);
-    Task<List<Script>> GetAdventureScriptsWithSourceReference(Guid adventureId, Guid sourceKey);
+    Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey);
 }
 
 public class ScriptsRepository: IScriptsRepository
@@ -28,21 +28,21 @@ public class ScriptsRepository: IScriptsRepository
         _databaseContext = databaseContext;
     }
 
-    public Task<Script> GetScriptById(Guid scriptId)
+    public Task<Script> GetScriptById(int scriptId)
     {
         return _databaseContext.Scripts.AsQueryable()
             .Include(script => script.Includes)
             .FirstOrDefaultAsync(script => script.Id == scriptId);
     }
 
-    public Task<Script> GetScriptWithIncludedIn(Guid scriptId)
+    public Task<Script> GetScriptWithIncludedIn(int scriptId)
     {
         return _databaseContext.Scripts.AsQueryable()
             .Include(script => script.IncludedIn)
             .FirstOrDefaultAsync(script => script.Id == scriptId);
     }
 
-    public Task<List<Script>> GetScriptsForAdventure(Guid adventureId)
+    public Task<List<Script>> GetScriptsForAdventure(int adventureId)
     {
         return _databaseContext.Scripts.AsQueryable()
             .Include(script => script.Includes)
@@ -70,7 +70,7 @@ public class ScriptsRepository: IScriptsRepository
         _databaseContext.Attach(script);
     }
 
-    public Task<List<Script>> GetAdventureScriptsWithSourceReference(Guid adventureId, Guid sourceKey)
+    public Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey)
     {
         return _databaseContext.Scripts.AsQueryable()
             .Where(script => script.AdventureId == adventureId && script.Content.Contains(sourceKey.ToString()))

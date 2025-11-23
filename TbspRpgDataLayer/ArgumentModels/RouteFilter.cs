@@ -4,8 +4,8 @@ namespace TbspRpgDataLayer.ArgumentModels
 {
     public class RouteFilter
     {
-        public Guid? LocationId { get; set; }
-        public Guid? DestinationLocationId { get; set; }
-        public Guid? AdventureId { get; set; }
+        public int? LocationId { get; set; }
+        public int? DestinationLocationId { get; set; }
+        public int? AdventureId { get; set; }
     }
 }

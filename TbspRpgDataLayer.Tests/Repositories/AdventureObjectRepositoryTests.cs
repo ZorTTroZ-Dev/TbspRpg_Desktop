@@ -1,6 +1,6 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using TbspRpgSettings.Settings;
@@ -8,21 +8,16 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories;
 
-public class AdventureObjectRepositoryTests: InMemoryTest
+public class AdventureObjectRepositoryTests() : InMemoryTest("AdventureObjectRepositoryTests")
 {
-    public AdventureObjectRepositoryTests() : base("AdventureObjectRepositoryTests")
-    {
-    }
-
     #region GetAdventureObjectById
 
     [Fact]
-    public async void GetAdventureObjectById_InvalidId_ReturnNull()
+    public async Task GetAdventureObjectById_InvalidId_ReturnNull()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic
@@ -33,19 +28,18 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         var repository = new AdventureObjectRepository(context);
 
         // act
-        var adventureObject = await repository.GetAdventureObjectById(Guid.NewGuid());
+        var adventureObject = await repository.GetAdventureObjectById(17);
 
         // assert
         Assert.Null(adventureObject);
     }
 
     [Fact]
-    public async void GetAdventureObjectById_Valid_ReturnAdventureObject()
+    public async Task GetAdventureObjectById_Valid_ReturnAdventureObject()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
@@ -53,12 +47,10 @@ public class AdventureObjectRepositoryTests: InMemoryTest
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "tl"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "tl2"
                 }
             }
@@ -67,60 +59,54 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         await context.AdventureObjects.AddAsync(testObject);
         await context.SaveChangesAsync();
         var repository = new AdventureObjectRepository(context);
-
+        
         // act
         var adventureObject = await repository.GetAdventureObjectById(testObject.Id);
-
+        
         // assert
         Assert.NotNull(adventureObject);
         Assert.Equal(testObject.Id, adventureObject.Id);
         Assert.Equal(2, adventureObject.Locations.Count);
     }
-
+    
     #endregion
-
+    
     #region GetAdventureObjectsForAdventure
-
+    
     [Fact]
-    public async void GetAdventureObjectsForAdventure_ValidId_ReturnsAdventureObjects()
+    public async Task GetAdventureObjectsForAdventure_ValidId_ReturnsAdventureObjects()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "tl"
                 }    
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "tl"
                 }    
             }
@@ -130,7 +116,7 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         await context.AdventureObjects.AddAsync(testObjectTwo);
         await context.SaveChangesAsync();
         var repository = new AdventureObjectRepository(context);
-
+    
         // act
         var adventureObjects = 
             await repository.GetAdventureObjectsForAdventure(testObject.Adventure.Id);
@@ -140,32 +126,28 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         Assert.Equal("test", adventureObjects[0].Adventure.Name);
         Assert.Single(adventureObjects[0].Locations);
     }
-
+    
     [Fact]
-    public async void GetAdventureObjectsForAdventure_InvalidId_ReturnEmptyList()
+    public async Task GetAdventureObjectsForAdventure_InvalidId_ReturnEmptyList()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             }
         };
@@ -176,30 +158,28 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         var repository = new AdventureObjectRepository(context);
         
         // act
-        var adventureObjects = await repository.GetAdventureObjectsForAdventure(Guid.NewGuid());
+        var adventureObjects = await repository.GetAdventureObjectsForAdventure(42);
         
         // assert
         Assert.Empty(adventureObjects);
     }
-
+    
     #endregion
     
     #region AddAdventureObject
-
+    
     [Fact]
-    public async void AddAdventureObject_AdventureObjectAdded()
+    public async Task AddAdventureObject_AdventureObjectAdded()
     {
         // arrange
         await using var context = new DatabaseContext(DbContextOptions);
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             }
         };
@@ -212,36 +192,32 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         // assert
         Assert.Single(context.AdventureObjects);
     }
-
+    
     #endregion
         
     #region RemoveAdventureObject
-
+    
     [Fact]
-    public async void RemoveAdventureObject_AdventureObjectRemoved()
+    public async Task RemoveAdventureObject_AdventureObjectRemoved()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             }
         };
@@ -250,7 +226,7 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         await context.AdventureObjects.AddAsync(testObjectTwo);
         await context.SaveChangesAsync();
         var repository = new AdventureObjectRepository(context);
-
+    
         // act
         repository.RemoveAdventureObject(testObject);
         await repository.SaveChanges();
@@ -260,34 +236,30 @@ public class AdventureObjectRepositoryTests: InMemoryTest
     }
     
     #endregion
-
+    
     #region RemoveAdventureObjects
-
+    
     [Fact]
-    public async void RemoveAdventureObjects_AdventureObjectsRemoved()
+    public async Task RemoveAdventureObjects_AdventureObjectsRemoved()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             }
         };
@@ -304,61 +276,53 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         // assert
         Assert.Empty(context.AdventureObjects);
     }
-
+    
     #endregion
     
     #region GetAdventureObjectsByLocation
-
+    
     [Fact]
-    public async void GetAdventureObjectsForLocation_ValidId_ReturnsAdventureObjects()
+    public async Task GetAdventureObjectsForLocation_ValidId_ReturnsAdventureObjects()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation2"
                 }
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation3"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation4"
                 }
             }
@@ -368,7 +332,7 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         await context.AdventureObjects.AddAsync(testObjectTwo);
         await context.SaveChangesAsync();
         var repository = new AdventureObjectRepository(context);
-
+    
         // act
         var adventureObjects = 
             await repository.GetAdventureObjectsByLocation(testObject.Locations.First().Id);
@@ -380,43 +344,37 @@ public class AdventureObjectRepositoryTests: InMemoryTest
     }
     
     [Fact]
-    public async void GetAdventureObjectsForLocation_ValidId_ReturnsMultipleAdventureObjects()
+    public async Task GetAdventureObjectsForLocation_ValidId_ReturnsMultipleAdventureObjects()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation2"
                 }
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             },
             Locations = testObject.Locations
@@ -426,7 +384,7 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         await context.AdventureObjects.AddAsync(testObjectTwo);
         await context.SaveChangesAsync();
         var repository = new AdventureObjectRepository(context);
-
+    
         // act
         var adventureObjects = 
             await repository.GetAdventureObjectsByLocation(testObject.Locations.First().Id);
@@ -436,57 +394,49 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         Assert.Equal(2, adventureObjects[0].Locations.Count);
         Assert.Equal(2, adventureObjects[1].Locations.Count);
     }
-
+    
     [Fact]
-    public async void GetAdventureObjectsForLocation_InvalidId_ReturnEmptyList()
+    public async Task GetAdventureObjectsForLocation_InvalidId_ReturnEmptyList()
     {
         // arrange
         var testObject = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object",
             Description = "test object",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation2"
                 }
             }
         };
         var testObjectTwo = new AdventureObject()
         {
-            Id = Guid.NewGuid(),
             Name = "test object two",
             Description = "test object two",
             Type = AdventureObjectTypes.Generic,
             Adventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
                 Name = "test two"
             },
             Locations = new List<Location>()
             {
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation3"
                 },
                 new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "testlocation4"
                 }
             }
@@ -499,11 +449,11 @@ public class AdventureObjectRepositoryTests: InMemoryTest
         var repository = new AdventureObjectRepository(context);
         
         // act
-        var adventureObjects = await repository.GetAdventureObjectsByLocation(Guid.NewGuid());
+        var adventureObjects = await repository.GetAdventureObjectsByLocation(42);
         
         // assert
         Assert.Empty(adventureObjects);
     }
-
+    
     #endregion
 }

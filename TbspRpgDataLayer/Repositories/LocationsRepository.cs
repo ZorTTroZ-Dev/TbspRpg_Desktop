@@ -3,24 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.Entities;
 
 namespace TbspRpgDataLayer.Repositories
 {
     public interface ILocationsRepository : IBaseRepository
     {
-        Task<Location> GetInitialForAdventure(Guid adventureId);
-        Task<List<Location>> GetLocationsForAdventure(Guid adventureId);
-        Task<Location> GetLocationById(Guid locationId);
-        Task<Location> GetLocationByIdWithRoutes(Guid locationId);
+        Task<Location> GetInitialForAdventure(int adventureId);
+        Task<List<Location>> GetLocationsForAdventure(int adventureId);
+        Task<Location> GetLocationById(int locationId);
+        Task<Location> GetLocationByIdWithRoutes(int locationId);
         Task AddLocation(Location location);
         void RemoveLocation(Location location);
         void RemoveLocations(ICollection<Location> locations);
-        Task<List<Location>> GetLocationsWithScript(Guid scriptId);
-        Task<List<Location>> GetAdventureLocationsWithSource(Guid adventureId, Guid sourceKey);
+        Task<List<Location>> GetLocationsWithScript(int scriptId);
+        Task<List<Location>> GetAdventureLocationsWithSource(int adventureId, Guid sourceKey);
         void AttachLocation(Location location);
-        Task<Location> GetLocationByIdWithObjects(Guid locationId);
+        Task<Location> GetLocationByIdWithObjects(int locationId);
     }
     
     public class LocationsRepository: ILocationsRepository
@@ -32,28 +31,28 @@ namespace TbspRpgDataLayer.Repositories
             _databaseContext = databaseContext;
         }
 
-        public Task<Location> GetInitialForAdventure(Guid adventureId)
+        public Task<Location> GetInitialForAdventure(int adventureId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Where(location => location.AdventureId == adventureId && location.Initial)
                 .FirstOrDefaultAsync();
         }
 
-        public Task<List<Location>> GetLocationsForAdventure(Guid adventureId)
+        public Task<List<Location>> GetLocationsForAdventure(int adventureId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Where(location => location.AdventureId == adventureId)
                 .ToListAsync();
         }
 
-        public Task<Location> GetLocationById(Guid locationId)
+        public Task<Location> GetLocationById(int locationId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Include(location => location.Adventure)
                 .FirstOrDefaultAsync(location => location.Id == locationId);
         }
 
-        public Task<Location> GetLocationByIdWithRoutes(Guid locationId)
+        public Task<Location> GetLocationByIdWithRoutes(int locationId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Include(location => location.Adventure)
@@ -76,14 +75,14 @@ namespace TbspRpgDataLayer.Repositories
             _databaseContext.RemoveRange(locations);
         }
 
-        public Task<List<Location>> GetLocationsWithScript(Guid scriptId)
+        public Task<List<Location>> GetLocationsWithScript(int scriptId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Where(location => location.EnterScriptId == scriptId || location.ExitScriptId == scriptId)
                 .ToListAsync();
         }
 
-        public Task<List<Location>> GetAdventureLocationsWithSource(Guid adventureId, Guid sourceKey)
+        public Task<List<Location>> GetAdventureLocationsWithSource(int adventureId, Guid sourceKey)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Where(location => location.AdventureId == adventureId && location.SourceKey == sourceKey)
@@ -95,7 +94,7 @@ namespace TbspRpgDataLayer.Repositories
             _databaseContext.Attach(location);
         }
 
-        public Task<Location> GetLocationByIdWithObjects(Guid locationId)
+        public Task<Location> GetLocationByIdWithObjects(int locationId)
         {
             return _databaseContext.Locations.AsQueryable()
                 .Include(location => location.AdventureObjects)

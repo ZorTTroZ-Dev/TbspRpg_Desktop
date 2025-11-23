@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.Entities;
 
 namespace TbspRpgDataLayer.Repositories
@@ -11,13 +10,13 @@ namespace TbspRpgDataLayer.Repositories
     public interface IContentsRepository : IBaseRepository
     {
         Task AddContent(Content content);
-        Task<Content> GetContentForGameAtPosition(Guid gameId, ulong position);
-        Task<List<Content>> GetContentForGame(Guid gameId, int? offset = null, int? count = null);
-        Task<List<Content>> GetContentForGameReverse(Guid gameId, int? offset = null, int? count = null);
-        Task<List<Content>> GetContentForGameAfterPosition(Guid gameId, ulong position);
+        Task<Content> GetContentForGameAtPosition(int gameId, ulong position);
+        Task<List<Content>> GetContentForGame(int gameId, int? offset = null, int? count = null);
+        Task<List<Content>> GetContentForGameReverse(int gameId, int? offset = null, int? count = null);
+        Task<List<Content>> GetContentForGameAfterPosition(int gameId, ulong position);
         void RemoveContents(IEnumerable<Content> contents);
-        Task RemoveAllContentsForGame(Guid gameId);
-        Task<List<Content>> GetAdventureContentsWithSource(Guid adventureId, Guid sourceKey);
+        Task RemoveAllContentsForGame(int gameId);
+        Task<List<Content>> GetAdventureContentsWithSource(int adventureId, Guid sourceKey);
     }
     
     public class ContentsRepository : IContentsRepository
@@ -34,13 +33,13 @@ namespace TbspRpgDataLayer.Repositories
             await _databaseContext.AddAsync(content);
         }
 
-        public Task<Content> GetContentForGameAtPosition(Guid gameId, ulong position)
+        public Task<Content> GetContentForGameAtPosition(int gameId, ulong position)
         {
             return _databaseContext.Contents.AsQueryable()
                 .FirstOrDefaultAsync(content => content.GameId == gameId && content.Position == position);
         }
 
-        public Task<List<Content>> GetContentForGame(Guid gameId, int? offset = null, int? count = null)
+        public Task<List<Content>> GetContentForGame(int gameId, int? offset = null, int? count = null)
         {
             var query = _databaseContext.Contents.AsQueryable()
                 .Where(c => c.GameId == gameId)
@@ -52,7 +51,7 @@ namespace TbspRpgDataLayer.Repositories
             return query.ToListAsync();
         }
 
-        public Task<List<Content>> GetContentForGameReverse(Guid gameId, int? offset = null, int? count = null)
+        public Task<List<Content>> GetContentForGameReverse(int gameId, int? offset = null, int? count = null)
         {
             var query = _databaseContext.Contents.AsQueryable()
                 .Where(c => c.GameId == gameId)
@@ -64,7 +63,7 @@ namespace TbspRpgDataLayer.Repositories
             return query.ToListAsync();
         }
 
-        public Task<List<Content>> GetContentForGameAfterPosition(Guid gameId, ulong position)
+        public Task<List<Content>> GetContentForGameAfterPosition(int gameId, ulong position)
         {
             return _databaseContext.Contents.AsQueryable()
                 .Where(c => c.GameId == gameId && c.Position > position)
@@ -76,13 +75,13 @@ namespace TbspRpgDataLayer.Repositories
             _databaseContext.RemoveRange(contents);
         }
 
-        public async Task RemoveAllContentsForGame(Guid gameId)
+        public async Task RemoveAllContentsForGame(int gameId)
         {
             var contents = await GetContentForGame(gameId);
             RemoveContents(contents);
         }
 
-        public Task<List<Content>> GetAdventureContentsWithSource(Guid adventureId, Guid sourceKey)
+        public Task<List<Content>> GetAdventureContentsWithSource(int adventureId, Guid sourceKey)
         {
             return _databaseContext.Contents.AsQueryable()
                 .Where(content => content.Game.AdventureId == adventureId && content.SourceKey == sourceKey)

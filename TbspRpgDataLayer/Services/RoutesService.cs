@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -12,16 +11,16 @@ namespace TbspRpgDataLayer.Services
 {
     public interface IRoutesService: IBaseService
     {
-        Task<List<Route>> GetRoutesForLocation(Guid locationId);
-        Task<List<Route>> GetRoutesForAdventure(Guid adventureId);
-        Task<Route> GetRouteById(Guid routeId);
+        Task<List<Route>> GetRoutesForLocation(int locationId);
+        Task<List<Route>> GetRoutesForAdventure(int adventureId);
+        Task<Route> GetRouteById(int routeId);
         Task<List<Route>> GetRoutes(RouteFilter routeFilter);
         void RemoveRoute(Route route);
         void RemoveRoutes(ICollection<Route> routes);
         Task AddRoute(Route route);
-        Task RemoveScriptFromRoutes(Guid scriptId);
-        Task<bool> DoesAdventureRouteUseSource(Guid adventureId, Guid sourceKey);
-        Task<List<Route>> GetAdventureRoutesWithSource(Guid adventureId, Guid sourceKey);
+        Task RemoveScriptFromRoutes(int scriptId);
+        Task<bool> DoesAdventureRouteUseSource(int adventureId, Guid sourceKey);
+        Task<List<Route>> GetAdventureRoutesWithSource(int adventureId, Guid sourceKey);
     }
     
     public class RoutesService : IRoutesService
@@ -35,17 +34,17 @@ namespace TbspRpgDataLayer.Services
             _logger = logger;
         }
 
-        public Task<List<Route>> GetRoutesForLocation(Guid locationId)
+        public Task<List<Route>> GetRoutesForLocation(int locationId)
         {
             return _routesRepository.GetRoutesForLocation(locationId);
         }
 
-        public Task<List<Route>> GetRoutesForAdventure(Guid adventureId)
+        public Task<List<Route>> GetRoutesForAdventure(int adventureId)
         {
             return _routesRepository.GetRoutesForAdventure(adventureId);
         }
 
-        public Task<Route> GetRouteById(Guid routeId)
+        public Task<Route> GetRouteById(int routeId)
         {
             return _routesRepository.GetRouteById(routeId);
         }
@@ -70,7 +69,7 @@ namespace TbspRpgDataLayer.Services
             await _routesRepository.AddRoute(route);
         }
 
-        public async Task RemoveScriptFromRoutes(Guid scriptId)
+        public async Task RemoveScriptFromRoutes(int scriptId)
         {
             var routes = await _routesRepository.GetRoutesWithScript(scriptId);
             foreach (var route in routes)
@@ -80,13 +79,13 @@ namespace TbspRpgDataLayer.Services
             }
         }
 
-        public async Task<bool> DoesAdventureRouteUseSource(Guid adventureId, Guid sourceKey)
+        public async Task<bool> DoesAdventureRouteUseSource(int adventureId, Guid sourceKey)
         {
             var routes = await GetAdventureRoutesWithSource(adventureId, sourceKey);
             return routes.Any();
         }
 
-        public Task<List<Route>> GetAdventureRoutesWithSource(Guid adventureId, Guid sourceKey)
+        public Task<List<Route>> GetAdventureRoutesWithSource(int adventureId, Guid sourceKey)
         {
             return _routesRepository.GetAdventureRoutesWithSource(adventureId, sourceKey);
         }

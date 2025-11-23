@@ -2,8 +2,7 @@ using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
-using TbspRpgApi.Entities;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using TbspRpgDataLayer.Services;
@@ -12,10 +11,8 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Services
 {
-    public class SourcesServiceTests : InMemoryTest
+    public class SourcesServiceTests() : InMemoryTest("SourcesServiceTests")
     {
-        public SourcesServiceTests() : base("SourcesServiceTests") {}
-
         private static ISourcesService CreateService(DatabaseContext context)
         {
             return new SourcesService(
@@ -26,20 +23,20 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetSourceTextForKey
 
         [Fact]
-        public async void GetSourceTextForKey_NullLanguage_ReturnDefault()
+        public async Task GetSourceTextForKey_NullLanguage_ReturnDefault()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
                 Name = "english",
                 Text = "english"
             };
             var testEsp = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testEn.Key,
                 Name = "spanish",
                 Text = "spanish"
@@ -57,20 +54,20 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetSourceTextForKey_InvalidKey_ReturnNull()
+        public async Task GetSourceTextForKey_InvalidKey_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
                 Name = "english",
                 Text = "english"
             };
             var testEsp = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testEn.Key,
                 Name = "spanish",
                 Text = "spanish"
@@ -88,20 +85,20 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetSourceTextForKey_InvalidLanguage_ThrowException()
+        public async Task GetSourceTextForKey_InvalidLanguage_ThrowException()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
                 Name = "english",
                 Text = "english"
             };
             var testEsp = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testEn.Key,
                 Name = "spanish",
                 Text = "spanish"
@@ -119,20 +116,20 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetSourceTextForKey_Valid_ReturnSource()
+        public async Task GetSourceTextForKey_Valid_ReturnSource()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
                 Name = "english",
                 Text = "english"
             };
             var testEsp = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testEn.Key,
                 Name = "spanish",
                 Text = "spanish"
@@ -154,15 +151,15 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetSourceForKey
         
         [Fact]
-        public async void GetSourceForKey_EmptyGuidKey_ReturnSource()
+        public async Task GetSourceForKey_EmptyGuidKey_ReturnSource()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.Empty,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
@@ -172,7 +169,7 @@ namespace TbspRpgDataLayer.Tests.Services
         
             //act
             var source = await service.GetSourceForKey(
-                testSource.Key, Guid.NewGuid(), Languages.SPANISH);
+                testSource.Key, null, Languages.SPANISH);
             
             // assert
             Assert.NotNull(source);
@@ -180,21 +177,21 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetSourceForKey_Valid_ReturnSource()
+        public async Task GetSourceForKey_Valid_ReturnSource()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "english",
                 Text = "english"
             };
             var testEsp = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testEn.Key,
                 AdventureId = testEn.AdventureId,
                 Name = "spanish",
@@ -219,13 +216,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region AddSource
 
         [Fact]
-        public async void AddSource_SourceAdded()
+        public async Task AddSource_SourceAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var source = new Source()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Text = "source text"
             };
             var service = CreateService(context);
@@ -243,21 +240,21 @@ namespace TbspRpgDataLayer.Tests.Services
         #region RemoveSource
         
         [Fact]
-        public async void RemoveSource_InvalidSourceId_SourceNotRemoved()
+        public async Task RemoveSource_InvalidSourceId_SourceNotRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
@@ -265,9 +262,9 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -278,7 +275,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            await service.RemoveSource(Guid.NewGuid());
+            await service.RemoveSource(352, Languages.DEFAULT);
             await context.SaveChangesAsync();
             
             // assert
@@ -287,21 +284,21 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void RemoveSource_ValidSourceId_SourceRemoved()
+        public async Task RemoveSource_ValidSourceId_SourceRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
@@ -309,9 +306,9 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -322,7 +319,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            await service.RemoveSource(testSource.Id);
+            await service.RemoveSource(testSource.Id, Languages.SPANISH);
             await context.SaveChangesAsync();
             
             // assert
@@ -335,36 +332,36 @@ namespace TbspRpgDataLayer.Tests.Services
         #region RemoveScriptFromSources
 
         [Fact]
-        public async void RemoveScriptFromSources_ScriptRemoved()
+        public async Task RemoveScriptFromSources_ScriptRemoved()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source",
                 Script = new Script()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test script"
                 }
             };
             var testSourceTwo = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
             var testSourceThree = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 44,
                 Name = "test source",
                 Text = "test source",
                 Script = testSource.Script
@@ -388,21 +385,21 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAllSourceForAdventure
 
         [Fact]
-        public async void GetAllSourceForAdventure_Valid_AllSourceReturned()
+        public async Task GetAllSourceForAdventure_Valid_AllSourceReturned()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
@@ -410,9 +407,9 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -423,7 +420,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var source = await service.GetAllSourceForAdventure(testSource.AdventureId, Languages.ENGLISH);
+            var source = await service.GetAllSourceForAdventure(testSource.AdventureId.Value, Languages.ENGLISH);
             
             // assert
             Assert.Single(source);
@@ -434,21 +431,21 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAllSourceAllLanguagesForAdventure
 
         [Fact]
-        public async void GetAllSourceAllLanguagesForAdventure()
+        public async Task GetAllSourceAllLanguagesForAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
@@ -456,9 +453,9 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -469,12 +466,14 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var sources = await service.GetAllSourceAllLanguagesForAdventure(testSource.AdventureId);
+            var sources = await service.GetAllSourceAllLanguagesForAdventure(testSource.AdventureId.Value);
             
             // assert
             Assert.Equal(2, sources.Count);
-            Assert.Equal(Languages.ENGLISH, sources.First(source => source.Id == testSourceEn.Id).Language);
-            Assert.Equal(Languages.SPANISH, sources.First(source => source.Id == testSource.Id).Language);
+            if (sources[0].Language == Languages.ENGLISH)
+                Assert.Equal(Languages.SPANISH, sources[1].Language);
+            else
+                Assert.Equal(Languages.ENGLISH, sources[0].Language);
         }
 
         #endregion
@@ -482,21 +481,21 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetSourceById
         
         [Fact]
-        public async void GetSourceById_InvalidSourceId_ReturnNull()
+        public async Task GetSourceById_InvalidSourceId_ReturnNull()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
@@ -504,9 +503,9 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -517,38 +516,38 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var source = await service.GetSourceById(Guid.NewGuid());
+            var source = await service.GetSourceById(6436, Languages.DEFAULT);
             
             // assert
             Assert.Null(source);
         }
 
         [Fact]
-        public async void GetSourceId_ValidSourceId_SourceReturned()
+        public async Task GetSourceId_ValidSourceId_SourceReturned()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testSource = new Esp()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 42,
                 Name = "test source",
                 Text = "test source"
             };
             var testSourceEn = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testSource.Key,
                 AdventureId = testSource.AdventureId,
                 Name = "test source",
-                Text = "test source"
+                Text = "test source en"
             };
             var testSourceEnTwo = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testSource.Key,
-                AdventureId = Guid.NewGuid(),
+                AdventureId = 43,
                 Name = "test source two",
                 Text = "test source two"
             };
@@ -559,11 +558,14 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var source = await service.GetSourceById(testSource.Id);
+            var source = await service.GetSourceById(testSourceEn.Id, Languages.ENGLISH);
+            var sourceEsp = await service.GetSourceById(testSource.Id, Languages.SPANISH);
 
             // assert
             Assert.NotNull(source);
-            Assert.Equal(testSource.Id, source.Id);
+            Assert.Equal("test source en", testSourceEn.Text);
+            Assert.NotNull(sourceEsp);
+            Assert.Equal("test source", sourceEsp.Text);
         }
 
         #endregion
