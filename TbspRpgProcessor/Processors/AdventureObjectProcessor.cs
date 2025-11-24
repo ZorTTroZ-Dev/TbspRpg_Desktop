@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Services;
 using TbspRpgProcessor.Entities;
+using TbspRpgSettings;
 
 namespace TbspRpgProcessor.Processors;
 
@@ -52,11 +53,10 @@ public class AdventureObjectProcessor: IAdventureObjectProcessor
     public async Task UpdateAdventureObject(AdventureObjectUpdateModel adventureObjectUpdateModel)
     {
         AdventureObject dbAdventureObject = null;
-        if (adventureObjectUpdateModel.AdventureObject.Id == Guid.Empty)
+        if (adventureObjectUpdateModel.AdventureObject.Id == TbspRpgUtilities.DB_EMPTY_ID)
         {
             dbAdventureObject = new AdventureObject()
             {
-                Id = Guid.NewGuid(),
                 Name = adventureObjectUpdateModel.AdventureObject.Name,
                 Description = adventureObjectUpdateModel.AdventureObject.Description,
                 Type = adventureObjectUpdateModel.AdventureObject.Type,

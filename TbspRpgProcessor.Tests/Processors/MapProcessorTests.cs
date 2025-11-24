@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgProcessor.Entities;
 using TbspRpgSettings.Settings;
@@ -14,37 +14,33 @@ namespace TbspRpgProcessor.Tests.Processors
         #region ChangeLocationViaRoute
 
         [Fact]
-        public async void ChangeLocationViaRoute_InvalidGameId_ThrowsExcpetion()
+        public async Task ChangeLocationViaRoute_InvalidGameId_ThrowsExcpetion()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Id = 1,
+                LocationId = 1,
+                DestinationLocationId = 2,
                 RouteTakenSourceKey = Guid.NewGuid()
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     LocationId = testRoute.LocationId
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                new List<Route>() {testRoute},
-                null,
-                null,
-                testGames,
-                new List<Content>());
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Routes = new List<Route>() {testRoute},
+                Games = testGames,
+                Contents = new List<Content>()
+            });
             
             // act
             Task Act() => processor.ChangeLocationViaRoute(new MapChangeLocationModel() {
-                GameId = Guid.NewGuid(),
+                GameId = 2,
                 RouteId = testRoute.Id,
                 TimeStamp = DateTime.UtcNow
             });
@@ -54,38 +50,34 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void ChangeLocationViaRoute_InvalidRouteId_ThrowsExcpetion()
+        public async Task ChangeLocationViaRoute_InvalidRouteId_ThrowsExcpetion()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Id = 1,
+                LocationId = 1,
+                DestinationLocationId = 2,
                 RouteTakenSourceKey = Guid.NewGuid()
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     LocationId = testRoute.LocationId
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                new List<Route>() {testRoute},
-                null,
-                null,
-                testGames,
-                new List<Content>());
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Routes = new List<Route>() {testRoute},
+                Games = testGames,
+                Contents = new List<Content>()
+            });
             
             // act
             Task Act() => processor.ChangeLocationViaRoute(new MapChangeLocationModel() {
                 GameId = testGames[0].Id,
-                RouteId = Guid.NewGuid(), 
+                RouteId = 8, 
                 TimeStamp = DateTime.UtcNow
             });
 
@@ -94,33 +86,29 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void ChangeLocationViaRoute_GameWrongLocation_ThrowsExcpetion()
+        public async Task ChangeLocationViaRoute_GameWrongLocation_ThrowsExcpetion()
         {
             // arrange
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
-                LocationId = Guid.NewGuid(),
-                DestinationLocationId = Guid.NewGuid(),
+                Id = 1,
+                LocationId = 1,
+                DestinationLocationId = 2,
                 RouteTakenSourceKey = Guid.NewGuid()
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    LocationId = Guid.NewGuid()
+                    Id = 1,
+                    LocationId = 17
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                new List<Route>() {testRoute},
-                null,
-                null,
-                testGames,
-                new List<Content>());
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Routes = new List<Route>() {testRoute},
+                Games = testGames,
+                Contents = new List<Content>()
+            });
             
             // act
             Task Act() => processor.ChangeLocationViaRoute(new MapChangeLocationModel() {
@@ -134,21 +122,21 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void ChangeLocationViaRoute_Valid_LocationUpdated()
+        public async Task ChangeLocationViaRoute_Valid_LocationUpdated()
         {
             // arrange
             var testDestinationLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 SourceKey = Guid.NewGuid()
             };
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid()
+                Id = 2
             };
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 LocationId = testLocation.Id,
                 Location = testLocation,
                 DestinationLocationId = testDestinationLocation.Id,
@@ -157,14 +145,14 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSources = new List<En>()
             {
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Key = testRoute.RouteTakenSourceKey
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     Key = testDestinationLocation.SourceKey
                 }
             };
@@ -172,20 +160,17 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     LocationId = testRoute.LocationId
                 }
             };
             var testContents = new List<Content>();
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                new List<Route>() {testRoute},
-                null,
-                testSources,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Routes = new List<Route>() {testRoute},
+                Sources = testSources,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             await processor.ChangeLocationViaRoute(new MapChangeLocationModel() {
@@ -203,11 +188,11 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void ChangeLocationViaRoute_ValidFinalLocationWithScripts_LocationUpdated()
+        public async Task ChangeLocationViaRoute_ValidFinalLocationWithScripts_LocationUpdated()
         {
             var exitLocationTestScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -219,7 +204,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var enterLocationTestScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -233,7 +218,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var routeTakenTestScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 3,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -245,7 +230,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var terminationTestScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 4,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -258,19 +243,19 @@ namespace TbspRpgProcessor.Tests.Processors
             // arrange
             var testDestinationLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 SourceKey = Guid.NewGuid(),
                 Final = true,
                 EnterScriptId = enterLocationTestScript.Id
             };
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 ExitScriptId = exitLocationTestScript.Id
             };
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 LocationId = testLocation.Id,
                 Location = testLocation,
                 DestinationLocationId = testDestinationLocation.Id,
@@ -280,14 +265,14 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSources = new List<En>()
             {
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Key = testRoute.RouteTakenSourceKey
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     Key = testDestinationLocation.SourceKey
                 }
             };
@@ -295,26 +280,24 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     LocationId = testRoute.LocationId,
                     Adventure = new Adventure()
                     {
-                        Id = Guid.NewGuid(),
+                        Id = 1,
                         Name = "test",
                         TerminationScriptId = terminationTestScript.Id
                     }
                 }
             };
             var testContents = new List<Content>();
-            var processor = CreateTbspRpgProcessor(
-                null,
-                new List<Script>() { exitLocationTestScript, enterLocationTestScript, routeTakenTestScript, terminationTestScript },
-                null,
-                new List<Route>() {testRoute},
-                null,
-                testSources,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Scripts = new List<Script>() { exitLocationTestScript, enterLocationTestScript, routeTakenTestScript, terminationTestScript },
+                Routes = new List<Route>() {testRoute},
+                Sources = testSources,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             await processor.ChangeLocationViaRoute(new MapChangeLocationModel() {
@@ -334,11 +317,11 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void ChangeLocationViaRoute_ResolveDestinationSourceKey_LocationUpdated()
+        public async Task ChangeLocationViaRoute_ResolveDestinationSourceKey_LocationUpdated()
         {
             var testScript = new Script()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test script",
                 Content = @"
                     function run()
@@ -354,19 +337,19 @@ namespace TbspRpgProcessor.Tests.Processors
             // arrange
             var testDestinationLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 SourceKey = Guid.NewGuid(),
                 Final = true,
                 EnterScriptId = testScript.Id
             };
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 ExitScriptId = testScript.Id
             };
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 LocationId = testLocation.Id,
                 Location = testLocation,
                 DestinationLocationId = testDestinationLocation.Id,
@@ -376,24 +359,24 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSources = new List<En>()
             {
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Key = testRoute.RouteTakenSourceKey
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     Key = resultSourceKey
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 3,
                     Key = badResultSourceKey
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 4,
                     Key = testDestinationLocation.SourceKey
                 }
             };
@@ -401,26 +384,24 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     LocationId = testRoute.LocationId,
                     Adventure = new Adventure()
                     {
-                        Id = Guid.NewGuid(),
+                        Id = 1,
                         Name = "test",
                         TerminationScriptId = testScript.Id
                     }
                 }
             };
             var testContents = new List<Content>();
-            var processor = CreateTbspRpgProcessor(
-                null,
-                new List<Script>() { testScript },
-                null,
-                new List<Route>() {testRoute},
-                null,
-                testSources,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Scripts = new List<Script>() { testScript },
+                Routes = new List<Route>() {testRoute},
+                Sources = testSources,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             await processor.ChangeLocationViaRoute(new MapChangeLocationModel() {

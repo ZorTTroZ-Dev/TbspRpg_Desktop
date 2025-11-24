@@ -5,6 +5,6 @@ namespace TbspRpgProcessor.Entities;
 
 public class RoutesRemoveModel
 {
-    public ICollection<Guid> CurrentRouteIds { get; set; }
-    public Guid LocationId { get; set; }
+    public ICollection<int> CurrentRouteIds { get; set; }
+    public int LocationId { get; set; }
 }

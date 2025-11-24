@@ -8,7 +8,6 @@ namespace TbspRpgProcessor
         public static void InitializeProcessorLayer(IServiceCollection services)
         {
             services.AddScoped<ITbspRpgProcessor, TbspRpgProcessor>();
-            services.AddScoped<IMailClient, MailClient>();
         }
     }
 }

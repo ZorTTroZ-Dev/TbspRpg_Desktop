@@ -4,5 +4,5 @@ namespace TbspRpgProcessor.Entities;
 
 public class ScriptRemoveModel
 {
-    public Guid ScriptId { get; set; }
+    public int ScriptId { get; set; }
 }

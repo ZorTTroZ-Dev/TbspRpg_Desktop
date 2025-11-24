@@ -111,7 +111,6 @@ namespace TbspRpgProcessor.Processors
             // create content entry for the route
             await _contentsService.AddContent(new Content()
             {
-                Id = Guid.NewGuid(),
                 GameId = game.Id,
                 Position = (ulong)secondsSinceEpoch,
                 SourceKey = route.RouteTakenSourceKey
@@ -120,7 +119,6 @@ namespace TbspRpgProcessor.Processors
             // create content entry for the new location
             await _contentsService.AddContent(new Content()
             {
-                Id = Guid.NewGuid(),
                 GameId = game.Id,
                 Position = (ulong)secondsSinceEpoch + 1,
                 SourceKey = route.DestinationLocation.SourceKey

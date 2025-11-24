@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TbspRpgApi.Entities;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgProcessor.Entities;
 using TbspRpgSettings.Settings;
@@ -16,38 +15,36 @@ namespace TbspRpgProcessor.Tests.Processors
         #region UpdateAdventure
 
         [Fact]
-        public async void UpdateAdventure_InvalidAdventureId_ExceptionThrown()
+        public async Task UpdateAdventure_InvalidAdventureId_ExceptionThrown()
         {
             // arrange
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test_adventure",
                 InitialSourceKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testAdventure.InitialSourceKey,
                 Name = "test_adventure",
                 Text = "test source"
             };
             var adventures = new List<Adventure>() { testAdventure };
             var sources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                adventures,
-                null,
-                null,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
             
             // act
             Task Act() => processor.UpdateAdventure(new AdventureUpdateModel()
             {
                 Adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     Name = "updated_test_adventure"
                 },
                 InitialSource = new En()
@@ -66,19 +63,19 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void UpdateAdventure_EmptyAdventureId_AdventureCreated()
+        public async Task UpdateAdventure_EmptyAdventureId_AdventureCreated()
         {
             // arrange
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test_adventure",
                 InitialSourceKey = Guid.NewGuid(),
                 DescriptionSourceKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testAdventure.InitialSourceKey,
                 Name = "test_adventure",
                 Text = "test source",
@@ -86,36 +83,27 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testDescriptionSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testAdventure.DescriptionSourceKey,
                 Name = "description_test_adventure",
                 Text = "test description source",
                 AdventureId = testAdventure.Id
             };
-            var testUser = new User()
-            {
-                Id = Guid.NewGuid(),
-                Email = "tester"
-            };
             var adventures = new List<Adventure>() { testAdventure };
             var sources = new List<En>() {testSource, testDescriptionSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                adventures,
-                null,
-                null,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
             
             // act
             await processor.UpdateAdventure(new AdventureUpdateModel()
             {
                 Adventure = new Adventure()
                 {
-                    Id = Guid.Empty,
                     Name = "new_test_adventure",
-                    InitialSourceKey = Guid.Empty,
-                    PublishDate = DateTime.UtcNow
+                    InitialSourceKey = Guid.Empty
                 },
                 InitialSource = new En()
                 {
@@ -127,7 +115,6 @@ namespace TbspRpgProcessor.Tests.Processors
                     Key = Guid.Empty,
                     Text = "new_test description source"
                 },
-                UserId = testUser.Id,
                 Language = Languages.ENGLISH
             });
 
@@ -135,30 +122,23 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.Equal(2, adventures.Count);
             var newAdventure = adventures.FirstOrDefault(adv => adv.Name == "new_test_adventure");
             Assert.NotNull(newAdventure);
-            Assert.Equal(testUser.Id, newAdventure.CreatedByUserId);
             Assert.Equal(4, sources.Count);
         }
 
         [Fact]
-        public async void UpdateAdventure_ExistingAdventure_AdventureUpdated()
+        public async Task UpdateAdventure_ExistingAdventure_AdventureUpdated()
         {
             // arrange
-            var testUser = new User()
-            {
-                Id = Guid.NewGuid(),
-                Email = "tester"
-            };
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test_adventure",
                 InitialSourceKey = Guid.NewGuid(),
-                DescriptionSourceKey = Guid.NewGuid(),
-                CreatedByUserId = testUser.Id
+                DescriptionSourceKey = Guid.NewGuid()
             };
             var testDescriptionSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testAdventure.DescriptionSourceKey,
                 Name = "description_test_adventure",
                 Text = "test description source",
@@ -166,7 +146,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Key = testAdventure.InitialSourceKey,
                 Name = "test_adventure",
                 Text = "test source",
@@ -174,13 +154,11 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var adventures = new List<Adventure>() { testAdventure };
             var sources = new List<En>() {testSource, testDescriptionSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                adventures,
-                null,
-                null,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
             
             // act
             await processor.UpdateAdventure(new AdventureUpdateModel()
@@ -190,9 +168,7 @@ namespace TbspRpgProcessor.Tests.Processors
                     Id = testAdventure.Id,
                     Name = "updated_adventure_name",
                     InitialSourceKey = testAdventure.InitialSourceKey,
-                    DescriptionSourceKey = testAdventure.DescriptionSourceKey,
-                    CreatedByUserId = testAdventure.CreatedByUserId,
-                    PublishDate = DateTime.UtcNow
+                    DescriptionSourceKey = testAdventure.DescriptionSourceKey
                 },
                 InitialSource = new En()
                 {
@@ -208,7 +184,6 @@ namespace TbspRpgProcessor.Tests.Processors
                     Name = testDescriptionSource.Name,
                     Text = "updated description source"
                 },
-                UserId = testUser.Id,
                 Language = Languages.ENGLISH
             });
 
@@ -227,83 +202,73 @@ namespace TbspRpgProcessor.Tests.Processors
         #region RemoveAdventure
 
         [Fact]
-        public async void RemoveAdventure_BadAdventureId_ExceptionThrown()
+        public async Task RemoveAdventure_BadAdventureId_ExceptionThrown()
         {
             // arrange
-            var testAdventureId = Guid.NewGuid();
+            var testAdventureId = 1;
             var testSources = new List<En>()
             {
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     AdventureId = testAdventureId,
                     Key = Guid.NewGuid(),
                     Text = "source one"
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     AdventureId = testAdventureId,
                     Key = Guid.NewGuid(),
                     Text = "source two"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventureId,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventureId
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventureId,
-                    UserId = testUsers[0].Id
+                    Id = 2,
+                    AdventureId = testAdventureId
                 }
             };
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     GameId = testGames[0].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     GameId = testGames[0].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 3,
                     GameId = testGames[1].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 4,
                     GameId = testGames[1].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 }
             };
-            var locationId = Guid.NewGuid();
-            var locationIdTwo = Guid.NewGuid();
+            var locationId = 1;
+            var locationIdTwo = 2;
             var testAdventures = new List<Adventure>()
             {
                 new()
@@ -313,7 +278,7 @@ namespace TbspRpgProcessor.Tests.Processors
                     Games = testGames,
                     Locations = new List<Location>()
                     {
-                        new Location()
+                        new()
                         {
                             Id = locationId,
                             Name = "test location",
@@ -321,15 +286,15 @@ namespace TbspRpgProcessor.Tests.Processors
                             SourceKey = Guid.NewGuid(),
                             Routes = new List<Route>()
                             {
-                                new Route()
+                                new()
                                 {
-                                    Id = Guid.NewGuid(),
+                                    Id = 1,
                                     Name = "test route",
                                     LocationId = locationId
                                 }
                             }
                         },
-                        new Location()
+                        new()
                         {
                             Id = locationIdTwo,
                             Name = "test location two",
@@ -337,9 +302,9 @@ namespace TbspRpgProcessor.Tests.Processors
                             SourceKey = Guid.NewGuid(),
                             Routes = new List<Route>()
                             {
-                                new Route()
+                                new()
                                 {
-                                    Id = Guid.NewGuid(),
+                                    Id = 2,
                                     Name = "test route",
                                     LocationId = locationIdTwo
                                 }
@@ -348,20 +313,19 @@ namespace TbspRpgProcessor.Tests.Processors
                     }
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                null,
-                testAdventures,
-                null,
-                testAdventures[0].Locations,
-                testSources,
-                testGames,
-                testContents);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = testAdventures,
+                Locations = testAdventures[0].Locations,
+                Sources = testSources,
+                Games = testGames,
+                Contents = testContents
+            });
             
             // act
             Task Act() => processor.RemoveAdventure(new AdventureRemoveModel()
             {
-                AdventureId = Guid.NewGuid()
+                AdventureId = 14
             });
 
             // assert
@@ -369,101 +333,91 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void RemoveAdventure_Valid_AdventureRemoved()
+        public async Task RemoveAdventure_Valid_AdventureRemoved()
         {
             // arrange
-            var testAdventureId = Guid.NewGuid();
+            var testAdventureId = 1;
             var testSources = new List<En>()
             {
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     AdventureId = testAdventureId,
                     Key = Guid.NewGuid(),
                     Text = "source one"
                 },
-                new En()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     AdventureId = testAdventureId,
                     Key = Guid.NewGuid(),
                     Text = "source two"
-                }
-            };
-            var testUsers = new List<User>()
-            {
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "test"
                 }
             };
             var testGames = new List<Game>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventureId,
-                    UserId = testUsers[0].Id
+                    Id = 1,
+                    AdventureId = testAdventureId
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
-                    AdventureId = testAdventureId,
-                    UserId = testUsers[0].Id
+                    Id = 2,
+                    AdventureId = testAdventureId
                 }
             };
             var testContents = new List<Content>()
             {
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     GameId = testGames[0].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     GameId = testGames[0].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 3,
                     GameId = testGames[1].Id,
                     Position = 0,
                     SourceKey = Guid.NewGuid()
                 },
                 new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 4,
                     GameId = testGames[1].Id,
                     Position = 1,
                     SourceKey = Guid.NewGuid()
                 }
             };
-            var locationId = Guid.NewGuid();
-            var locationIdTwo = Guid.NewGuid();
+            var locationId = 1;
+            var locationIdTwo = 2;
             var testRoutes = new List<Route>
             {
-                new Route()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test route",
                     LocationId = locationId
                 },
-                new Route()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 2,
                     Name = "test route",
                     LocationId = locationIdTwo
                 }
             };
             var testLocations = new List<Location>()
             {
-                new Location()
+                new()
                 {
                     Id = locationId,
                     Name = "test location",
@@ -474,7 +428,7 @@ namespace TbspRpgProcessor.Tests.Processors
                         testRoutes[0]
                     }
                 },
-                new Location()
+                new()
                 {
                     Id = locationIdTwo,
                     Name = "test location two",
@@ -488,15 +442,15 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testScripts = new List<Script>()
             {
-                new Script()
+                new()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test script",
                     AdventureId = testAdventureId
                 },
                 new Script()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test script two",
                     AdventureId = testAdventureId
                 }
@@ -515,15 +469,17 @@ namespace TbspRpgProcessor.Tests.Processors
                     TerminationScriptId = testScripts[1].Id
                 }
             };
-            var processor = CreateTbspRpgProcessor(
-                testUsers,
-                testScripts,
-                testAdventures,
-                testRoutes,
-                testLocations,
-                testSources,
-                testGames,
-                testContents);
+            
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = testAdventures,
+                Locations = testLocations,
+                Sources = testSources,
+                Games = testGames,
+                Contents = testContents,
+                Scripts = testScripts,
+                Routes = testRoutes
+            });
             
             // act
             await processor.RemoveAdventure(new AdventureRemoveModel()

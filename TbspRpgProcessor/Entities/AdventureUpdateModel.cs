@@ -1,5 +1,4 @@
 ﻿using System;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.Entities;
 
 namespace TbspRpgProcessor.Entities

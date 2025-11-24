@@ -4,5 +4,5 @@ namespace TbspRpgProcessor.Entities;
 
 public class AdventureObjectRemoveModel
 {
-    public Guid AdventureObjectId { get; set; }
+    public int AdventureObjectId { get; set; }
 }

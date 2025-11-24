@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Services;
 using TbspRpgProcessor.Entities;
+using TbspRpgSettings;
 
 namespace TbspRpgProcessor.Processors
 {
@@ -44,16 +45,13 @@ namespace TbspRpgProcessor.Processors
         {
             // update/create a new adventure
             Adventure adventure = null;
-            if (adventureUpdateModel.Adventure.Id == Guid.Empty)
+            if (adventureUpdateModel.Adventure.Id == TbspRpgUtilities.DB_EMPTY_ID)
             {
                 // create a new adventure
                 adventure = new Adventure()
                 {
-                    Id = Guid.NewGuid(),
                     Name = adventureUpdateModel.Adventure.Name,
                     InitialSourceKey = Guid.Empty,
-                    CreatedByUserId = adventureUpdateModel.UserId,
-                    PublishDate = adventureUpdateModel.Adventure.PublishDate,
                     InitializationScriptId = adventureUpdateModel.Adventure.InitializationScriptId,
                     TerminationScriptId = adventureUpdateModel.Adventure.TerminationScriptId
                 };
@@ -66,7 +64,6 @@ namespace TbspRpgProcessor.Processors
                 if (dbAdventure == null)
                     throw new ArgumentException("invalid adventure id");
                 dbAdventure.Name = adventureUpdateModel.Adventure.Name;
-                dbAdventure.PublishDate = adventureUpdateModel.Adventure.PublishDate;
                 dbAdventure.InitializationScriptId = adventureUpdateModel.Adventure.InitializationScriptId;
                 dbAdventure.TerminationScriptId = adventureUpdateModel.Adventure.TerminationScriptId;
                 adventure = dbAdventure;

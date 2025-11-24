@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Services;
 using TbspRpgProcessor.Entities;
+using TbspRpgSettings;
 
 namespace TbspRpgProcessor.Processors
 {
@@ -45,7 +44,7 @@ namespace TbspRpgProcessor.Processors
             
             // update/create route object
             Route route = null;
-            if (routeUpdateModel.route.Id == Guid.Empty)
+            if (routeUpdateModel.route.Id == TbspRpgUtilities.DB_EMPTY_ID)
             {
                 route = new Route()
                 {
@@ -79,7 +78,7 @@ namespace TbspRpgProcessor.Processors
                 await _locationsService.AddLocation(destinationLocation);
                 route.DestinationLocation = destinationLocation;
             }
-            else if(routeUpdateModel.route.DestinationLocationId != Guid.Empty)
+            else if(routeUpdateModel.route.DestinationLocationId != TbspRpgUtilities.DB_EMPTY_ID)
             {
                 // we should make sure the destination location id is valid
                 var destinationLocation = await _locationsService.GetLocationById(

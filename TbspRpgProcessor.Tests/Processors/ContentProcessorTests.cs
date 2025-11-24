@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TbspRpgApi.Entities;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgProcessor.Entities;
 using TbspRpgSettings.Settings;
@@ -15,35 +14,32 @@ namespace TbspRpgProcessor.Tests.Processors
         #region GetContentTextForKey
 
         [Fact]
-        public async void GetContentTextForKey_NoGame_ThrowException()
+        public async Task GetContentTextForKey_NoGame_ThrowException()
         {
             // arrange
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Language = Languages.ENGLISH
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
                 Text = "test source"
             };
             var testGames = new List<Game>() {testGame};
             var testSources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                null,
-                testSources,
-                testGames);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Sources = testSources,
+                Games = testGames
+            });
 
             // act
             Task Act() => processor.GetContentTextForKey(new ContentTextForKeyModel()
             {
-                GameId = Guid.NewGuid(),
+                GameId = 17,
                 SourceKey = testSource.Key
             });
 
@@ -52,29 +48,29 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void GetContentTextForKey_NullLanguage_SourceReturned()
+        public async Task GetContentTextForKey_NullLanguage_SourceReturned()
         {
             // arrange
+            var adventureId = 1;
             var testGame = new Game()
             {
-                Id = Guid.NewGuid()
+                Id = 1,
+                AdventureId = adventureId
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
+                AdventureId = adventureId,
                 Text = "test source"
             };
             var testGames = new List<Game>() {testGame};
             var testSources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                null,
-                testSources,
-                testGames);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Sources = testSources,
+                Games = testGames
+            });
             
             // act
             var source = await processor.GetContentTextForKey(new ContentTextForKeyModel()
@@ -89,30 +85,30 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void GetContentTextForKey_Valid_SourceReturned()
+        public async Task GetContentTextForKey_Valid_SourceReturned()
         {
             // arrange
+            var adventureId = 1;
             var testGame = new Game()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
+                AdventureId = adventureId,
                 Language = Languages.ENGLISH
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = Guid.NewGuid(),
+                AdventureId = adventureId,
                 Text = "test source"
             };
             var testGames = new List<Game>() {testGame};
             var testSources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                null,
-                testSources,
-                testGames);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Sources = testSources,
+                Games = testGames
+            });
             
             // act
             var source = await processor.GetContentTextForKey(new ContentTextForKeyModel()
