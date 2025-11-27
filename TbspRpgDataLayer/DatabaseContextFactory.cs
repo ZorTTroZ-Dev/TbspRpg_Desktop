@@ -14,5 +14,12 @@ namespace TbspRpgDataLayer
 
             return new DatabaseContext(builder.Options);
         }
+
+        public DatabaseContext CreateDbContext(string connectionString)
+        {
+            var builder = new DbContextOptionsBuilder<DatabaseContext>();
+            builder.UseSqlite(connectionString);
+            return new DatabaseContext(builder.Options);
+        }
     }
 }

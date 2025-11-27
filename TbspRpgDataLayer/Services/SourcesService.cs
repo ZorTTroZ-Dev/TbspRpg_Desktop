@@ -19,6 +19,7 @@ namespace TbspRpgDataLayer.Services
         Task<List<Source>> GetAllSourceForAdventure(int adventureId, string language);
         Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId);
         Task<Source> GetSourceById(int sourceId, string language);
+        void Seed();
     }
     
     public class SourcesService : ISourcesService
@@ -81,6 +82,11 @@ namespace TbspRpgDataLayer.Services
         public Task<Source> GetSourceById(int sourceId, string language)
         {
             return _sourcesRepository.GetSourceById(sourceId, language);
+        }
+
+        public void Seed()
+        {
+            _sourcesRepository.Seed();
         }
 
         public async Task SaveChanges()

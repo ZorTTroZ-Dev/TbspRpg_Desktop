@@ -21,6 +21,7 @@ namespace TbspRpgDataLayer.Repositories
         Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId);
         Task<List<Source>> GetSourcesWithScript(int scriptId);
         Task<Source> GetSourceById(int sourceId, string language);
+        void Seed();
     }
     
     public class SourcesRepository : ISourcesRepository
@@ -167,6 +168,34 @@ namespace TbspRpgDataLayer.Repositories
             var query = GetQueryRoot(language);
             var source = await query.FirstOrDefaultAsync(source => source.Id == sourceId);
             return source;
+        }
+
+        public void Seed()
+        {
+            foreach (var language in Languages.GetAllLanguages())
+            {
+                var query = GetQueryRoot(language);
+                var emptySource =  query.FirstOrDefault(source => source.Key == Guid.Empty);
+                if (emptySource == null)
+                {
+                    var source = new Source()
+                    {
+                        Key = Guid.Empty,
+                        AdventureId = null
+                    };
+                    if (language == Languages.ENGLISH || language == null)
+                    {
+                        source.Text = "Empty Source";
+                        _databaseContext.SourcesEn.Add(SourceToEn(source));
+                    }
+                    if (language == Languages.SPANISH)
+                    {
+                        source.Text = "Fuente Vacia";
+                        _databaseContext.SourcesEsp.Add(SourcetoEsp(source));
+                    }
+                }
+            }
+            _databaseContext.SaveChanges();
         }
 
         public async Task SaveChanges()

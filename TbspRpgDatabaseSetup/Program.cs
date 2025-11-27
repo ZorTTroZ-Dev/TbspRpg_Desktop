@@ -8,7 +8,7 @@ namespace TbspRpgDatabaseSetup
         private static void SeedSource()
         {
             var contextFactory = new DatabaseContextFactory();
-            using var context = contextFactory.CreateDbContext([]);
+            using var context = contextFactory.CreateDbContext(Array.Empty<string>());
             // check if we have empty source for spanish and english
             var dbEnglishEmptySource = context.SourcesEn.FirstOrDefault(source => source.Key == Guid.Empty);
             // if we don't create them
