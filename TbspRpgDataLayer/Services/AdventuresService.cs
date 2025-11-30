@@ -57,6 +57,7 @@ namespace TbspRpgDataLayer.Services
         public async Task AddAdventure(Adventure adventure)
         {
             await _adventuresRepository.AddAdventure(adventure);
+            _logger.LogInformation("Adventure {@Adventure} added", adventure);
         }
 
         public void RemoveAdventure(Adventure adventure)

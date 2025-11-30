@@ -15,5 +15,6 @@
 
     <Panel>
         <ContentControl Content="{Binding CurrentPageViewModel}"/>
+        <WindowNotificationManager x:Name="NotificationManager" Position="BottomRight" />
     </Panel>
 </Window>

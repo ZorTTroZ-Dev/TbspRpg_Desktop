@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -17,7 +18,11 @@ public partial class AdventureNewViewModel : ViewModelBase
     {
         var newAdventure = new Adventure()
         {
-            Name = Name
+            Name = Name,
+            DescriptionSourceKey = Guid.Empty,
+            InitialSourceKey =  Guid.Empty,
+            InitializationScriptId = null,
+            TerminationScriptId = null
         };
         WeakReferenceMessenger.Default.Send(new AdventureNewClosedMessage(newAdventure));
     }

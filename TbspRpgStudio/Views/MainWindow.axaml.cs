@@ -1,4 +1,6 @@
+using System;
 using Avalonia.Controls;
+using Avalonia.Controls.Notifications;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgDataLayer.Entities;
 using TbspRpgStudio.Messages;
@@ -29,6 +31,12 @@ public partial class MainWindow : Window
             dialog.Height = 288;
             // Show dialog window and reply with returned AdventureViewModel or null when the dialog is closed.
             m.Reply(dialog.ShowDialog<Adventure?>(w));
+        });
+        
+        WeakReferenceMessenger.Default.Register<MainWindow, NotificationMessage>(this, static (w, m) =>
+        {
+            w.NotificationManager.CloseAll();
+            w.NotificationManager.Show(m.Message, NotificationType.Success, TimeSpan.FromSeconds(5));
         });
     }
 }

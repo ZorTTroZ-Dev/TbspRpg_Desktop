@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
@@ -12,7 +11,12 @@ public partial class AdventureListViewModel : ViewModelBase
     private async Task AddAdventureAsync()
     {
         var adventure = await WeakReferenceMessenger.Default.Send(new AdventureNewMessage());
-        // TODO write the created adventure to the database
-        // TODO send a notification message to let the user know how creation went
+
+        // write to database
+        var dataLayer = TbspRpgDataLayer.TbspRpgDataLayer.Load();
+        await dataLayer.AdventuresService.AddAdventure(adventure);
+        await dataLayer.AdventuresService.SaveChanges();
+        
+        WeakReferenceMessenger.Default.Send(new NotificationMessage($"Adventure {adventure?.Name} was successfully added"));
     }
 }
