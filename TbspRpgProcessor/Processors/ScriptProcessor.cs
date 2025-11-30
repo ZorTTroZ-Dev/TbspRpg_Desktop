@@ -7,6 +7,7 @@ using NLua;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Services;
 using TbspRpgProcessor.Entities;
+using TbspRpgSettings;
 using TbspRpgSettings.Settings;
 
 namespace TbspRpgProcessor.Processors;
@@ -59,9 +60,9 @@ public class ScriptProcessor : IScriptProcessor
     // I've also been thinking of adding variables to the content that can be replaced in the
     // associated source. So when content added, provide a source key and variable values that
     // would get replaced when source rendered.
-    private async Task<Script> VerifyScriptId(Guid scriptId)
+    private async Task<Script> VerifyScriptId(int scriptId)
     {
-        if(scriptId == Guid.Empty)
+        if(scriptId <= TbspRpgUtilities.DB_EMPTY_ID)
             throw new ArgumentException("invalid script id");
             
         var dbScript = await _scriptsService.GetScriptById(scriptId);
@@ -78,7 +79,7 @@ public class ScriptProcessor : IScriptProcessor
         // or a game id with a script object
         // or a game with a script id
         // or a game with a script object
-        if (scriptExecuteModel.Game == null && scriptExecuteModel.GameId != Guid.Empty)
+        if (scriptExecuteModel.Game == null && scriptExecuteModel.GameId != TbspRpgUtilities.DB_EMPTY_ID)
         {
             var dbGame = await _gamesService.GetGameById(scriptExecuteModel.GameId);
             if (dbGame == null)
@@ -152,7 +153,6 @@ public class ScriptProcessor : IScriptProcessor
         // create a new script
         var script = new Script()
         {
-            Id = Guid.NewGuid(),
             AdventureId = scriptCreateModel.script.AdventureId,
             Name = scriptCreateModel.script.Name,
             Type = scriptCreateModel.script.Type,
@@ -172,7 +172,7 @@ public class ScriptProcessor : IScriptProcessor
 
     public async Task UpdateScript(ScriptUpdateModel scriptUpdateModel)
     {
-        if (scriptUpdateModel.script.Id == Guid.Empty)
+        if (scriptUpdateModel.script.Id == TbspRpgUtilities.DB_EMPTY_ID)
         {
             var script = await CreateScript(new ScriptCreateModel()
             {

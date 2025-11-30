@@ -1,44 +1,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using TbspRpgApi.Entities;
+using System.Threading.Tasks;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
 using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Repositories
 {
-    public class LocationsRepositoryTests : InMemoryTest
+    public class LocationsRepositoryTests() : InMemoryTest("LocationsRepositoryTests")
     {
-        public LocationsRepositoryTests() : base("LocationsRepositoryTests")
-        {
-        }
-
         #region GetInitialLocation
 
         [Fact]
-        public async void GetInitialLocation_Valid_ReturnLocation()
+        public async Task GetInitialLocation_Valid_ReturnLocation()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventureId = Guid.NewGuid();
             var testAdventure = new Adventure
             {
-                Id = testAdventureId,
                 Locations = new List<Location>()
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = true,
-                        AdventureId = testAdventureId
+                        Initial = true
                     },
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = false,
-                        AdventureId = testAdventureId
+                        Initial = false
                     }
                 },
                 Name = "TestOne"
@@ -48,35 +37,29 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var locationRepository = new LocationsRepository(context);
             
             //act
-            var location = await locationRepository.GetInitialForAdventure(testAdventureId);
+            var location = await locationRepository.GetInitialForAdventure(testAdventure.Id);
 
             //assert
-            Assert.Equal(testAdventureId, location.AdventureId);
+            Assert.Equal(testAdventure.Id, location.AdventureId);
             Assert.True(location.Initial);
         }
         
         [Fact]
-        public async void GetInitialLocation_Invalid_ReturnNothing()
+        public async Task GetInitialLocation_Invalid_ReturnNothing()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventureId = Guid.NewGuid();
             var testAdventure = new Adventure
             {
-                Id = testAdventureId,
                 Locations = new List<Location>()
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = true,
-                        AdventureId = testAdventureId
+                        Initial = true
                     },
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = false,
-                        AdventureId = testAdventureId
+                        Initial = false
                     }
                 },
                 Name = "TestOne"
@@ -86,34 +69,28 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var locationRepository = new LocationsRepository(context);
             
             //act
-            var location = await locationRepository.GetInitialForAdventure(Guid.NewGuid());
+            var location = await locationRepository.GetInitialForAdventure(72);
         
             //assert
             Assert.Null(location);
         }
         
         [Fact]
-        public async void GetInitialLocation_NoInitial_ReturnNothing()
+        public async Task GetInitialLocation_NoInitial_ReturnNothing()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventureId = Guid.NewGuid();
             var testAdventure = new Adventure
             {
-                Id = testAdventureId,
                 Locations = new List<Location>()
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = false,
-                        AdventureId = testAdventureId
+                        Initial = false
                     },
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = false,
-                        AdventureId = testAdventureId
+                        Initial = false
                     }
                 },
                 Name = "TestOne"
@@ -123,21 +100,19 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var locationRepository = new LocationsRepository(context);
             
             //act
-            var location = await locationRepository.GetInitialForAdventure(testAdventureId);
+            var location = await locationRepository.GetInitialForAdventure(testAdventure.Id);
         
             //assert
             Assert.Null(location);
         }
         
         [Fact]
-        public async void GetInitialLocation_NoLocations_ReturnNothing()
+        public async Task GetInitialLocation_NoLocations_ReturnNothing()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventureId = Guid.NewGuid();
             var testAdventure = new Adventure
             {
-                Id = testAdventureId,
                 Locations = new List<Location>(),
                 Name = "TestOne"
             };
@@ -146,53 +121,43 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var locationRepository = new LocationsRepository(context);
             
             //act
-            var location = await locationRepository.GetInitialForAdventure(testAdventureId);
+            var location = await locationRepository.GetInitialForAdventure(testAdventure.Id);
         
             //assert
             Assert.Null(location);
         }
-
+        
         #endregion
-
+        
         #region GetLocationsForAdventure
-
+        
         [Fact]
-        public async void GetLocationsForAdventure_ReturnsLocations()
+        public async Task GetLocationsForAdventure_ReturnsLocations()
         {
             //arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventureId = Guid.NewGuid();
             var testAdventure = new Adventure
             {
-                Id = testAdventureId,
                 Locations = new List<Location>()
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = true,
-                        AdventureId = testAdventureId
+                        Initial = true
                     },
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = false,
-                        AdventureId = testAdventureId
+                        Initial = false
                     }
                 },
                 Name = "TestOne"
             };
-            Guid testAdventureIdTwo = Guid.NewGuid();
             var testAdventureTwo = new Adventure
             {
-                Id = testAdventureIdTwo,
                 Locations = new List<Location>()
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(),
-                        Initial = true,
-                        AdventureId = testAdventureIdTwo
+                        Initial = true
                     }
                 },
                 Name = "TestTwo"
@@ -208,19 +173,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.Equal(2, locations.Count);
         }
-
+        
         #endregion
-
+        
         #region GetLocationById
-
+        
         [Fact]
-        public async void GetLocationById_NotExist_ReturnNull()
+        public async Task GetLocationById_NotExist_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location"
             };
             context.Locations.Add(testLocation);
@@ -228,25 +192,21 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new LocationsRepository(context);
             
             // act
-            var location = await repository.GetLocationById(Guid.NewGuid());
+            var location = await repository.GetLocationById(testLocation.Id);
             
             // assert
             Assert.Null(location);
         }
-
+        
         [Fact]
-        public async void GetLocationById_Exists_ReturnLocation()
+        public async Task GetLocationById_Exists_ReturnLocation()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
                 Adventure = new Adventure()
-                {
-                    Id = Guid.NewGuid()
-                }
             };
             context.Locations.Add(testLocation);
             await context.SaveChangesAsync();
@@ -259,19 +219,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
             Assert.NotNull(location);
             Assert.Equal(testLocation.Id, location.Id);
         }
-
+        
         #endregion
-
+        
         #region SaveChanges
-
+        
         [Fact]
-        public async void SaveChanges_ChangesAreSaved()
+        public async Task SaveChanges_ChangesAreSaved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location"
             };
             context.Locations.Add(testLocation);
@@ -283,19 +242,18 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.Single(context.Locations);
         }
-
+        
         #endregion
-
+        
         #region AddLocation
-
+        
         [Fact]
-        public async void AddLocation_LocationAdded()
+        public async Task AddLocation_LocationAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location"
             };
             var repository = new LocationsRepository(context);
@@ -307,24 +265,22 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.Single(context.Locations);
         }
-
+        
         #endregion
         
         #region RemoveLocation
-
+        
         [Fact]
-        public async void RemoveLocation_LocationRemoved()
+        public async Task RemoveLocation_LocationRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location"
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location Two"
             };
             context.Locations.Add(testLocation);
@@ -341,22 +297,20 @@ namespace TbspRpgDataLayer.Tests.Repositories
         }
         
         #endregion
-
+        
         #region RemoveLocations
-
+        
         [Fact]
-        public async void RemoveLocations_LocationsRemoved()
+        public async Task RemoveLocations_LocationsRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location"
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location Two"
             };
             context.Locations.Add(testLocation);
@@ -371,34 +325,28 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // assert
             Assert.Empty(context.Locations);
         }
-
+        
         #endregion
-
+        
         #region GetLocationByIdWithRoutes
-
+        
         [Fact]
-        public async void GetLocationByIdWithRoutes_ValidId_LocationReturnedWithRoutes()
+        public async Task GetLocationByIdWithRoutes_ValidId_LocationReturnedWithRoutes()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
-                Adventure = new Adventure()
-                {
-                    Id = Guid.NewGuid()
-                },
+                Adventure = new Adventure(),
                 Routes = new List<Route>()
                 {
-                    new Route()
+                    new()
                     {
-                        Id = Guid.NewGuid(),
                         Name = "route one"
                     },
-                    new Route()
+                    new()
                     {
-                        Id = Guid.NewGuid(),
                         Name = "route two"
                     }
                 }
@@ -416,35 +364,31 @@ namespace TbspRpgDataLayer.Tests.Repositories
             Assert.NotNull(location.Routes);
             Assert.Equal(2, location.Routes.Count);
         }
-
+        
         #endregion
-
+        
         #region GetLocationsWithScript
-
+        
         [Fact]
-        public async void GetLocationsWithScript_HasLocations_ReturnLocations()
+        public async Task GetLocationsWithScript_HasLocations_ReturnLocations()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
                 EnterScript = new Script()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test script"
                 }
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location two",
                 EnterScript = testLocation.EnterScript
             };
             var testLocationThree = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location three"
             };
             await context.Locations.AddRangeAsync(testLocation, testLocationTwo, testLocationThree);
@@ -458,31 +402,27 @@ namespace TbspRpgDataLayer.Tests.Repositories
             Assert.Equal(2, locations.Count);
             Assert.Null(locations.FirstOrDefault(loc => loc.Id == testLocationThree.Id));
         }
-
+        
         [Fact]
-        public async void GetLocationsWithScript_NoLocations_ReturnEmpty()
+        public async Task GetLocationsWithScript_NoLocations_ReturnEmpty()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
                 EnterScript = new Script()
                 {
-                    Id = Guid.NewGuid(),
                     Name = "test script"
                 }
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location two",
                 EnterScript = testLocation.EnterScript
             };
             var testLocationThree = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location three"
             };
             await context.Locations.AddRangeAsync(testLocation, testLocationTwo, testLocationThree);
@@ -490,38 +430,30 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var repository = new LocationsRepository(context);
             
             // act
-            var locations = await repository.GetLocationsWithScript(Guid.NewGuid());
+            var locations = await repository.GetLocationsWithScript(14);
             
             // assert
             Assert.Empty(locations);
         }
-
+        
         #endregion
-
+        
         #region GetAdventureLocationsWithSource
-
+        
         [Fact]
-        public async void GetAdventureLocationsWithSource_NoLocations_ReturnEmpty()
+        public async Task GetAdventureLocationsWithSource_NoLocations_ReturnEmpty()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventure = new Adventure()
-            {
-                Id = Guid.NewGuid()
-            };
+            var testAdventure = new Adventure();
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Adventure = testAdventure,
                 SourceKey = Guid.NewGuid()
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
-                Adventure = new Adventure()
-                {
-                    Id = Guid.NewGuid()
-                },
+                Adventure = new Adventure(),
                 SourceKey = Guid.NewGuid()
             };
             await context.Adventures.AddRangeAsync(testAdventure);
@@ -531,34 +463,26 @@ namespace TbspRpgDataLayer.Tests.Repositories
             
             // act
             var locations = await repository.GetAdventureLocationsWithSource(
-                Guid.NewGuid(), testLocation.SourceKey);
-
+                67, testLocation.SourceKey);
+        
             // assert
             Assert.Empty(locations);
         }
-
+        
         [Fact]
-        public async void GetAdventureLocationsWithSource_Exists_ReturnLocations()
+        public async Task GetAdventureLocationsWithSource_Exists_ReturnLocations()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventure = new Adventure()
-            {
-                Id = Guid.NewGuid()
-            };
+            var testAdventure = new Adventure();
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Adventure = testAdventure,
                 SourceKey = Guid.NewGuid()
             };
             var testLocationTwo = new Location()
             {
-                Id = Guid.NewGuid(),
-                Adventure = new Adventure()
-                {
-                    Id = Guid.NewGuid()
-                },
+                Adventure = new Adventure(),
                 SourceKey = Guid.NewGuid()
             };
             await context.Adventures.AddRangeAsync(testAdventure);
@@ -569,38 +493,32 @@ namespace TbspRpgDataLayer.Tests.Repositories
             // act
             var locations = await repository.GetAdventureLocationsWithSource(
                 testAdventure.Id, testLocation.SourceKey);
-
+        
             // assert
             Assert.Single(locations);
         }
-
+        
         #endregion
         
         #region GetLocationByIdWithObjects
-
+        
         [Fact]
-        public async void GetLocationByIdWithObjects_ValidId_LocationReturnedWithObjects()
+        public async Task GetLocationByIdWithObjects_ValidId_LocationReturnedWithObjects()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
                 Name = "test location",
-                Adventure = new Adventure()
-                {
-                    Id = Guid.NewGuid()
-                },
+                Adventure = new Adventure(),
                 AdventureObjects = new List<AdventureObject>()
                 {
-                    new AdventureObject()
+                    new()
                     {
-                        Id = Guid.NewGuid(),
                         Name = "object1"
                     },
-                    new AdventureObject()
+                    new()
                     {
-                        Id = Guid.NewGuid(),
                         Name = "object2"
                     }
                 }
@@ -618,7 +536,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             Assert.NotNull(location.AdventureObjects);
             Assert.Equal(2, location.AdventureObjects.Count);
         }
-
+        
         #endregion
     }
 }

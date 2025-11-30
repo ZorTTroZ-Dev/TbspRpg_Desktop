@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgProcessor.Entities;
 using TbspRpgSettings.Settings;
@@ -14,37 +14,34 @@ namespace TbspRpgProcessor.Tests.Processors
         #region UpdateLocation
 
         [Fact]
-        public async void UpdateLocation_BadLocationId_ThrowException()
+        public async Task UpdateLocation_BadLocationId_ThrowException()
         {
             // arrange
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test location",
                 Initial = true,
                 SourceKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
                 Name = "test location",
                 Text = "test source"
             };
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             Task Act() => processor.UpdateLocation(new LocationUpdateModel() {
                 Location = new Location() {
-                    Id = Guid.NewGuid(),
+                    Id = 7,
                     Name = "updated location name",
                     Initial = false,
                     SourceKey = testLocation.SourceKey
@@ -64,25 +61,22 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void UpdateLocation_NewSource_NewSourceCreated()
+        public async Task UpdateLocation_NewSource_NewSourceCreated()
         {
             // arrange
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test location",
                 Initial = true,
                 SourceKey = Guid.Empty
             };
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>();
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             await processor.UpdateLocation(new LocationUpdateModel() {
@@ -110,32 +104,29 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void UpdateLocation_BadSourceId_ThrowException()
+        public async Task UpdateLocation_BadSourceId_ThrowException()
         {
             // arrange
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test location",
                 Initial = true,
                 SourceKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
                 Name = "test location",
                 Text = "test source"
             };
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             Task Act() => processor.UpdateLocation(new LocationUpdateModel() {
@@ -162,32 +153,31 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async void UpdateLocation_UpdateLocationAndSource_LocationSourceUpdated()
+        public async Task UpdateLocation_UpdateLocationAndSource_LocationSourceUpdated()
         {
             // arrange
             var testLocation = new Location()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test location",
                 Initial = true,
+                AdventureId = 1,
                 SourceKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
+                AdventureId = 1,
                 Name = "test location",
                 Text = "test source"
             };
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>() {testSource};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             await processor.UpdateLocation(new LocationUpdateModel() {
@@ -197,12 +187,14 @@ namespace TbspRpgProcessor.Tests.Processors
                     Name = "updated location name",
                     Initial = false,
                     SourceKey = testLocation.SourceKey,
+                    AdventureId = testLocation.AdventureId,
                     AdventureObjects = new List<AdventureObject>()
                 },
                 Source = new En()
                 {
                     Id = testSource.Id,
                     Key = testLocation.SourceKey,
+                    AdventureId = testSource.AdventureId,
                     Name = "test location",
                     Text = "updated source"
                 },
@@ -218,33 +210,27 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void UpdateLocation_EmptyLocationId_CreateNewLocation()
+        public async Task UpdateLocation_EmptyLocationId_CreateNewLocation()
         {
             // arrange
             var adventureObject = new AdventureObject()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test_object"
             };
             var adventureObjects = new List<AdventureObject>() {adventureObject};
             var locations = new List<Location>();
             var sources = new List<En>();
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                null,
-                locations,
-                sources,
-                null,
-                null,
-                adventureObjects);
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData() {
+                Locations = locations,
+                Sources = sources,
+                AdventureObjects = adventureObjects
+            });
             
             // act
             await processor.UpdateLocation(new LocationUpdateModel() {
                 Location = new Location()
                 {
-                    Id = Guid.Empty,
                     Name = "new location name",
                     Initial = false,
                     SourceKey = Guid.Empty,
@@ -275,13 +261,13 @@ namespace TbspRpgProcessor.Tests.Processors
         #region RemoveLocation
 
         [Fact]
-        public async void RemoveLocation_Valid_LocationRemoved()
+        public async Task RemoveLocation_Valid_LocationRemoved()
         {
             // arrange
-            var locationId = Guid.NewGuid();
+            var locationId = 1;
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test route",
                 LocationId = locationId
             };
@@ -298,7 +284,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
                 Name = "test location",
                 Text = "test source"
@@ -306,13 +292,11 @@ namespace TbspRpgProcessor.Tests.Processors
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>() {testSource};
             var routes = new List<Route>() {testRoute};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                routes,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Routes = routes,
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             await processor.RemoveLocation(new LocationRemoveModel()
@@ -326,13 +310,13 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         [Fact]
-        public async void RemoveLocation_InvalidLocationId_ExceptionThrown()
+        public async Task RemoveLocation_InvalidLocationId_ExceptionThrown()
         {
             // arrange
-            var locationId = Guid.NewGuid();
+            var locationId = 1;
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test route",
                 LocationId = locationId
             };
@@ -349,7 +333,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
                 Name = "test location",
                 Text = "test source"
@@ -357,18 +341,16 @@ namespace TbspRpgProcessor.Tests.Processors
             var locations = new List<Location>() { testLocation };
             var sources = new List<En>() {testSource};
             var routes = new List<Route>() {testRoute};
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                routes,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Routes = routes,
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             Task Act() => processor.RemoveLocation(new LocationRemoveModel()
             {
-                LocationId = Guid.NewGuid()
+                LocationId = 16
             });
 
             // assert
@@ -380,20 +362,20 @@ namespace TbspRpgProcessor.Tests.Processors
         #region RemoveLocations
 
         [Fact]
-        public async void RemoveLocations_LocationsRemoved()
+        public async Task RemoveLocations_LocationsRemoved()
         {
             // arrange
-            var locationId = Guid.NewGuid();
-            var locationIdTwo = Guid.NewGuid();
+            var locationId = 1;
+            var locationIdTwo = 2;
             var testRoute = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test route",
                 LocationId = locationId
             };
             var testRouteTwo = new Route()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test route two",
                 LocationId = locationId
             };
@@ -421,7 +403,7 @@ namespace TbspRpgProcessor.Tests.Processors
             };
             var testSource = new En()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Key = testLocation.SourceKey,
                 Name = "test location",
                 Text = "test source"
@@ -429,13 +411,11 @@ namespace TbspRpgProcessor.Tests.Processors
             var locations = new List<Location>() { testLocation, testLocationTwo };
             var sources = new List<En>() { testSource };
             var routes = new List<Route>() { testRoute, testRouteTwo };
-            var processor = CreateTbspRpgProcessor(
-                null,
-                null,
-                null,
-                routes,
-                locations,
-                sources);
+            var processor = CreateTbspRpgProcessor( new TestTbspRpgProcessorData() {
+                Routes = routes,
+                Locations = locations,
+                Sources = sources
+            });
             
             // act
             await processor.RemoveLocations(new LocationsRemoveModel() {

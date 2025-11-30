@@ -9,9 +9,9 @@ namespace TbspRpgDataLayer.Repositories;
 
 public interface IAdventureObjectRepository: IBaseRepository
 {
-    Task<AdventureObject> GetAdventureObjectById(Guid adventureObjectId);
-    Task<List<AdventureObject>> GetAdventureObjectsForAdventure(Guid adventureId);
-    Task<List<AdventureObject>> GetAdventureObjectsByLocation(Guid locationId);
+    Task<AdventureObject> GetAdventureObjectById(int adventureObjectId);
+    Task<List<AdventureObject>> GetAdventureObjectsForAdventure(int adventureId);
+    Task<List<AdventureObject>> GetAdventureObjectsByLocation(int locationId);
     Task AddAdventureObject(AdventureObject adventureObject);
     void RemoveAdventureObject(AdventureObject adventureObject);
     void RemoveAdventureObjects(ICollection<AdventureObject> adventureObjects);
@@ -32,14 +32,14 @@ public class AdventureObjectRepository: IAdventureObjectRepository
         await _databaseContext.SaveChangesAsync();
     }
 
-    public Task<AdventureObject> GetAdventureObjectById(Guid adventureObjectId)
+    public Task<AdventureObject> GetAdventureObjectById(int adventureObjectId)
     {
         return _databaseContext.AdventureObjects.AsQueryable()
             .Include(ao => ao.Locations)
             .FirstOrDefaultAsync(ao => ao.Id == adventureObjectId);
     }
 
-    public Task<List<AdventureObject>> GetAdventureObjectsForAdventure(Guid adventureId)
+    public Task<List<AdventureObject>> GetAdventureObjectsForAdventure(int adventureId)
     {
         return _databaseContext.AdventureObjects.AsQueryable()
             .Where(ao => ao.AdventureId == adventureId)
@@ -47,7 +47,7 @@ public class AdventureObjectRepository: IAdventureObjectRepository
             .ToListAsync();
     }
 
-    public Task<List<AdventureObject>> GetAdventureObjectsByLocation(Guid locationId)
+    public Task<List<AdventureObject>> GetAdventureObjectsByLocation(int locationId)
     {
         return _databaseContext.AdventureObjects.AsQueryable()
             .Where(ao => ao.Locations.Any(location => location.Id == locationId))

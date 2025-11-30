@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Services;
 using TbspRpgProcessor.Entities;
+using TbspRpgSettings;
 
 namespace TbspRpgProcessor.Processors
 {
@@ -41,11 +42,10 @@ namespace TbspRpgProcessor.Processors
         public async Task UpdateLocation(LocationUpdateModel locationUpdateModel)
         {
             Location dbLocation = null;
-            if (locationUpdateModel.Location.Id == Guid.Empty)
+            if (locationUpdateModel.Location.Id == TbspRpgUtilities.DB_EMPTY_ID)
             {
                 dbLocation = new Location()
                 {
-                    Id = Guid.NewGuid(),
                     Name = locationUpdateModel.Location.Name,
                     Initial = locationUpdateModel.Location.Initial,
                     Final = locationUpdateModel.Location.Final,

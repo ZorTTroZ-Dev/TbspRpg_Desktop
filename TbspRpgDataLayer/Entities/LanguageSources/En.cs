@@ -1,6 +1,4 @@
-using TbspRpgDataLayer.Entities;
-
-namespace TbspRpgApi.Entities.LanguageSources
+namespace TbspRpgDataLayer.Entities.LanguageSources
 {
     public class En : Source
     {

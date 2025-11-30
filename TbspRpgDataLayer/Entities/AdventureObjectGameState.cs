@@ -4,9 +4,9 @@ namespace TbspRpgDataLayer.Entities;
 
 public class AdventureObjectGameState
 {
-    public Guid Id { get; set; }
-    public Guid GameId { get; set; }
-    public Guid AdventureObjectId { get; set; }
+    public int Id { get; set; }
+    public int GameId { get; set; }
+    public int AdventureObjectId { get; set; }
     public string AdventureObjectState { get; set; }
     
     public Game Game { get; set; }

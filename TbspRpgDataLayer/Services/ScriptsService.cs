@@ -10,16 +10,16 @@ namespace TbspRpgDataLayer.Services;
 
 public interface IScriptsService: IBaseService
 {
-    Task<Script> GetScriptById(Guid scriptId);
-    Task<Script> GetScriptWithIncludedIn(Guid scriptId);
-    Task<List<Script>> GetScriptsForAdventure(Guid adventureId);
-    Task RemoveAllScriptsForAdventure(Guid adventureId);
+    Task<Script> GetScriptById(int scriptId);
+    Task<Script> GetScriptWithIncludedIn(int scriptId);
+    Task<List<Script>> GetScriptsForAdventure(int adventureId);
+    Task RemoveAllScriptsForAdventure(int adventureId);
     Task AddScript(Script script);
     void RemoveScript(Script script);
     void RemoveScripts(ICollection<Script> scripts);
     void AttachScript(Script script);
-    Task<bool> IsSourceKeyReferenced(Guid adventureId, Guid sourceKey);
-    Task<List<Script>> GetAdventureScriptsWithSourceReference(Guid adventureId, Guid sourceKey);
+    Task<bool> IsSourceKeyReferenced(int adventureId, Guid sourceKey);
+    Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey);
 }
 
 public class ScriptsService: IScriptsService
@@ -39,22 +39,22 @@ public class ScriptsService: IScriptsService
         await _scriptsRepository.SaveChanges();
     }
 
-    public Task<Script> GetScriptById(Guid scriptId)
+    public Task<Script> GetScriptById(int scriptId)
     {
         return _scriptsRepository.GetScriptById(scriptId);
     }
 
-    public Task<Script> GetScriptWithIncludedIn(Guid scriptId)
+    public Task<Script> GetScriptWithIncludedIn(int scriptId)
     {
         return _scriptsRepository.GetScriptWithIncludedIn(scriptId);
     }
 
-    public Task<List<Script>> GetScriptsForAdventure(Guid adventureId)
+    public Task<List<Script>> GetScriptsForAdventure(int adventureId)
     {
         return _scriptsRepository.GetScriptsForAdventure(adventureId);
     }
 
-    public async Task RemoveAllScriptsForAdventure(Guid adventureId)
+    public async Task RemoveAllScriptsForAdventure(int adventureId)
     {
         var scripts = await _scriptsRepository.GetScriptsForAdventure(adventureId);
         _scriptsRepository.RemoveScripts(scripts);
@@ -80,13 +80,13 @@ public class ScriptsService: IScriptsService
         _scriptsRepository.AttachScript(script);
     }
 
-    public async Task<bool> IsSourceKeyReferenced(Guid adventureId, Guid sourceKey)
+    public async Task<bool> IsSourceKeyReferenced(int adventureId, Guid sourceKey)
     {
         var scripts = await GetAdventureScriptsWithSourceReference(adventureId, sourceKey);
         return scripts.Any();
     }
 
-    public Task<List<Script>> GetAdventureScriptsWithSourceReference(Guid adventureId, Guid sourceKey)
+    public Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey)
     {
         return _scriptsRepository.GetAdventureScriptsWithSourceReference(adventureId, sourceKey);
     }

@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Tests;
 using TbspRpgProcessor.Entities;
@@ -10,43 +10,43 @@ using TbspRpgSettings;
 
 namespace TbspRpgProcessor.Tests
 {
+    public class TestTbspRpgProcessorData
+    {
+        public ICollection<Script> Scripts { get; set; }
+        public ICollection<Adventure> Adventures { get; set; }
+        public ICollection<Route> Routes { get; set; }
+        public ICollection<Location> Locations { get; set; }
+        public ICollection<En> Sources { get; set; }
+        public ICollection<Game> Games { get; set; }
+        public ICollection<Content> Contents { get; set; }
+        public ICollection<AdventureObject> AdventureObjects { get; set; }
+    }
+    
     public class ProcessorTest
     {
-        public static ITbspRpgProcessor CreateTbspRpgProcessor(
-            ICollection<User> users = null,
-            ICollection<Script> scripts = null,
-            ICollection<Adventure> adventures = null,
-            ICollection<Route> routes = null,
-            ICollection<Location> locations = null,
-            ICollection<En> sources = null,
-            ICollection<Game> games = null,
-            ICollection<Content> contents = null,
-            ICollection<AdventureObject> adventureObjects = null)
+        public static ITbspRpgProcessor CreateTbspRpgProcessor(TestTbspRpgProcessorData data)
         {
-            users ??= new List<User>();
-            adventures ??= new List<Adventure>();
-            routes ??= new List<Route>();
-            locations ??= new List<Location>();
-            sources ??= new List<En>();
-            games ??= new List<Game>();
-            contents ??= new List<Content>();
-            scripts ??= new List<Script>();
-            adventureObjects ??= new List<AdventureObject>();
+            data.Adventures ??= new List<Adventure>();
+            data.Routes ??= new List<Route>();
+            data.Locations ??= new List<Location>();
+            data.Sources ??= new List<En>();
+            data.Games ??= new List<Game>();
+            data.Contents ??= new List<Content>();
+            data.Scripts ??= new List<Script>();
+            data.AdventureObjects ??= new List<AdventureObject>();
             
-            var usersService = MockServices.MockDataLayerUsersService(users);
-            var scriptsService = MockServices.MockDataLayerScriptsService(scripts);
-            var adventuresService = MockServices.MockDataLayerAdventuresService(adventures);
-            var routesService = MockServices.MockDataLayerRoutesService(routes);
-            var locationsService = MockServices.MockDataLayerLocationsService(locations);
-            var sourcesService = MockServices.MockDataLayerSourcesService(sources);
-            var gamesService = MockServices.MockDataLayerGamesService(games);
-            var contentsService = MockServices.MockDataLayerContentsService(contents);
-            var adventureObjectsService = MockServices.MockDataLayerAdventureObjectsService(adventureObjects);
+            var scriptsService = MockServices.MockDataLayerScriptsService(data.Scripts);
+            var adventuresService = MockServices.MockDataLayerAdventuresService(data.Adventures);
+            var routesService = MockServices.MockDataLayerRoutesService(data.Routes);
+            var locationsService = MockServices.MockDataLayerLocationsService(data.Locations);
+            var sourcesService = MockServices.MockDataLayerSourcesService(data.Sources);
+            var gamesService = MockServices.MockDataLayerGamesService(data.Games);
+            var contentsService = MockServices.MockDataLayerContentsService(data.Contents);
+            var adventureObjectsService = MockServices.MockDataLayerAdventureObjectsService(data.AdventureObjects);
             var adventureObjectSourceService =
-                MockServices.MockDataLayerAdventureObjectsSourceService(adventureObjects, sources);
+                MockServices.MockDataLayerAdventureObjectsSourceService(data.AdventureObjects, data.Sources);
             
             return new TbspRpgProcessor(
-                usersService,
                 sourcesService,
                 scriptsService,
                 adventuresService,
@@ -57,58 +57,12 @@ namespace TbspRpgProcessor.Tests
                 adventureObjectsService,
                 adventureObjectSourceService,
                 new TbspRpgUtilities(),
-                MockMailClient(),
                 NullLogger<TbspRpgProcessor>.Instance);
         }
 
-        public static IMailClient MockMailClient()
-        {
-            var mailClient = new Mock<IMailClient>();
-            mailClient.Setup(client =>
-                    client.SendRegistrationVerificationMail(It.IsAny<string>(), It.IsAny<string>()))
-                .Callback((string email, string registrationKey) => { });
-            return mailClient.Object;
-        }
-
-        public static ITbspRpgProcessor MockTbspRpgProcessor(string exceptionEmail, Guid exceptionId)
+        public static ITbspRpgProcessor MockTbspRpgProcessor(string exceptionEmail, int exceptionId)
         {
             var tbspProcessor = new Mock<ITbspRpgProcessor>();
-
-            tbspProcessor.Setup(processor =>
-                    processor.RegisterUser(It.IsAny<UserRegisterModel>()))
-                .ReturnsAsync((UserRegisterModel userRegisterModel) =>
-                {
-                    if (userRegisterModel.Email == exceptionEmail)
-                        throw new ArgumentException("can't register user");
-                    return new User()
-                    {
-                        Id = Guid.NewGuid()
-                    };
-                });
-
-            tbspProcessor.Setup(processor =>
-                    processor.VerifyUserRegistration(It.IsAny<UserVerifyRegisterModel>()))
-                .ReturnsAsync((UserVerifyRegisterModel userVerifyRegisterModel) =>
-                {
-                    if (userVerifyRegisterModel.RegistrationKey == exceptionEmail)
-                        throw new ArgumentException("can't verify registration");
-                    return new User()
-                    {
-                        Id = Guid.NewGuid()
-                    };
-                });
-            
-            tbspProcessor.Setup(processor =>
-                    processor.ResendUserRegistration(It.IsAny<UserRegisterResendModel>()))
-                .ReturnsAsync((UserRegisterResendModel userRegisterResendModel) =>
-                {
-                    if (userRegisterResendModel.UserId.ToString() == exceptionEmail)
-                        throw new ArgumentException("can't resend registration");
-                    return new User()
-                    {
-                        Id = Guid.NewGuid()
-                    };
-                });
             
             tbspProcessor.Setup(service =>
                     service.ExecuteScript(It.IsAny<ScriptExecuteModel>()))
@@ -196,14 +150,9 @@ namespace TbspRpgProcessor.Tests
                     service.StartGame(It.IsAny<GameStartModel>()))
                 .ReturnsAsync((GameStartModel gameStartModel) =>
                 {
-                    if (gameStartModel.UserId == exceptionId)
-                    {
-                        throw new ArgumentException("can't start game");
-                    }
-
                     return new Game()
                     {
-                        Id = Guid.NewGuid()
+                        Id = 12
                     };
                 });
             

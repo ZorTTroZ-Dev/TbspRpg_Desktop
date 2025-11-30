@@ -68,7 +68,7 @@ namespace TbspRpgProcessor.Processors
                     AdventureId = sourceCreateOrUpdateModel.Source.AdventureId,
                     Name = sourceCreateOrUpdateModel.Source.Name,
                     Text = sourceCreateOrUpdateModel.Source.Text,
-                    ScriptId = Guid.Empty
+                    ScriptId = null
                 };
                 await _sourcesService.AddSource(newSource);
                 await CompileSourceScript(newSource, false);
@@ -93,7 +93,7 @@ namespace TbspRpgProcessor.Processors
         private async Task RecompileSourceScript(Source source)
         {
             // the source currently doesn't have a script but they may have added some
-            if (source.ScriptId == null || source.ScriptId == Guid.Empty)
+            if (source.ScriptId == null || source.ScriptId == TbspRpgUtilities.DB_EMPTY_ID)
             {
                 await CompileSourceScript(source, false);
                 return;
@@ -111,7 +111,7 @@ namespace TbspRpgProcessor.Processors
             {
                 // remove the script from the database, the script blocks from the source was removed
                 _scriptsService.RemoveScript(dbScript);
-                source.ScriptId = Guid.Empty;
+                source.ScriptId = null;
             }
             else
             {
@@ -163,8 +163,7 @@ namespace TbspRpgProcessor.Processors
             {
                 script = new Script()
                 {
-                    Id = Guid.Empty,
-                    AdventureId = source.AdventureId,
+                    AdventureId = source.AdventureId.Value,
                     Name = source.Name + "_script",
                     Type = ScriptTypes.LuaScript,
                     Content = GenerateSourceScript(source.Text),
@@ -188,7 +187,7 @@ namespace TbspRpgProcessor.Processors
             }
 
             Script script = null;
-            if (source.ScriptId == null || source.ScriptId == Guid.Empty)
+            if (source.ScriptId == null || source.ScriptId == TbspRpgUtilities.DB_EMPTY_ID)
             {
                 script = await CompileSourceScript(source);
             }
@@ -232,7 +231,7 @@ namespace TbspRpgProcessor.Processors
             var matchList = _tbspRpgUtilities.EmbeddedObjectRegex.Matches(source.Text);
             var objectIds = matchList.Cast<Match>()
                 .Select(match => match.Groups[1].Value)
-                .Select(guidString => Guid.Parse(guidString))
+                .Select(intString => int.Parse(intString))
                 .ToList();
             
             // get the objects with source
@@ -329,7 +328,7 @@ namespace TbspRpgProcessor.Processors
 
         public async Task RemoveSource(SourceRemoveModel sourceRemoveModel)
         {
-            await _sourcesService.RemoveSource(sourceRemoveModel.SourceId);
+            await _sourcesService.RemoveSource(sourceRemoveModel.SourceId, sourceRemoveModel.Language);
             await _sourcesService.SaveChanges();
         }
     }

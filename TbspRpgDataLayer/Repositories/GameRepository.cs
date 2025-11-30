@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 
@@ -11,12 +10,11 @@ namespace TbspRpgDataLayer.Repositories
 {
     public interface IGameRepository : IBaseRepository
     {
-        Task<Game> GetGameById(Guid gameId);
-        Task<Game> GetGameByIdWithAdventure(Guid gameId);
-        Task<Game> GetGameByIdWithLocation(Guid gameId);
-        Task<Game> GetGameByAdventureIdAndUserId(Guid adventureId, Guid userId);
+        Task<Game> GetGameById(int gameId);
+        Task<Game> GetGameByIdWithAdventure(int gameId);
+        Task<Game> GetGameByIdWithLocation(int gameId);
+        Task<Game> GetGameByAdventureId(int adventureId);
         Task<List<Game>> GetGames(GameFilter filters);
-        Task<List<Game>> GetGamesIncludeUsers(GameFilter filters);
         Task AddGame(Game game);
         void RemoveGame(Game game);
         void RemoveGames(ICollection<Game> games);
@@ -31,38 +29,36 @@ namespace TbspRpgDataLayer.Repositories
             _databaseContext = databaseContext;
         }
 
-        public Task<Game> GetGameById(Guid gameId)
+        public Task<Game> GetGameById(int gameId)
         {
             return _databaseContext.Games.AsQueryable()
                 .FirstOrDefaultAsync(g => g.Id == gameId);
         }
         
-        public Task<Game> GetGameByIdWithAdventure(Guid gameId)
+        public Task<Game> GetGameByIdWithAdventure(int gameId)
         {
             return _databaseContext.Games.AsQueryable()
                 .Include(g => g.Adventure)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
         }
 
-        public Task<Game> GetGameByIdWithLocation(Guid gameId)
+        public Task<Game> GetGameByIdWithLocation(int gameId)
         {
             return _databaseContext.Games.AsQueryable().Include(g => g.Location)
                 .FirstOrDefaultAsync(g => g.Id == gameId);
         }
 
-        public Task<Game> GetGameByAdventureIdAndUserId(Guid adventureId, Guid userId)
+        public Task<Game> GetGameByAdventureId(int adventureId)
         {
             return _databaseContext.Games.AsQueryable()
-                .FirstOrDefaultAsync(g => g.AdventureId == adventureId && g.UserId == userId);
+                .FirstOrDefaultAsync(g => g.AdventureId == adventureId);
         }
 
         private IQueryable<Game> BuildGamesQuery(GameFilter filters)
         {
             var query = _databaseContext.Games.AsQueryable();
-            if (filters.AdventureId != Guid.Empty)
+            if (filters.AdventureId != null)
                 query = query.Where(game => game.AdventureId == filters.AdventureId);
-            if (filters.UserId != Guid.Empty)
-                query = query.Where(game => game.UserId == filters.UserId);
             return query;
         }
 
@@ -70,14 +66,6 @@ namespace TbspRpgDataLayer.Repositories
         {
             if (filters == null) return _databaseContext.Games.AsQueryable().ToListAsync();
             var query = BuildGamesQuery(filters);
-            return query.ToListAsync();
-        }
-
-        public Task<List<Game>> GetGamesIncludeUsers(GameFilter filters)
-        {
-            if (filters == null) return _databaseContext.Games.AsQueryable().Include(g => g.User).ToListAsync();
-            var query = BuildGamesQuery(filters);
-            query = query.Include(g => g.User);
             return query.ToListAsync();
         }
 

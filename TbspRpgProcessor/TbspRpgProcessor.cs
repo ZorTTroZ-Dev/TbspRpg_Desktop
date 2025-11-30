@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -12,14 +11,6 @@ namespace TbspRpgProcessor;
 
 public interface ITbspRpgProcessor
 {
-    #region UserProcessor
-    
-    Task<User> RegisterUser(UserRegisterModel userRegisterModel);
-    Task<User> VerifyUserRegistration(UserVerifyRegisterModel userVerifyRegisterModel);
-    Task<User> ResendUserRegistration(UserRegisterResendModel userRegisterResendModel);
-    
-    #endregion
-
     #region SourceProcessor
 
     Task<Source> CreateOrUpdateSource(SourceCreateOrUpdateModel sourceCreateOrUpdateModel);
@@ -90,7 +81,6 @@ public interface ITbspRpgProcessor
 
 public class TbspRpgProcessor: ITbspRpgProcessor
 {
-    private IUserProcessor _userProcessor;
     private ISourceProcessor _sourceProcessor;
     private IScriptProcessor _scriptProcessor;
     private IRouteProcessor _routeProcessor;
@@ -101,7 +91,6 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     private IAdventureProcessor _adventureProcessor;
     private IAdventureObjectProcessor _adventureObjectProcessor;
 
-    private readonly IUsersService _usersService;
     private readonly ISourcesService _sourcesService;
     private readonly IScriptsService _scriptsService;
     private readonly IAdventuresService _adventuresService;
@@ -113,15 +102,12 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     private readonly IAdventureObjectSourceService _adventureObjectSourceService;
     
     private readonly TbspRpgUtilities _tbspRpgUtilities;
-
-    private readonly IMailClient _mailClient;
     
     private readonly ILogger<TbspRpgProcessor> _logger;
 
     #region Constructor
 
     public TbspRpgProcessor(
-        IUsersService usersService,
         ISourcesService sourcesService,
         IScriptsService scriptsService,
         IAdventuresService adventuresService,
@@ -132,10 +118,8 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         IAdventureObjectService adventureObjectService,
         IAdventureObjectSourceService adventureObjectSourceService,
         TbspRpgUtilities tbspRpgUtilities,
-        IMailClient mailClient,
         ILogger<TbspRpgProcessor> logger)
     {
-        _usersService = usersService;
         _sourcesService = sourcesService;
         _scriptsService = scriptsService;
         _adventuresService = adventuresService;
@@ -146,35 +130,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         _adventureObjectService = adventureObjectService;
         _adventureObjectSourceService = adventureObjectSourceService;
         _tbspRpgUtilities = tbspRpgUtilities;
-        _mailClient = mailClient;
         _logger = logger;
-    }
-
-    #endregion
-
-    #region UserProcessor
-
-    private void LoadUserProcessor()
-    {
-        _userProcessor ??= new UserProcessor(_usersService, _mailClient, _logger);
-    }
-
-    public Task<User> RegisterUser(UserRegisterModel userRegisterModel)
-    {
-        LoadUserProcessor();
-        return _userProcessor.RegisterUser(userRegisterModel);
-    }
-
-    public Task<User> VerifyUserRegistration(UserVerifyRegisterModel userVerifyRegisterModel)
-    {
-        LoadUserProcessor();
-        return _userProcessor.VerifyUserRegistration(userVerifyRegisterModel);
-    }
-
-    public Task<User> ResendUserRegistration(UserRegisterResendModel userRegisterResendModel)
-    {
-        LoadUserProcessor();
-        return _userProcessor.ResendUserRegistration(userRegisterResendModel);
     }
 
     #endregion
@@ -353,7 +309,6 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         _gameProcessor ??= new GameProcessor(
             _scriptProcessor,
             _adventuresService,
-            _usersService,
             _gamesService,
             _locationsService,
             _contentsService,

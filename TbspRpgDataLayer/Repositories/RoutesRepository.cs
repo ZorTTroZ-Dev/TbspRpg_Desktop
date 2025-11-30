@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 
@@ -11,15 +10,15 @@ namespace TbspRpgDataLayer.Repositories
 {
     public interface IRoutesRepository : IBaseRepository
     {
-        Task<List<Route>> GetRoutesForLocation(Guid locationId);
-        Task<List<Route>> GetRoutesForAdventure(Guid adventureId);
-        Task<Route> GetRouteById(Guid routeId);
+        Task<List<Route>> GetRoutesForLocation(int locationId);
+        Task<List<Route>> GetRoutesForAdventure(int adventureId);
+        Task<Route> GetRouteById(int routeId);
         Task<List<Route>> GetRoutes(RouteFilter routeFilter);
         void RemoveRoute(Route route);
         void RemoveRoutes(ICollection<Route> routes);
         Task AddRoute(Route route);
-        Task<List<Route>> GetRoutesWithScript(Guid scriptId);
-        Task<List<Route>> GetAdventureRoutesWithSource(Guid adventureId, Guid sourceKey);
+        Task<List<Route>> GetRoutesWithScript(int scriptId);
+        Task<List<Route>> GetAdventureRoutesWithSource(int adventureId, Guid sourceKey);
     }
     
     public class RoutesRepository : IRoutesRepository
@@ -67,14 +66,14 @@ namespace TbspRpgDataLayer.Repositories
             await _databaseContext.AddAsync(route);
         }
 
-        public Task<List<Route>> GetRoutesWithScript(Guid scriptId)
+        public Task<List<Route>> GetRoutesWithScript(int scriptId)
         {
             return _databaseContext.Routes.AsQueryable()
                 .Where(route => route.RouteTakenScriptId == scriptId)
                 .ToListAsync();
         }
 
-        public Task<List<Route>> GetAdventureRoutesWithSource(Guid adventureId, Guid sourceKey)
+        public Task<List<Route>> GetAdventureRoutesWithSource(int adventureId, Guid sourceKey)
         {
             return _databaseContext.Routes.AsQueryable()
                 .Where(route => route.Location.AdventureId == adventureId &&
@@ -82,7 +81,7 @@ namespace TbspRpgDataLayer.Repositories
                 .ToListAsync();
         }
 
-        public Task<List<Route>> GetRoutesForLocation(Guid locationId)
+        public Task<List<Route>> GetRoutesForLocation(int locationId)
         {
             return GetRoutes(new RouteFilter()
             {
@@ -90,7 +89,7 @@ namespace TbspRpgDataLayer.Repositories
             });
         }
 
-        public Task<List<Route>> GetRoutesForAdventure(Guid adventureId)
+        public Task<List<Route>> GetRoutesForAdventure(int adventureId)
         {
             return GetRoutes(new RouteFilter()
             {
@@ -98,7 +97,7 @@ namespace TbspRpgDataLayer.Repositories
             });
         }
 
-        public Task<Route> GetRouteById(Guid routeId)
+        public Task<Route> GetRouteById(int routeId)
         {
             return _databaseContext.Routes.AsQueryable()
                 .Include(route => route.DestinationLocation)

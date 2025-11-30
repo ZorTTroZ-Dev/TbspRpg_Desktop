@@ -4,8 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.EntityFrameworkCore;
-using TbspRpgApi.Entities;
-using TbspRpgApi.Entities.LanguageSources;
+using TbspRpgDataLayer.Entities.LanguageSources;
 using TbspRpgDataLayer.Entities;
 using TbspRpgSettings.Settings;
 
@@ -14,14 +13,15 @@ namespace TbspRpgDataLayer.Repositories
     public interface ISourcesRepository: IBaseRepository
     {
         Task<string> GetSourceTextForKey(Guid key, string language = null);
-        Task<Source> GetSourceForKey(Guid key, Guid adventureId, string language);
+        Task<Source> GetSourceForKey(Guid key, int? adventureId, string language);
         Task AddSource(Source source, string language);
-        Task RemoveAllSourceForAdventure(Guid adventureId);
-        Task RemoveSource(Guid sourceId);
-        Task<List<Source>> GetAllSourceForAdventure(Guid adventureId, string language);
-        Task<List<Source>> GetAllSourceAllLanguagesForAdventure(Guid adventureId);
-        Task<List<Source>> GetSourcesWithScript(Guid scriptId);
-        Task<Source> GetSourceById(Guid sourceId);
+        Task RemoveAllSourceForAdventure(int adventureId);
+        Task RemoveSource(int sourceId, string language);
+        Task<List<Source>> GetAllSourceForAdventure(int adventureId, string language);
+        Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId);
+        Task<List<Source>> GetSourcesWithScript(int scriptId);
+        Task<Source> GetSourceById(int sourceId, string language);
+        void Seed();
     }
     
     public class SourcesRepository : ISourcesRepository
@@ -58,7 +58,7 @@ namespace TbspRpgDataLayer.Repositories
             throw new ArgumentException($"invalid language {language}");
         }
 
-        public Task<Source> GetSourceForKey(Guid key, Guid adventureId, string language)
+        public Task<Source> GetSourceForKey(Guid key, int? adventureId, string language)
         {
             var query = GetQueryRoot(language);
             if(query != null && key != Guid.Empty)
@@ -112,7 +112,7 @@ namespace TbspRpgDataLayer.Repositories
             throw new ArgumentException($"invalid language {language}");
         }
 
-        public async Task RemoveAllSourceForAdventure(Guid adventureId)
+        public async Task RemoveAllSourceForAdventure(int adventureId)
         {
             // have to remove all source for each language
             foreach (var language in Languages.GetAllLanguages())
@@ -122,18 +122,15 @@ namespace TbspRpgDataLayer.Repositories
             }
         }
 
-        public async Task RemoveSource(Guid sourceId)
+        public async Task RemoveSource(int sourceId, string language)
         {
-            foreach (var language in Languages.GetAllLanguages())
-            {
-                var query = GetQueryRoot(language);
-                var source = await query.FirstOrDefaultAsync(source => source.Id == sourceId);
-                if (source != null)
-                    _databaseContext.Remove(source);
-            }
+            var query = GetQueryRoot(language);
+            var source = await query.FirstOrDefaultAsync(source => source.Id == sourceId);
+            if (source != null)
+                _databaseContext.Remove(source);
         }
 
-        public async Task<List<Source>> GetAllSourceForAdventure(Guid adventureId, string language)
+        public async Task<List<Source>> GetAllSourceForAdventure(int adventureId, string language)
         {
             var query = GetQueryRoot(language);
             var sources = await query.Where(source => source.AdventureId == adventureId).ToListAsync();
@@ -141,7 +138,7 @@ namespace TbspRpgDataLayer.Repositories
             return sources;
         }
 
-        public async Task<List<Source>> GetAllSourceAllLanguagesForAdventure(Guid adventureId)
+        public async Task<List<Source>> GetAllSourceAllLanguagesForAdventure(int adventureId)
         {
             List<Source> sources = new List<Source>();
             foreach (var language in Languages.GetAllLanguages())
@@ -155,7 +152,7 @@ namespace TbspRpgDataLayer.Repositories
             return sources;
         }
 
-        public async Task<List<Source>> GetSourcesWithScript(Guid scriptId)
+        public async Task<List<Source>> GetSourcesWithScript(int scriptId)
         {
             List<Source> sources = new List<Source>();
             foreach (var language in Languages.GetAllLanguages())
@@ -166,16 +163,39 @@ namespace TbspRpgDataLayer.Repositories
             return sources;
         }
 
-        public async Task<Source> GetSourceById(Guid sourceId)
+        public async Task<Source> GetSourceById(int sourceId, string language)
+        {
+            var query = GetQueryRoot(language);
+            var source = await query.FirstOrDefaultAsync(source => source.Id == sourceId);
+            return source;
+        }
+
+        public void Seed()
         {
             foreach (var language in Languages.GetAllLanguages())
             {
                 var query = GetQueryRoot(language);
-                var source = await query.FirstOrDefaultAsync(source => source.Id == sourceId);
-                if (source != null)
-                    return source;
+                var emptySource =  query.FirstOrDefault(source => source.Key == Guid.Empty);
+                if (emptySource == null)
+                {
+                    var source = new Source()
+                    {
+                        Key = Guid.Empty,
+                        AdventureId = null
+                    };
+                    if (language == Languages.ENGLISH || language == null)
+                    {
+                        source.Text = "Empty Source";
+                        _databaseContext.SourcesEn.Add(SourceToEn(source));
+                    }
+                    if (language == Languages.SPANISH)
+                    {
+                        source.Text = "Fuente Vacia";
+                        _databaseContext.SourcesEsp.Add(SourcetoEsp(source));
+                    }
+                }
             }
-            return null;
+            _databaseContext.SaveChanges();
         }
 
         public async Task SaveChanges()

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -13,15 +12,15 @@ namespace TbspRpgDataLayer.Services
     public interface IContentsService : IBaseService
     {
         Task AddContent(Content content);
-        Task<Content> GetContentForGameAtPosition(Guid gameId, ulong position);
-        Task<List<Content>> GetAllContentForGame(Guid gameId);
-        Task<Content> GetLatestForGame(Guid gameId);
-        Task<List<Content>> GetContentForGameAfterPosition(Guid gameId, ulong position);
-        Task<List<Content>> GetPartialContentForGame(Guid gameId, ContentFilterRequest filterRequest);
+        Task<Content> GetContentForGameAtPosition(int gameId, ulong position);
+        Task<List<Content>> GetAllContentForGame(int gameId);
+        Task<Content> GetLatestForGame(int gameId);
+        Task<List<Content>> GetContentForGameAfterPosition(int gameId, ulong position);
+        Task<List<Content>> GetPartialContentForGame(int gameId, ContentFilterRequest filterRequest);
         void RemoveContents(IEnumerable<Content> contents);
-        Task RemoveAllContentsForGame(Guid gameId);
-        Task<bool> DoesAdventureContentUseSource(Guid adventureId, Guid sourceKey);
-        Task<List<Content>> GetAdventureContentsWithSource(Guid adventureId, Guid sourceKey);
+        Task RemoveAllContentsForGame(int gameId);
+        Task<bool> DoesAdventureContentUseSource(int adventureId, Guid sourceKey);
+        Task<List<Content>> GetAdventureContentsWithSource(int adventureId, Guid sourceKey);
     }
     
     public class ContentsService : IContentsService
@@ -48,28 +47,28 @@ namespace TbspRpgDataLayer.Services
                 await _contentsRepository.AddContent(content);
         }
 
-        public Task<Content> GetContentForGameAtPosition(Guid gameId, ulong position)
+        public Task<Content> GetContentForGameAtPosition(int gameId, ulong position)
         {
             return _contentsRepository.GetContentForGameAtPosition(gameId, position);
         }
 
-        public Task<List<Content>> GetAllContentForGame(Guid gameId)
+        public Task<List<Content>> GetAllContentForGame(int gameId)
         {
             return _contentsRepository.GetContentForGame(gameId);
         }
 
-        public async Task<Content> GetLatestForGame(Guid gameId)
+        public async Task<Content> GetLatestForGame(int gameId)
         {
             var contents = await _contentsRepository.GetContentForGameReverse(gameId, null, 1);
             return contents.FirstOrDefault();
         }
 
-        public Task<List<Content>> GetContentForGameAfterPosition(Guid gameId, ulong position)
+        public Task<List<Content>> GetContentForGameAfterPosition(int gameId, ulong position)
         {
             return _contentsRepository.GetContentForGameAfterPosition(gameId, position);
         }
 
-        public async Task<List<Content>> GetPartialContentForGame(Guid gameId, ContentFilterRequest filterRequest)
+        public async Task<List<Content>> GetPartialContentForGame(int gameId, ContentFilterRequest filterRequest)
         {
             List<Content> contents = null;
             if (string.IsNullOrEmpty(filterRequest.Direction) || filterRequest.IsForward())
@@ -100,18 +99,18 @@ namespace TbspRpgDataLayer.Services
             _contentsRepository.RemoveContents(contents);
         }
 
-        public async Task RemoveAllContentsForGame(Guid gameId)
+        public async Task RemoveAllContentsForGame(int gameId)
         {
             await _contentsRepository.RemoveAllContentsForGame(gameId);
         }
 
-        public async Task<bool> DoesAdventureContentUseSource(Guid adventureId, Guid sourceKey)
+        public async Task<bool> DoesAdventureContentUseSource(int adventureId, Guid sourceKey)
         {
             var contents = await GetAdventureContentsWithSource(adventureId, sourceKey);
             return contents.Any();
         }
 
-        public Task<List<Content>> GetAdventureContentsWithSource(Guid adventureId, Guid sourceKey)
+        public Task<List<Content>> GetAdventureContentsWithSource(int adventureId, Guid sourceKey)
         {
             return _contentsRepository.GetAdventureContentsWithSource(adventureId, sourceKey);
         }

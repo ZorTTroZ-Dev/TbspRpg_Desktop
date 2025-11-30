@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging.Abstractions;
-using TbspRpgApi.Entities;
 using TbspRpgDataLayer.ArgumentModels;
 using TbspRpgDataLayer.Entities;
 using TbspRpgDataLayer.Repositories;
@@ -11,10 +11,8 @@ using Xunit;
 
 namespace TbspRpgDataLayer.Tests.Services
 {
-    public class AdventuresServiceTests : InMemoryTest
+    public class AdventuresServiceTests() : InMemoryTest("AdventuresServiceTests")
     {
-        public AdventuresServiceTests() : base("AdventuresServiceTests") {}
-
         private static IAdventuresService CreateService(DatabaseContext context)
         {
             return new AdventuresService(
@@ -25,18 +23,18 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAllAdventures
 
         [Fact]
-        public async void GetAllAdventures_AllAdventuresReturned()
+        public async Task GetAllAdventures_AllAdventuresReturned()
         {
             //  arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "TestOne"
             };
             var testAdventureTwo = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "TestTwo"
             };
             context.Adventures.AddRange(testAdventure, testAdventureTwo);
@@ -51,114 +49,18 @@ namespace TbspRpgDataLayer.Tests.Services
             Assert.Equal(testAdventure.Id, adventures.First().Id);
         }
         
-        [Fact]
-        public async void GetAllAdventures_FilterCreatedBy_ReturnAdventures()
-        {
-            //  arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventure = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestOne",
-                CreatedByUserId = Guid.NewGuid()
-            };
-            var testAdventureTwo = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestTwo",
-                CreatedByUserId = Guid.NewGuid()
-            };
-            context.Adventures.AddRange(testAdventure, testAdventureTwo);
-            await context.SaveChangesAsync();
-            var service = CreateService(context);
-            
-            // act
-            var adventures = await service.GetAllAdventures(new AdventureFilter()
-            {
-                CreatedBy = testAdventure.CreatedByUserId
-            });
-            
-            // assert
-            Assert.Single(adventures);
-            Assert.Equal(testAdventure.Id, adventures.First().Id);
-        }
-        
-        [Fact]
-        public async void GetAllAdventures_FilterCreatedByNone_ReturnEmpty()
-        {
-            //  arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventure = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestOne",
-                CreatedByUserId = Guid.NewGuid()
-            };
-            var testAdventureTwo = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestTwo",
-                CreatedByUserId = Guid.NewGuid()
-            };
-            context.Adventures.AddRange(testAdventure, testAdventureTwo);
-            await context.SaveChangesAsync();
-            var service = CreateService(context);
-            
-            // act
-            var adventures = await service.GetAllAdventures(new AdventureFilter()
-            {
-                CreatedBy = Guid.NewGuid()
-            });
-            
-            // assert
-            Assert.Empty(adventures);
-        }
-
-        #endregion
-        
-        #region GetPublishedAdventures
-
-        [Fact]
-        public async void GetPublishedAdventures_ReturnPublished()
-        {
-            //arrange
-            await using var context = new DatabaseContext(DbContextOptions);
-            var testAdventure = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestOne",
-                PublishDate = DateTime.UtcNow
-            };
-            var testAdventureTwo = new Adventure()
-            {
-                Id = Guid.NewGuid(),
-                Name = "TestTwo",
-                PublishDate = DateTime.UtcNow.AddDays(1)
-            };
-            context.Adventures.AddRange(testAdventure, testAdventureTwo);
-            await context.SaveChangesAsync();
-            var service = CreateService(context);
-            
-            //act
-            var adventures = await service.GetPublishedAdventures(new AdventureFilter());
-            
-            //assert
-            Assert.Single(adventures);
-            Assert.Equal("TestOne", adventures[0].Name);
-        }
-        
         #endregion
 
         #region GetAdventureByName
 
         [Fact]
-        public async void GetAdventureByName_Exact_ReturnAdventure()
+        public async Task GetAdventureByName_Exact_ReturnAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             };
             context.Adventures.Add(testAdventure);
@@ -174,13 +76,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetAdventureByName_CaseInsensitive_ReturnAdventure()
+        public async Task GetAdventureByName_CaseInsensitive_ReturnAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             };
             context.Adventures.Add(testAdventure);
@@ -196,13 +98,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetAdventureByName_Invalid_ReturnNull()
+        public async Task GetAdventureByName_Invalid_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             };
             context.Adventures.Add(testAdventure);
@@ -221,13 +123,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAdventureById
 
         [Fact]
-        public async void GetAdventureById_Exists_ReturnAdventure()
+        public async Task GetAdventureById_Exists_ReturnAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             };
             context.Adventures.Add(testAdventure);
@@ -243,13 +145,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetAdventureById_Invalid_ReturnNull()
+        public async Task GetAdventureById_Invalid_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test"
             };
             context.Adventures.Add(testAdventure);
@@ -257,7 +159,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var adventure = await service.GetAdventureById(Guid.NewGuid());
+            var adventure = await service.GetAdventureById(42);
             
             // assert
             Assert.Null(adventure);
@@ -268,14 +170,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region AddAdventure
 
         [Fact]
-        public async void AddAdventure_AdventureAdded()
+        public async Task AddAdventure_AdventureAdded()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                CreatedByUserId = Guid.NewGuid(),
                 InitialSourceKey = Guid.Empty
             };
             var service = CreateService(context);
@@ -294,14 +195,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region RemoveAdventure
 
         [Fact]
-        public async void RemoveAdventure_Valid_AdventureRemoved()
+        public async Task RemoveAdventure_Valid_AdventureRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                CreatedByUserId = Guid.NewGuid(),
                 InitialSourceKey = Guid.Empty
             };
             await context.AddAsync(newAdventure);
@@ -321,17 +221,17 @@ namespace TbspRpgDataLayer.Tests.Services
         #region RemoveScriptFromAdventures
 
         [Fact]
-        public async void RemoveScriptFromAdventures_ScriptRemoved()
+        public async Task RemoveScriptFromAdventures_ScriptRemoved()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 Name = "test",
                 InitializationScript = new Script()
                 {
-                    Id = Guid.NewGuid(),
+                    Id = 1,
                     Name = "test",
                     Type = ScriptTypes.LuaScript,
                     Content = "banana"
@@ -339,7 +239,7 @@ namespace TbspRpgDataLayer.Tests.Services
             };
             var testAdventureTwo = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 2,
                 Name = "test two",
                 TerminationScript = testAdventure.InitializationScript
             };
@@ -361,13 +261,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region GetAdventureWithSource
 
         [Fact]
-        public async void GetAdventureWithSource_DoesntExist_ReturnNull()
+        public async Task GetAdventureWithSource_DoesntExist_ReturnNull()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 DescriptionSourceKey = Guid.NewGuid(),
                 InitialSourceKey = Guid.NewGuid()
             };
@@ -376,20 +276,20 @@ namespace TbspRpgDataLayer.Tests.Services
             var service = CreateService(context);
             
             // act
-            var adventure = await service.GetAdventureWithSource(Guid.NewGuid(), Guid.NewGuid());
+            var adventure = await service.GetAdventureWithSource(42, Guid.NewGuid());
             
             // assert
             Assert.Null(adventure);
         }
 
         [Fact]
-        public async void GetAdventureWithSource_DescriptionSourceKey_ReturnAdventure()
+        public async Task GetAdventureWithSource_DescriptionSourceKey_ReturnAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 DescriptionSourceKey = Guid.NewGuid(),
                 InitialSourceKey = Guid.NewGuid()
             };
@@ -407,13 +307,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void GetAdventureWithSource_InitialSourceKey_ReturnAdventure()
+        public async Task GetAdventureWithSource_InitialSourceKey_ReturnAdventure()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 DescriptionSourceKey = Guid.NewGuid(),
                 InitialSourceKey = Guid.NewGuid()
             };
@@ -435,13 +335,13 @@ namespace TbspRpgDataLayer.Tests.Services
         #region DoesAdventureUseSource
 
         [Fact]
-        public async void DoesAdventureUseSource_DoesntUseSource_ReturnFalse()
+        public async Task DoesAdventureUseSource_DoesntUseSource_ReturnFalse()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 DescriptionSourceKey = Guid.NewGuid(),
                 InitialSourceKey = Guid.NewGuid()
             };
@@ -457,13 +357,13 @@ namespace TbspRpgDataLayer.Tests.Services
         }
 
         [Fact]
-        public async void DoesAdventureUseSource_UsesSource_ReturnTrue()
+        public async Task DoesAdventureUseSource_UsesSource_ReturnTrue()
         {
             // arrange
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                Id = Guid.NewGuid(),
+                Id = 1,
                 DescriptionSourceKey = Guid.NewGuid(),
                 InitialSourceKey = Guid.NewGuid()
             };

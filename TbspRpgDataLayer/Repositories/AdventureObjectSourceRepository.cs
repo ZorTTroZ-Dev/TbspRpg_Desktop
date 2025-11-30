@@ -10,7 +10,7 @@ namespace TbspRpgDataLayer.Repositories;
 
 public interface IAdventureObjectSourceRepository
 {
-    Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<Guid> adventureObjectIds, string language);
+    Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<int> adventureObjectIds, string language);
 }
 
 public class AdventureObjectSourceRepository: IAdventureObjectSourceRepository
@@ -22,7 +22,7 @@ public class AdventureObjectSourceRepository: IAdventureObjectSourceRepository
         _databaseContext = databaseContext;
     }
 
-    public Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<Guid> adventureObjectIds, string language)
+    public Task<List<AdventureObjectSource>> GetAdventureObjectsWithSourceById(IEnumerable<int> adventureObjectIds, string language)
     {
         var adventureObjectQueryable = _databaseContext.AdventureObjects.AsQueryable()
             .Where(ao => adventureObjectIds.Contains(ao.Id));
