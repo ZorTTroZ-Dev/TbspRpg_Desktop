@@ -36,7 +36,7 @@ public partial class MainWindow : Window
         WeakReferenceMessenger.Default.Register<MainWindow, NotificationMessage>(this, static (w, m) =>
         {
             w.NotificationManager.CloseAll();
-            w.NotificationManager.Show(m.Message, NotificationType.Success, TimeSpan.FromSeconds(5));
+            w.NotificationManager.Show(m.Message, m.Type, TimeSpan.FromSeconds(5));
         });
     }
 }
