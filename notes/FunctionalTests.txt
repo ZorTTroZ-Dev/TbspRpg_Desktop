@@ -1,37 +1,4 @@
 User Experience
-- Delete test user (currently done in database)
-- Click Register button on landing page
-- Enter address for test user
-- Enter code sent to email address
-- Should be taken to adventure-explore page
-
-- Delete test user
-- Click Register button
-- Enter address for test user
-- Close browser tab
-- Try to log in
-- Should be prompted for registration code
-
-- Log in as test user
-- Click play button for demo adventure
-- Make a few moves
-- Close browser
-- Log in again
-- Click play button for demo adventure
-- Should pick up where you left off
-
-- Log in as test user
-- Click play button for demo adventure
-- Navigate to the end of the adventure
 
 Admin Experience
-- Login and navigate to adventure editor
 - Create a new adventure
-- Fill out initial content
-- Add routes
-- Add locations
-- Navigate to adventure explorer and play the test adventure
-
-- Login and navigate to the adventure editor
-- Delete game created in test adventure
-- Delete the test adventure
