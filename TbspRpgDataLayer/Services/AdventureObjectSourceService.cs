@@ -15,10 +15,10 @@ public interface IAdventureObjectSourceService
 public class AdventureObjectSourceService: IAdventureObjectSourceService
 {
     private readonly IAdventureObjectSourceRepository _adventureObjectSourceRepository;
-    private readonly ILogger<AdventureObjectService> _logger;
+    private readonly ILogger<AdventureObjectSourceService> _logger;
     
     public AdventureObjectSourceService(IAdventureObjectSourceRepository adventureObjectSourceRepository,
-        ILogger<AdventureObjectService> logger)
+        ILogger<AdventureObjectSourceService> logger)
     {
         _adventureObjectSourceRepository = adventureObjectSourceRepository;
         _logger = logger;

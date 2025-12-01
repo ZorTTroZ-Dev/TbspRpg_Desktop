@@ -65,7 +65,8 @@ public interface ITbspRpgProcessor
     #endregion
     
     #region AdventureProcessor
-    
+
+    Task CreateAdventureInitial(AdventureCreateModel adventureCreateModel);
     Task UpdateAdventure(AdventureUpdateModel adventureUpdateModel);
     Task RemoveAdventure(AdventureRemoveModel adventureRemoveModel);
     
@@ -367,6 +368,12 @@ public class TbspRpgProcessor: ITbspRpgProcessor
             _sourcesService,
             _scriptsService,
             _logger);
+    }
+
+    public Task CreateAdventureInitial(AdventureCreateModel adventureCreateModel)
+    {
+        LoadAdventureProcessor();
+        return _adventureProcessor.CreateAdventureInitial(adventureCreateModel);
     }
     
     public Task UpdateAdventure(AdventureUpdateModel adventureUpdateModel)

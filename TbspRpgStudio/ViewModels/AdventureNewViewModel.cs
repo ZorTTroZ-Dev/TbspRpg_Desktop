@@ -10,6 +10,9 @@ public partial class AdventureNewViewModel : ViewModelBase
 {
     [ObservableProperty]
     private string? _name;
+    
+    [ObservableProperty]
+    private string? _description;
 
     [RelayCommand (CanExecute = nameof(CanSaveAdventure))]
     public void SaveAdventure()
@@ -17,7 +20,7 @@ public partial class AdventureNewViewModel : ViewModelBase
         var newAdventureView = new AdventureView()
         {
             Name = Name,
-            Description = "Viva la France!"
+            Description = Description
         };
         WeakReferenceMessenger.Default.Send(new AdventureNewClosedMessage(newAdventureView));
     }

@@ -496,5 +496,87 @@ namespace TbspRpgProcessor.Tests.Processors
         }
 
         #endregion
+
+        #region CreateAdventureInitial
+
+        [Fact]
+        public async Task CreateAdventureInitial_EmptyName_ExceptionThrown()
+        {
+            // arrange
+            var adventures = new List<Adventure>();
+            var sources = new List<En>();
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
+            
+            // act
+            Task Act() => processor.CreateAdventureInitial(new AdventureCreateModel()
+            {
+                Name = "",
+                Description = "description",
+                Language = Languages.ENGLISH
+            });
+
+            // assert
+            await Assert.ThrowsAsync<ArgumentException>(Act);
+        }
+        
+        [Fact]
+        public async Task CreateAdventureInitial_Valid_AdventureAndSourceCreated()
+        {
+            // arrange
+            var adventures = new List<Adventure>();
+            var sources = new List<En>();
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
+            
+            // act
+            await processor.CreateAdventureInitial(new AdventureCreateModel()
+            {
+                Name = "new adventure",
+                Description = "description",
+                Language = Languages.ENGLISH
+            });
+
+            // assert
+            Assert.Single(adventures);
+            Assert.Single(sources);
+            Assert.Equal("new adventure", adventures[0].Name);
+            Assert.NotEqual(Guid.Empty, adventures[0].DescriptionSourceKey);
+            Assert.Equal("description", sources[0].Text);
+        }
+        
+        [Fact]
+        public async Task CreateAdventureInitial_EmptyDescription_AdventureCreated()
+        {
+            // arrange
+            var adventures = new List<Adventure>();
+            var sources = new List<En>();
+            var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
+            {
+                Adventures = adventures,
+                Sources = sources
+            });
+            
+            // act
+            await processor.CreateAdventureInitial(new AdventureCreateModel()
+            {
+                Name = "new adventure",
+                Description = "",
+                Language = Languages.ENGLISH
+            });
+
+            // assert
+            Assert.Single(adventures);
+            Assert.Equal("new adventure", adventures[0].Name);
+            Assert.Equal(Guid.Empty, adventures[0].DescriptionSourceKey);
+        }
+
+        #endregion
     }
 }

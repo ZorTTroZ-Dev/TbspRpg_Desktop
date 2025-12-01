@@ -48,6 +48,7 @@ namespace TbspRpgDataLayer.Services
         public async Task AddSource(Source source, string language = null)
         {
             await _sourcesRepository.AddSource(source, language);
+            _logger.LogInformation("Source {@Source} added of {language}", source, language);
         }
 
         public async Task RemoveAllSourceForAdventure(int adventureId)
