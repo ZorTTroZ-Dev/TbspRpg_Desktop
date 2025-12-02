@@ -10,6 +10,7 @@ namespace TbspRpgProcessor.Processors
 {
     public interface IAdventureProcessor
     {
+        Task CreateAdventureInitial(AdventureCreateModel adventureCreateModel);
         Task UpdateAdventure(AdventureUpdateModel adventureUpdateModel);
         Task RemoveAdventure(AdventureRemoveModel adventureRemoveModel);
     }
@@ -39,6 +40,43 @@ namespace TbspRpgProcessor.Processors
             _sourcesService = sourcesService;
             _scriptsService = scriptsService;
             _logger = logger;
+        }
+
+        public async Task CreateAdventureInitial(AdventureCreateModel adventureCreateModel)
+        {
+            if (string.IsNullOrEmpty(adventureCreateModel.Name) || string.IsNullOrEmpty(adventureCreateModel.Language))
+                throw new ArgumentException("name and language required to create adventure");
+
+            var adventure = new Adventure()
+            {
+                Name = adventureCreateModel.Name,
+                InitialSourceKey = Guid.Empty,
+                DescriptionSourceKey = Guid.Empty,
+                InitializationScriptId = null,
+                TerminationScriptId = null
+            };
+            await _adventuresService.AddAdventure(adventure);
+            await _adventuresService.SaveChanges();
+
+            if (!string.IsNullOrEmpty(adventureCreateModel.Description))
+            {
+                var source = new Source()
+                {
+                    AdventureId = adventure.Id,
+                    Key = Guid.Empty,
+                    Language = adventureCreateModel.Language,
+                    Name = $"Description_{adventure.Id}",
+                    ScriptId = null,
+                    Text = adventureCreateModel.Description
+                };
+                var dbSource = await _sourceProcessor.CreateOrUpdateSource(new SourceCreateOrUpdateModel() {
+                    Source = source,
+                    Language = adventureCreateModel.Language,
+                    Save = false
+                });
+                adventure.DescriptionSourceKey = dbSource.Key;
+                await _adventuresService.SaveChanges();
+            }
         }
         
         public async Task UpdateAdventure(AdventureUpdateModel adventureUpdateModel)

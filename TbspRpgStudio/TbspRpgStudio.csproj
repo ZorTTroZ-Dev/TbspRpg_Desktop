@@ -31,6 +31,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\TbspRpgDataLayer\TbspRpgDataLayer.csproj" />
+      <ProjectReference Include="..\TbspRpgProcessor\TbspRpgProcessor.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -4,6 +4,8 @@ using Avalonia;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using TbspRpgDataLayer;
+using TbspRpgProcessor;
 
 namespace TbspRpgStudio;
 
@@ -39,12 +41,14 @@ sealed class Program
             if (initializeSet && initializeDb && File.Exists(dbPath))
                 File.Delete(dbPath);
             using (File.Create(dbPath)) { }
-            TbspRpgDataLayer.TbspRpgDataLayer.Connect(connectionString, loggerFactory, true);
+            TbspRpgDataServiceFactory.Connect(connectionString, loggerFactory, true);
         }
         else
         {
-            TbspRpgDataLayer.TbspRpgDataLayer.Connect(connectionString, loggerFactory);    
+            TbspRpgDataServiceFactory.Connect(connectionString, loggerFactory);    
         }
+        // setup the processor
+        TbspRpgProcessorFactory.Create(TbspRpgDataServiceFactory.Load(), loggerFactory);
         
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
     }
