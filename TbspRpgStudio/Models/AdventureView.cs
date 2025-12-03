@@ -1,5 +1,8 @@
 using System;
+using System.Threading.Tasks;
+using TbspRpgDataLayer;
 using TbspRpgDataLayer.Entities;
+using TbspRpgProcessor;
 
 namespace TbspRpgStudio.Models;
 
@@ -8,12 +11,15 @@ public class AdventureView
     public string Name { get; set; }
     public string Description { get; set; }
 
-    public static AdventureView FromAdventure(Adventure adventure)
+    public static async Task<AdventureView> FromAdventure(Adventure adventure)
     {
+        // load the description
+        var sourceService = TbspRpgDataServiceFactory.Load().SourcesService;
+        var description = await sourceService.GetSourceTextForKey(adventure.DescriptionSourceKey);
         return new AdventureView()
         {
             Name =  adventure.Name,
-            Description = "Adventure View Description!"
+            Description = description
         };
     }
 

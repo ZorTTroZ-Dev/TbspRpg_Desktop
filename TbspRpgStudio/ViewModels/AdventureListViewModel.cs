@@ -31,7 +31,7 @@ public partial class AdventureListViewModel : ViewModelBase
         var adventures = await _dataServiceFactory.AdventuresService.GetAllAdventures(new AdventureFilter());
         foreach (var adventure in adventures)
         {
-            Adventures.Add(AdventureView.FromAdventure(adventure));
+            Adventures.Add(await AdventureView.FromAdventure(adventure));
         }
     }
     
