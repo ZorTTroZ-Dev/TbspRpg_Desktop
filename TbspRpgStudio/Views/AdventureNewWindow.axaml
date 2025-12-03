@@ -13,7 +13,7 @@
     <Design.DataContext>
         <vm:AdventureNewViewModel />
     </Design.DataContext>
-    
+    <Border BorderBrush="DimGray" BorderThickness="2">
     <Grid RowDefinitions="4*, 1*">
         <Panel Grid.Row="0">
             <Border BorderBrush="Gray"
@@ -31,4 +31,5 @@
             <Button Margin="0, 0, 25, 0" Command="{Binding SaveAdventure}">Save</Button>
         </StackPanel>
     </Grid>
+    </Border>
 </Window>
