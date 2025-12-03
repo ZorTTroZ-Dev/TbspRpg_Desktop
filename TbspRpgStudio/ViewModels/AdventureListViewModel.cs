@@ -10,13 +10,12 @@ using TbspRpgProcessor;
 using TbspRpgProcessor.Entities;
 using TbspRpgSettings.Settings;
 using TbspRpgStudio.Messages;
-using TbspRpgStudio.Models;
 
 namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureListViewModel : ViewModelBase
 {
-    public ObservableCollection<AdventureView> Adventures { get; } = new();
+    public ObservableCollection<AdventureViewModel> Adventures { get; } = new();
     private readonly TbspRpgDataServiceFactory _dataServiceFactory;
 
     public AdventureListViewModel()
@@ -31,7 +30,7 @@ public partial class AdventureListViewModel : ViewModelBase
         var adventures = await _dataServiceFactory.AdventuresService.GetAllAdventures(new AdventureFilter());
         foreach (var adventure in adventures)
         {
-            Adventures.Add(AdventureView.FromAdventure(adventure));
+            Adventures.Add(await AdventureViewModel.FromAdventure(adventure));
         }
     }
     
@@ -45,11 +44,13 @@ public partial class AdventureListViewModel : ViewModelBase
 
         try
         {
+            var appState = ApplicationState.Load();
             await TbspRpgProcessorFactory.TbspRpgProcessor().CreateAdventureInitial(new AdventureCreateModel()
             {
                 Name = adventureView.Name,
                 Description = adventureView.Description,
-                Language = Languages.DEFAULT
+                Languages = adventureView.Languages,
+                DescriptionLanguage = appState.Language
             });
             await LoadDataAsync();
         }

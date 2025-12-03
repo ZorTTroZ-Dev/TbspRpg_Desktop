@@ -1,0 +1,67 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:TbspRpgStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TbspRpgStudio.Views.CopyEditView"
+             xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
+             x:DataType="viewModels:CopyEditViewModel">
+    
+    <DockPanel>
+        <StackPanel DockPanel.Dock="Bottom">
+            <Separator />
+            <Grid ColumnDefinitions="1*, 1*" Margin="20">
+                <TextBlock Grid.Column="0">Language</TextBlock>
+                <ComboBox Grid.Column="1" x:Name="LanguageComboBox" SelectedIndex="0"
+                          Width="200" MaxDropDownHeight="300"
+                          ItemsSource="{Binding Languages}"
+                          SelectedValue="{Binding SelectedLanguage}"
+                          VerticalAlignment="Center">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name}" />
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            </Grid>
+        </StackPanel>
+        <TabControl Margin="5">
+            <TabItem Header="Edit">
+                <ContentControl Content="{Binding CopyEditModifyViewModel}"/>
+            </TabItem>
+            <TabItem Header="Select">
+                <ContentControl Content="{Binding CopyEditSelectViewModel}"/>
+            </TabItem>
+            <TabItem Header="Create">
+                <ContentControl Content="{Binding CopyEditCreateViewModel}"/>
+            </TabItem>
+        </TabControl>
+    </DockPanel>
+    
+<!-- 
+3 tabs Edit, Select, Create
+
+Edit tab
+    - Drop down to select language so can edit same source for other languages
+    - Textbox to edit source filled in with current content
+    - "Preview" display at bottom
+    - List of places this source is used
+    - Save button updates source forces adventure editor to load changes
+    - cancel clears adventure edit pane
+    
+Select Tab
+    - Drop down to change language
+    - Table with search bar to search for existing source
+    - when click on row, display source at bottom
+    - Click save delete current source if now unused, set the selected source to be the source force editor to load change
+    - cancel clears adventure edit pane
+    
+Create Tab
+    - Drop down to select what language this source is in
+    - Like edit tab only given blank text box to enter source text
+    - "Preview" window
+    - Save button delete current source if now unused, set selected source to be this new source, force editor to load change
+    - cancel clears adventure edit pane with now updates
+-->
+</UserControl>

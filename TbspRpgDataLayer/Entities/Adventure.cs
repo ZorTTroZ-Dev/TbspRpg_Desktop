@@ -17,5 +17,6 @@ namespace TbspRpgDataLayer.Entities
         public ICollection<Script> Scripts { get; set; }
         public Script InitializationScript { get; set; }
         public Script TerminationScript { get; set; }
+        public ICollection<Language> Languages { get; set; }
     }
 }

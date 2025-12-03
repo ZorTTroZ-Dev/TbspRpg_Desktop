@@ -1,0 +1,37 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="TbspRpgStudio.Views.AdventureEditView"
+             x:DataType="viewModels:AdventureEditViewModel">
+    
+    <SplitView Name="SplitView"
+               IsPaneOpen="{Binding PaneOpen}"
+               DisplayMode="CompactInline"
+               PanePlacement="Right"
+               >
+        <SplitView.Pane>
+            <ContentControl Content="{Binding CurrentPaneViewModel}"/>
+        </SplitView.Pane>
+
+        <Grid ColumnDefinitions="Auto, Auto, Auto" RowDefinitions="*">
+            <StackPanel Name="GridViewSwitch" Grid.Column="0" Width="48">
+                <Button HorizontalAlignment="Center" VerticalAlignment="Top" Margin="5">x</Button>
+            </StackPanel>
+            <StackPanel Name="GridGutter" Grid.Column="1"></StackPanel>
+            <StackPanel Name="GridMainContent" Width="700" Grid.Column="2">
+                <TextBlock Text="{Binding Adventure.Name}"
+                           FontSize="30"
+                           FontWeight="Bold"
+                           TextDecorations="Underline"
+                           VerticalAlignment="Top"
+                           HorizontalAlignment="Center"/>
+                <ContentControl Content="{Binding CopyEditLinkViewModel}"/>
+            </StackPanel>
+        </Grid>
+            
+    </SplitView>
+    
+</UserControl>

@@ -17,6 +17,7 @@ namespace TbspRpgProcessor.Processors
     
     public class AdventureProcessor: IAdventureProcessor
     {
+        private readonly ICopyProcessor _copyProcessor;
         private readonly ISourceProcessor _sourceProcessor;
         private readonly IGameProcessor _gameProcessor;
         private readonly ILocationProcessor _locationProcessor;
@@ -25,7 +26,9 @@ namespace TbspRpgProcessor.Processors
         private readonly IScriptsService _scriptsService;
         private readonly ILogger _logger;
 
-        public AdventureProcessor(ISourceProcessor sourceProcessor,
+        public AdventureProcessor(
+            ICopyProcessor copyProcessor,
+            ISourceProcessor sourceProcessor,
             IGameProcessor gameProcessor,
             ILocationProcessor locationProcessor,
             IAdventuresService adventuresService,
@@ -33,6 +36,7 @@ namespace TbspRpgProcessor.Processors
             IScriptsService scriptsService,
             ILogger logger)
         {
+            _copyProcessor = copyProcessor;
             _sourceProcessor = sourceProcessor;
             _gameProcessor = gameProcessor;
             _locationProcessor = locationProcessor;
@@ -44,8 +48,8 @@ namespace TbspRpgProcessor.Processors
 
         public async Task CreateAdventureInitial(AdventureCreateModel adventureCreateModel)
         {
-            if (string.IsNullOrEmpty(adventureCreateModel.Name) || string.IsNullOrEmpty(adventureCreateModel.Language))
-                throw new ArgumentException("name and language required to create adventure");
+            if (string.IsNullOrEmpty(adventureCreateModel.Name))
+                throw new ArgumentException("name required to create adventure");
 
             var adventure = new Adventure()
             {
@@ -53,30 +57,35 @@ namespace TbspRpgProcessor.Processors
                 InitialSourceKey = Guid.Empty,
                 DescriptionSourceKey = Guid.Empty,
                 InitializationScriptId = null,
-                TerminationScriptId = null
+                TerminationScriptId = null,
+                Languages = adventureCreateModel.Languages
             };
             await _adventuresService.AddAdventure(adventure);
             await _adventuresService.SaveChanges();
 
             if (!string.IsNullOrEmpty(adventureCreateModel.Description))
             {
-                var source = new Source()
+                var copyKey = Guid.NewGuid();
+                var copy = new Copy()
                 {
                     AdventureId = adventure.Id,
-                    Key = Guid.Empty,
-                    Language = adventureCreateModel.Language,
-                    Name = $"Description_{adventure.Id}",
+                    Key = copyKey,
+                    Language = adventureCreateModel.DescriptionLanguage,
+                    Name = $"Adventure_Description_{adventure.Id}",
                     ScriptId = null,
                     Text = adventureCreateModel.Description
                 };
-                var dbSource = await _sourceProcessor.CreateOrUpdateSource(new SourceCreateOrUpdateModel() {
-                    Source = source,
-                    Language = adventureCreateModel.Language,
-                    Save = false
+
+                await _copyProcessor.CreateCopy(new CopyCreateModel()
+                {
+                    Copy = copy,
+                    Save = false,
+                    Languages = adventureCreateModel.Languages
                 });
-                adventure.DescriptionSourceKey = dbSource.Key;
-                await _adventuresService.SaveChanges();
+                adventure.DescriptionSourceKey = copyKey;
             }
+
+            await _adventuresService.SaveChanges();
         }
         
         public async Task UpdateAdventure(AdventureUpdateModel adventureUpdateModel)
@@ -97,7 +106,7 @@ namespace TbspRpgProcessor.Processors
             }
             else
             {
-                // look up the adventure and update the name and publish date
+                // look up the adventure and update the name
                 var dbAdventure = await _adventuresService.GetAdventureById(adventureUpdateModel.Adventure.Id);
                 if (dbAdventure == null)
                     throw new ArgumentException("invalid adventure id");
