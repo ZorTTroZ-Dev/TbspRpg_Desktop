@@ -10,6 +10,7 @@ namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureViewModel : ViewModelBase
 {
+    private int Id { get; set; }
     public string Name { get; set; }
     public string Description { get; set; }
 
@@ -20,6 +21,7 @@ public partial class AdventureViewModel : ViewModelBase
         var description = await sourceService.GetSourceTextForKey(adventure.DescriptionSourceKey);
         return new AdventureViewModel()
         {
+            Id = adventure.Id,
             Name =  adventure.Name,
             Description = description
         };
@@ -41,6 +43,6 @@ public partial class AdventureViewModel : ViewModelBase
     private void EditAdventure()
     {
         // needs to send a message to change the page captured by main window
-        WeakReferenceMessenger.Default.Send(new ChangeWindowMessage(WindowNameMap.ADVENTURE_EDIT_WINDOW));
+        WeakReferenceMessenger.Default.Send(new ChangeWindowMessage(new AdventureEditViewModel(Id)));
     }
 }

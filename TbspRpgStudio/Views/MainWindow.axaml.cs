@@ -40,9 +40,7 @@ public partial class MainWindow : Window
         
         WeakReferenceMessenger.Default.Register<MainWindow, ChangeWindowMessage>(this, (w, m) =>
         {
-            var context = DataContext as MainWindowViewModel;
-            var viewModel = WindowNameMap.WindowNameToViewModel(m.WindowName);
-            if (viewModel != null && context != null) context.CurrentPageViewModel = viewModel;
+            if (DataContext is MainWindowViewModel context) context.CurrentPageViewModel = m.ViewModel;
         });
     }
 }
