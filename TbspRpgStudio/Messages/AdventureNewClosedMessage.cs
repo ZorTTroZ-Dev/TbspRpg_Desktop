@@ -1,8 +1,8 @@
-using TbspRpgStudio.Models;
+using AdventureViewModel = TbspRpgStudio.ViewModels.AdventureViewModel;
 
 namespace TbspRpgStudio.Messages;
 
-public class AdventureNewClosedMessage(AdventureView? adventureView)
+public class AdventureNewClosedMessage(AdventureViewModel? adventureViewModel)
 {
-    public AdventureView? AdventureView { get; } = adventureView;
+    public AdventureViewModel? AdventureViewModel { get; } = adventureViewModel;
 }

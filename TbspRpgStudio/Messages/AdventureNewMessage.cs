@@ -1,9 +1,9 @@
 using CommunityToolkit.Mvvm.Messaging.Messages;
-using TbspRpgStudio.Models;
+using AdventureViewModel = TbspRpgStudio.ViewModels.AdventureViewModel;
 
 namespace TbspRpgStudio.Messages;
 
-public class AdventureNewMessage : AsyncRequestMessage<AdventureView?>
+public class AdventureNewMessage : AsyncRequestMessage<AdventureViewModel?>
 {
     
 }

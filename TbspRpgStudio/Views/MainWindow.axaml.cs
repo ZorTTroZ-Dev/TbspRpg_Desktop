@@ -2,8 +2,8 @@ using System;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgStudio.Messages;
-using TbspRpgStudio.Models;
 using TbspRpgStudio.ViewModels;
+using AdventureViewModel = TbspRpgStudio.ViewModels.AdventureViewModel;
 
 namespace TbspRpgStudio.Views;
 
@@ -29,13 +29,20 @@ public partial class MainWindow : Window
             dialog.Width = 512;
             dialog.Height = 288;
             // Show dialog window and reply with returned AdventureViewModel or null when the dialog is closed.
-            m.Reply(dialog.ShowDialog<AdventureView?>(w));
+            m.Reply(dialog.ShowDialog<AdventureViewModel?>(w));
         });
         
         WeakReferenceMessenger.Default.Register<MainWindow, NotificationMessage>(this, static (w, m) =>
         {
             w.NotificationManager.CloseAll();
             w.NotificationManager.Show(m.Message, m.Type, TimeSpan.FromSeconds(5));
+        });
+        
+        WeakReferenceMessenger.Default.Register<MainWindow, ChangeWindowMessage>(this, (w, m) =>
+        {
+            var context = DataContext as MainWindowViewModel;
+            var viewModel = WindowNameMap.WindowNameToViewModel(m.WindowName);
+            if (viewModel != null && context != null) context.CurrentPageViewModel = viewModel;
         });
     }
 }

@@ -13,6 +13,6 @@ public partial class AdventureNewWindow : Window
         InitializeComponent();
         
         WeakReferenceMessenger.Default.Register<AdventureNewWindow, AdventureNewClosedMessage>(this,
-            static (w, m) => w.Close(m.AdventureView));
+            static (w, m) => w.Close(m.AdventureViewModel));
     }
 }

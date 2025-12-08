@@ -33,7 +33,7 @@
                             <TextBlock FontSize="20" Text="{Binding Name}"/>
                             <md:MarkdownScrollViewer Height="100" Markdown="{Binding Description}"></md:MarkdownScrollViewer>
                             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                                <Button>Edit</Button>
+                                <Button Command="{Binding EditAdventureCommand}">Edit</Button>
                                 <Button Margin="10 0, 0, 0" Background="Firebrick">Delete</Button>    
                             </StackPanel>
                         </StackPanel>

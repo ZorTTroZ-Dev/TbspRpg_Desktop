@@ -2,7 +2,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgStudio.Messages;
-using TbspRpgStudio.Models;
 
 namespace TbspRpgStudio.ViewModels;
 
@@ -17,7 +16,7 @@ public partial class AdventureNewViewModel : ViewModelBase
     [RelayCommand (CanExecute = nameof(CanSaveAdventure))]
     public void SaveAdventure()
     {
-        var newAdventureView = new AdventureView()
+        var newAdventureView = new AdventureViewModel()
         {
             Name = Name,
             Description = Description
