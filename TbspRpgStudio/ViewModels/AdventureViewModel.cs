@@ -1,5 +1,6 @@
 using System;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgDataLayer;
@@ -10,9 +11,9 @@ namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureViewModel : ViewModelBase
 {
-    private int Id { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    [ObservableProperty] private int _id;
+    [ObservableProperty] private string? _name;
+    [ObservableProperty] private string? _description;
 
     public static async Task<AdventureViewModel> FromAdventure(Adventure adventure)
     {
@@ -40,9 +41,10 @@ public partial class AdventureViewModel : ViewModelBase
     }
     
     [RelayCommand]
-    private void EditAdventure()
+    private async Task EditAdventure()
     {
         // needs to send a message to change the page captured by main window
-        WeakReferenceMessenger.Default.Send(new ChangeWindowMessage(new AdventureEditViewModel(Id)));
+        var adventureEditViewModel = await AdventureEditViewModel.CreateAsync(Id);
+        WeakReferenceMessenger.Default.Send(new ChangeWindowMessage(adventureEditViewModel));
     }
 }

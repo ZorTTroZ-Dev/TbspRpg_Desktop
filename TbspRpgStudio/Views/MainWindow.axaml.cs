@@ -12,6 +12,8 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        // Width = 1280;
+        // Height = 720;
         
         // The designer cannot open a new window, so we don't register the messenger if we have a design session. 
         if (Design.IsDesignMode)
@@ -42,5 +44,14 @@ public partial class MainWindow : Window
         {
             if (DataContext is MainWindowViewModel context) context.CurrentPageViewModel = m.ViewModel;
         });
+
+        LayoutUpdated += OnLayoutUpdated;
+    }
+    
+    private void OnLayoutUpdated(object? sender, System.EventArgs e)
+    {
+        var appState = ApplicationState.Load();
+        appState.WindowWidth = Width;
+        appState.WindowHeight = Height;
     }
 }
