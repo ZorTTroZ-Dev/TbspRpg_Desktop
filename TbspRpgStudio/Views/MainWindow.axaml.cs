@@ -53,5 +53,6 @@ public partial class MainWindow : Window
         var appState = ApplicationState.Load();
         appState.WindowWidth = Width;
         appState.WindowHeight = Height;
+        appState.AccentColor = PlatformSettings.GetColorValues().AccentColor1;
     }
 }

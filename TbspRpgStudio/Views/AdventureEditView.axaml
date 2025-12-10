@@ -17,7 +17,7 @@
         </SplitView.Pane>
 
         <Grid ColumnDefinitions="Auto, Auto, Auto" RowDefinitions="*">
-            <StackPanel Name="GridViewSwitch" Grid.Column="0" Background="LightGray" Width="48">
+            <StackPanel Name="GridViewSwitch" Grid.Column="0" Width="48">
                 <Button HorizontalAlignment="Center" VerticalAlignment="Top" Margin="5">x</Button>
             </StackPanel>
             <StackPanel Name="GridGutter" Grid.Column="1"></StackPanel>

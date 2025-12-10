@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace TbspRpgStudio.Views;
 
-public partial class SourceEditView : UserControl
+public partial class SourceEditLinkView : UserControl
 {
-    public SourceEditView()
+    public SourceEditLinkView()
     {
         InitializeComponent();
     }
