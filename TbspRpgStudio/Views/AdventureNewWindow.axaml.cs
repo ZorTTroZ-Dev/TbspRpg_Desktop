@@ -1,6 +1,5 @@
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgStudio.Messages;
 
@@ -14,5 +13,9 @@ public partial class AdventureNewWindow : Window
         
         WeakReferenceMessenger.Default.Register<AdventureNewWindow, AdventureNewClosedMessage>(this,
             static (w, m) => w.Close(m.AdventureViewModel));
+        
+        var appState = ApplicationState.Load();
+        ContentBorder.BorderBrush = new SolidColorBrush(appState.AlternateColor);
+        SaveButton.Background =  new SolidColorBrush(appState.AccentColor);
     }
 }

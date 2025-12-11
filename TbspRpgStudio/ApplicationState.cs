@@ -9,6 +9,7 @@ public class ApplicationState
     public double WindowHeight { get; set; }
     public string Language { get; set; } = Languages.DEFAULT;
     public Color AccentColor { get; set; } = Colors.White;
+    public Color AlternateColor { get; set; } = Colors.White;
 
     private ApplicationState()
     {

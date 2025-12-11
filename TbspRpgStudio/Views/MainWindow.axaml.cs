@@ -1,5 +1,7 @@
 using System;
 using Avalonia.Controls;
+using Avalonia.Media;
+using Avalonia.Platform;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgStudio.Messages;
 using TbspRpgStudio.ViewModels;
@@ -54,5 +56,9 @@ public partial class MainWindow : Window
         appState.WindowWidth = Width;
         appState.WindowHeight = Height;
         appState.AccentColor = PlatformSettings.GetColorValues().AccentColor1;
+        if (PlatformSettings.GetColorValues().ThemeVariant == PlatformThemeVariant.Dark)
+            appState.AlternateColor = new Color(0xff, 0x17, 0x17, 0x17);
+        else
+            appState.AlternateColor = new Color(0xff, 0xf2, 0xf2, 0xf2);
     }
 }
