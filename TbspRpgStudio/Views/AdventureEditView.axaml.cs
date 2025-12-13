@@ -2,6 +2,9 @@ using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media;
+using CommunityToolkit.Mvvm.Messaging;
+using TbspRpgStudio.Messages;
+using TbspRpgStudio.ViewModels;
 
 namespace TbspRpgStudio.Views;
 
@@ -28,5 +31,10 @@ public partial class AdventureEditView : UserControl
         // https://github.com/AvaloniaUI/Avalonia/discussions/13968
         var accentBrush = new SolidColorBrush(appState.AccentColor);
         GridViewSwitch.Background = accentBrush;
+        
+        WeakReferenceMessenger.Default.Register<AdventureEditView, SourceEditMessage>(this, (w, m) =>
+        {
+            if (DataContext is AdventureEditViewModel context) context.CurrentPaneViewModel = m.SourceEditViewModel;
+        });
     }
 }

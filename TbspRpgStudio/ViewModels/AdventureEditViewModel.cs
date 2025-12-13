@@ -11,6 +11,7 @@ public partial class AdventureEditViewModel : ViewModelBase
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
     [ObservableProperty] private SourceEditLinkViewModel? _sourceEditViewModel;
+    [ObservableProperty] private ViewModelBase? _currentPaneViewModel;
 
     private AdventureEditViewModel() { }
 
