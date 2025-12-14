@@ -10,7 +10,7 @@ public partial class AdventureEditViewModel : ViewModelBase
 {
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
-    [ObservableProperty] private SourceEditLinkViewModel? _sourceEditViewModel;
+    [ObservableProperty] private SourceEditLinkViewModel? _sourceEditLinkViewModel;
     [ObservableProperty] private ViewModelBase? _currentPaneViewModel;
 
     private AdventureEditViewModel() { }
@@ -20,7 +20,7 @@ public partial class AdventureEditViewModel : ViewModelBase
         var appState = ApplicationState.Load();
         var instance = new AdventureEditViewModel();
         instance.Adventure = await TbspRpgDataServiceFactory.Load().AdventuresService.GetAdventureById(adventureId);
-        instance.SourceEditViewModel =
+        instance.SourceEditLinkViewModel =
             await SourceEditLinkViewModel.CreateAsync(
                 instance.Adventure.DescriptionSourceKey, instance.Adventure.Id, appState.Language);
         instance.PaneOpen = true;

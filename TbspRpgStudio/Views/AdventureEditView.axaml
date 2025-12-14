@@ -13,7 +13,7 @@
                PanePlacement="Right"
                >
         <SplitView.Pane>
-            <!-- This will be populated with editing tools -->
+            <ContentControl Content="{Binding CurrentPaneViewModel}"/>
         </SplitView.Pane>
 
         <Grid ColumnDefinitions="Auto, Auto, Auto" RowDefinitions="*">
@@ -28,7 +28,7 @@
                            TextDecorations="Underline"
                            VerticalAlignment="Top"
                            HorizontalAlignment="Center"/>
-                <ContentControl Content="{Binding SourceEditViewModel}"/>
+                <ContentControl Content="{Binding SourceEditLinkViewModel}"/>
             </StackPanel>
         </Grid>
             
