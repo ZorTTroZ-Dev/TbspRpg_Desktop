@@ -41,11 +41,6 @@ public partial class MainWindow : Window
             w.NotificationManager.CloseAll();
             w.NotificationManager.Show(m.Message, m.Type, TimeSpan.FromSeconds(5));
         });
-        
-        WeakReferenceMessenger.Default.Register<MainWindow, ChangeWindowMessage>(this, (w, m) =>
-        {
-            if (DataContext is MainWindowViewModel context) context.CurrentPageViewModel = m.ViewModel;
-        });
 
         LayoutUpdated += OnLayoutUpdated;
     }

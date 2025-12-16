@@ -27,7 +27,7 @@
             </StackPanel>
         </StackPanel>
         <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="10" HorizontalAlignment="Right">
-            <Button>Cancel</Button>
+            <Button Command="{Binding CancelEdit}">Cancel</Button>
             <Button Name="SaveButton" Margin="0, 0, 15, 0">Save</Button>
         </StackPanel>
     </Grid>
