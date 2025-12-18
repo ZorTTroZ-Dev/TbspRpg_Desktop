@@ -3,13 +3,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
 using TbspRpgDataLayer;
 using TbspRpgDataLayer.Entities;
-using TbspRpgSettings.Settings;
 using TbspRpgStudio.Messages;
 
 namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureEditViewModel : ViewModelBase
 {
+    // ReSharper disable once InconsistentNaming
+    public static readonly string SOURCE_DESTINATION_ADVENTURE_DESCRIPTION = "SOURCE_DESTINATION_ADVENTURE_DESCRIPTION";
+    
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
     [ObservableProperty] private SourceEditLinkViewModel? _sourceEditLinkViewModel;
@@ -21,6 +23,21 @@ public partial class AdventureEditViewModel : ViewModelBase
             this, (w, m) =>
         {
             CurrentPaneViewModel = null;
+        });
+        
+        WeakReferenceMessenger.Default.Register<AdventureEditViewModel, AdventureEditSourceChangedMessage>(this,
+            async (w, m) =>
+        {
+            if (m.Destination == SOURCE_DESTINATION_ADVENTURE_DESCRIPTION)
+            {
+                if (Adventure == null) return;
+                Adventure.DescriptionSourceKey = m.Source.Key;
+                var appState = ApplicationState.Load();
+                SourceEditLinkViewModel =
+                    await SourceEditLinkViewModel.CreateAsync(
+                        Adventure.DescriptionSourceKey, Adventure.Id, appState.Language);
+                CurrentPaneViewModel = null;
+            }
         });
     }
 
