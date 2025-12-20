@@ -16,6 +16,8 @@ namespace TbspRpgDataLayer
         public DbSet<Script> Scripts { get; set; }
         public DbSet<AdventureObject> AdventureObjects { get; set; }
         public DbSet<AdventureObjectGameState> AdventureObjectGameStates { get; set; }
+        public DbSet<Language> Languages { get; set; }
+        public DbSet<Copy> Copy { get; set; }
 
         #endregion
 
@@ -49,6 +51,12 @@ namespace TbspRpgDataLayer
             modelBuilder.Entity<Script>().HasKey(s => s.Id);
             modelBuilder.Entity<Script>().Property(s => s.Id).IsRequired();
             modelBuilder.Entity<Script>().HasIndex(s => s.Content);
+            
+            modelBuilder.Entity<Language>().HasKey(a => a.Id);
+            modelBuilder.Entity<Language>().Property(a => a.Id).IsRequired();
+            
+            modelBuilder.Entity<Copy>().HasKey(a => a.Id);
+            modelBuilder.Entity<Copy>().Property(a => a.Id).IsRequired();
 
             modelBuilder.Entity<Adventure>()
                 .HasMany(a => a.Locations)
@@ -59,6 +67,10 @@ namespace TbspRpgDataLayer
                 .HasMany(a => a.Scripts)
                 .WithOne(s => s.Adventure)
                 .HasForeignKey(s => s.AdventureId);
+            
+            modelBuilder.Entity<Adventure>()
+                .HasMany(a => a.Languages)
+                .WithMany(l => l.Adventures);
 
             modelBuilder.Entity<Script>()
                 .HasMany(s => s.AdventureInitializations)
