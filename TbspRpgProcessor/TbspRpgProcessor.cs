@@ -78,6 +78,12 @@ public interface ITbspRpgProcessor
     Task UpdateAdventureObject(AdventureObjectUpdateModel adventureObjectUpdateModel);
 
     #endregion
+    
+    #region CopyProcessor
+
+    Task<Copy> CreateCopy(CopyCreateModel copyCreateModel);
+
+    #endregion
 }
 
 public class TbspRpgProcessor: ITbspRpgProcessor
@@ -91,6 +97,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     private IContentProcessor _contentProcessor;
     private IAdventureProcessor _adventureProcessor;
     private IAdventureObjectProcessor _adventureObjectProcessor;
+    private ICopyProcessor _copyProcessor;
 
     private readonly ISourcesService _sourcesService;
     private readonly IScriptsService _scriptsService;
@@ -101,6 +108,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     private readonly IContentsService _contentsService;
     private readonly IAdventureObjectService _adventureObjectService;
     private readonly IAdventureObjectSourceService _adventureObjectSourceService;
+    private readonly ICopyService _copyService;
     
     private readonly TbspRpgUtilities _tbspRpgUtilities;
     
@@ -118,6 +126,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         IContentsService contentsService,
         IAdventureObjectService adventureObjectService,
         IAdventureObjectSourceService adventureObjectSourceService,
+        ICopyService copyService,
         TbspRpgUtilities tbspRpgUtilities,
         ILogger<TbspRpgProcessor> logger)
     {
@@ -130,6 +139,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         _contentsService = contentsService;
         _adventureObjectService = adventureObjectService;
         _adventureObjectSourceService = adventureObjectSourceService;
+        _copyService = copyService;
         _tbspRpgUtilities = tbspRpgUtilities;
         _logger = logger;
     }
@@ -360,7 +370,9 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         LoadSourceProcessor();
         LoadGameProcessor();
         LoadLocationProcessor();
+        LoadCopyProcessor();
         _adventureProcessor ??= new AdventureProcessor(
+            _copyProcessor,
             _sourceProcessor,
             _gameProcessor,
             _locationProcessor,
@@ -412,6 +424,26 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     {
         LoadAdventureObjectProcessor();
         return _adventureObjectProcessor.UpdateAdventureObject(adventureObjectUpdateModel);
+    }
+    
+    #endregion
+
+    #region CopyProcessor
+
+    private void LoadCopyProcessor()
+    {
+        LoadScriptProcessor();
+        _copyProcessor ??= new CopyProcessor(
+            _scriptProcessor,
+            _copyService,
+            _tbspRpgUtilities,
+            _logger);
+    }
+    
+    public Task<Copy> CreateCopy(CopyCreateModel copyCreateModel)
+    {
+        LoadCopyProcessor();
+        return _copyProcessor.CreateCopy(copyCreateModel);
     }
 
     #endregion

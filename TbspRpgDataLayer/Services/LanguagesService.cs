@@ -10,7 +10,8 @@ namespace TbspRpgDataLayer.Services;
 public interface ILanguagesService : IBaseService
 {
     Task<Language> GetLanguagesById(int languageId);
-    Task<List<Language>> GetAllLanguages();
+    Task<List<Language>> GetAllLanguagesAsync();
+    List<Language> GetAllLanguages();
     void Seed();
 }
 
@@ -36,7 +37,12 @@ public class LanguagesService: ILanguagesService
         return _languagesRepository.GetLanguagesById(languageId);
     }
 
-    public Task<List<Language>> GetAllLanguages()
+    public Task<List<Language>> GetAllLanguagesAsync()
+    {
+        return _languagesRepository.GetAllLanguagesAsync();
+    }
+
+    public List<Language> GetAllLanguages()
     {
         return _languagesRepository.GetAllLanguages();
     }

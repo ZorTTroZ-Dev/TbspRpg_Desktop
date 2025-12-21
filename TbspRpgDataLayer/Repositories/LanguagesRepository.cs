@@ -10,7 +10,8 @@ namespace TbspRpgDataLayer.Repositories;
 public interface ILanguagesRepository: IBaseRepository
 {
     Task<Language> GetLanguagesById(int languageId);
-    Task<List<Language>> GetAllLanguages();
+    Task<List<Language>> GetAllLanguagesAsync();
+    List<Language> GetAllLanguages();
     void Seed();
 }
 
@@ -33,9 +34,14 @@ public class LanguagesRepository: ILanguagesRepository
         return _databaseContext.Languages.AsQueryable().FirstOrDefaultAsync(l => l.Id == languageId);
     }
 
-    public Task<List<Language>> GetAllLanguages()
+    public Task<List<Language>> GetAllLanguagesAsync()
     {
         return _databaseContext.Languages.AsQueryable().ToListAsync();
+    }
+
+    public List<Language> GetAllLanguages()
+    {
+        return _databaseContext.Languages.ToList();
     }
 
     public void Seed()
