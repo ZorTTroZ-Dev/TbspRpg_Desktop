@@ -12,6 +12,7 @@ public interface ILanguagesService : IBaseService
     Task<Language> GetLanguagesById(int languageId);
     Task<List<Language>> GetAllLanguagesAsync();
     List<Language> GetAllLanguages();
+    Language GetDefaultLanguage();
     void Seed();
 }
 
@@ -45,6 +46,11 @@ public class LanguagesService: ILanguagesService
     public List<Language> GetAllLanguages()
     {
         return _languagesRepository.GetAllLanguages();
+    }
+
+    public Language GetDefaultLanguage()
+    {
+        return _languagesRepository.GetDefaultLanguage();
     }
 
     public void Seed()

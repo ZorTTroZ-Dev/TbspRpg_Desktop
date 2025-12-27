@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -14,6 +15,7 @@ public partial class AdventureViewModel : ViewModelBase
     [ObservableProperty] private int _id;
     [ObservableProperty] private string? _name;
     [ObservableProperty] private string? _description;
+    [ObservableProperty] private List<Language?>? _languages;
 
     public static async Task<AdventureViewModel> FromAdventure(Adventure adventure)
     {

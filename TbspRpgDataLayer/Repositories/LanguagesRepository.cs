@@ -12,6 +12,7 @@ public interface ILanguagesRepository: IBaseRepository
     Task<Language> GetLanguagesById(int languageId);
     Task<List<Language>> GetAllLanguagesAsync();
     List<Language> GetAllLanguages();
+    Language GetDefaultLanguage();
     void Seed();
 }
 
@@ -42,6 +43,11 @@ public class LanguagesRepository: ILanguagesRepository
     public List<Language> GetAllLanguages()
     {
         return _databaseContext.Languages.ToList();
+    }
+
+    public Language GetDefaultLanguage()
+    {
+        return _databaseContext.Languages.FirstOrDefault(lang => lang.Code == "en");
     }
 
     public void Seed()

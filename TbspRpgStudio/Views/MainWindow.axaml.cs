@@ -30,8 +30,8 @@ public partial class MainWindow : Window
                 DataContext = new AdventureNewViewModel()
             };
             // TODO: Cap height and width
-            dialog.Width = 512;
-            dialog.Height = 288;
+            dialog.Width = 640;
+            dialog.Height = 360;
             // Show dialog window and reply with returned AdventureViewModel or null when the dialog is closed.
             m.Reply(dialog.ShowDialog<AdventureViewModel?>(w));
         });

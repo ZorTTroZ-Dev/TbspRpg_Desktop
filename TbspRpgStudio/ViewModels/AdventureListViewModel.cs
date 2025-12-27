@@ -44,11 +44,13 @@ public partial class AdventureListViewModel : ViewModelBase
 
         try
         {
+            var appState = ApplicationState.Load();
             await TbspRpgProcessorFactory.TbspRpgProcessor().CreateAdventureInitial(new AdventureCreateModel()
             {
                 Name = adventureView.Name,
                 Description = adventureView.Description,
-                Language = Languages.DEFAULT
+                Languages = adventureView.Languages,
+                DescriptionLanguage = appState.Language
             });
             await LoadDataAsync();
         }
