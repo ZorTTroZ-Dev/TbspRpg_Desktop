@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:vm="using:TbspRpgStudio.ViewModels"
              xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
+             xmlns:md="https://github.com/whistyun/Markdown.Avalonia"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TbspRpgStudio.Views.AdventureListView"
              x:DataType="viewModels:AdventureListViewModel">
@@ -30,7 +31,11 @@
                         <StackPanel Width="256" Margin="25">
                             <Rectangle Fill="Navy" Width="256" Height="144" />
                             <TextBlock FontSize="20" Text="{Binding Name}"/>
-                            <TextBlock TextWrapping="Wrap">Lorem ipsum dolor sit amet consectetur adipiscing elit. Amet consectetur adipiscing elit quisque faucibus ex sapien. Quisque faucibus ex sapien vitae pellentesque sem placerat. Vitae pellentesque sem placerat in id cursus mi.</TextBlock>
+                            <md:MarkdownScrollViewer Height="100" Markdown="{Binding Description}"></md:MarkdownScrollViewer>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                <Button Command="{Binding EditAdventureCommand}">Edit</Button>
+                                <Button Margin="10 0, 0, 0" Background="Firebrick">Delete</Button>    
+                            </StackPanel>
                         </StackPanel>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>

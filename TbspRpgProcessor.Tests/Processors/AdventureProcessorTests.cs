@@ -516,7 +516,7 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 Name = "",
                 Description = "description",
-                Language = Languages.ENGLISH
+                //Language = Languages.ENGLISH
             });
 
             // assert
@@ -524,31 +524,47 @@ namespace TbspRpgProcessor.Tests.Processors
         }
         
         [Fact]
-        public async Task CreateAdventureInitial_Valid_AdventureAndSourceCreated()
+        public async Task CreateAdventureInitial_Valid_AdventureAndCopyCreated()
         {
             // arrange
             var adventures = new List<Adventure>();
-            var sources = new List<En>();
+            var copy = new List<Copy>();
             var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
             {
                 Adventures = adventures,
-                Sources = sources
+                Copy = copy
             });
+            var languages = new List<Language>
+            {
+                new()
+                {
+                    Id = 1,
+                    Code = "en",
+                    Name = "English"
+                },
+                new()
+                {
+                    Id = 2,
+                    Code = "es",
+                    Name = "Spanish"
+                }
+            };
             
             // act
             await processor.CreateAdventureInitial(new AdventureCreateModel()
             {
                 Name = "new adventure",
                 Description = "description",
-                Language = Languages.ENGLISH
+                Languages = languages,
+                DescriptionLanguage = languages[0]
             });
 
             // assert
             Assert.Single(adventures);
-            Assert.Single(sources);
+            Assert.Equal(2, copy.Count);
             Assert.Equal("new adventure", adventures[0].Name);
             Assert.NotEqual(Guid.Empty, adventures[0].DescriptionSourceKey);
-            Assert.Equal("description", sources[0].Text);
+            Assert.Equal("description", copy.First(cpy => cpy.Language.Id == languages[0].Id).Text);
         }
         
         [Fact]
@@ -556,11 +572,26 @@ namespace TbspRpgProcessor.Tests.Processors
         {
             // arrange
             var adventures = new List<Adventure>();
-            var sources = new List<En>();
+            var copy = new List<Copy>();
+            var languages = new List<Language>
+            {
+                new()
+                {
+                    Id = 1,
+                    Code = "en",
+                    Name = "English"
+                },
+                new()
+                {
+                    Id = 2,
+                    Code = "es",
+                    Name = "Spanish"
+                }
+            };
             var processor = CreateTbspRpgProcessor(new TestTbspRpgProcessorData()
             {
                 Adventures = adventures,
-                Sources = sources
+                Copy = copy
             });
             
             // act
@@ -568,13 +599,15 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 Name = "new adventure",
                 Description = "",
-                Language = Languages.ENGLISH
+                Languages = languages,
+                DescriptionLanguage = languages[0]
             });
 
             // assert
             Assert.Single(adventures);
             Assert.Equal("new adventure", adventures[0].Name);
             Assert.Equal(Guid.Empty, adventures[0].DescriptionSourceKey);
+            Assert.Empty(copy);
         }
 
         #endregion

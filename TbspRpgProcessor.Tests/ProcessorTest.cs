@@ -20,6 +20,7 @@ namespace TbspRpgProcessor.Tests
         public ICollection<Game> Games { get; set; }
         public ICollection<Content> Contents { get; set; }
         public ICollection<AdventureObject> AdventureObjects { get; set; }
+        public ICollection<Copy> Copy { get; set; }
     }
     
     public class ProcessorTest
@@ -34,6 +35,7 @@ namespace TbspRpgProcessor.Tests
             data.Contents ??= new List<Content>();
             data.Scripts ??= new List<Script>();
             data.AdventureObjects ??= new List<AdventureObject>();
+            data.Copy ??= new List<Copy>();
             
             var scriptsService = MockServices.MockDataLayerScriptsService(data.Scripts);
             var adventuresService = MockServices.MockDataLayerAdventuresService(data.Adventures);
@@ -45,6 +47,7 @@ namespace TbspRpgProcessor.Tests
             var adventureObjectsService = MockServices.MockDataLayerAdventureObjectsService(data.AdventureObjects);
             var adventureObjectSourceService =
                 MockServices.MockDataLayerAdventureObjectsSourceService(data.AdventureObjects, data.Sources);
+            var copyService = MockServices.MockDataLayerCopyService(data.Copy);
             
             return new TbspRpgProcessor(
                 sourcesService,
@@ -56,6 +59,7 @@ namespace TbspRpgProcessor.Tests
                 contentsService,
                 adventureObjectsService,
                 adventureObjectSourceService,
+                copyService,
                 new TbspRpgUtilities(),
                 NullLogger<TbspRpgProcessor>.Instance);
         }

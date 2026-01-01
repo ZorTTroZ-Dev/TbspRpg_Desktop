@@ -20,6 +20,8 @@ public class TbspRpgDataServiceFactory
     public readonly IAdventureObjectService AdventureObjectService;
     public readonly IContentsService ContentsService;
     public readonly IAdventureObjectSourceService AdventureObjectSourceService;
+    public readonly ILanguagesService LanguagesService;
+    public readonly ICopyService CopyService;
     
     private TbspRpgDataServiceFactory(string connectionString, ILoggerFactory loggerFactory, bool initialize = false)
     {
@@ -32,6 +34,14 @@ public class TbspRpgDataServiceFactory
         }
         
         // create services
+        var languagesRepository = new LanguagesRepository(_dbContext);
+        LanguagesService = new LanguagesService(languagesRepository, loggerFactory.CreateLogger<LanguagesService>());
+        if (initialize)
+            LanguagesService.Seed();
+        var copyRepository = new CopyRepository(_dbContext);
+        CopyService = new CopyService(copyRepository, loggerFactory.CreateLogger<CopyService>());
+        if (initialize)
+            CopyService.Seed(LanguagesService.GetAllLanguages());
         var sourcesRepository = new SourcesRepository(_dbContext);
         SourcesService = new SourcesService(sourcesRepository, loggerFactory.CreateLogger<SourcesService>());
         if (initialize)

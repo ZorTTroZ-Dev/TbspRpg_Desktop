@@ -602,5 +602,127 @@ namespace TbspRpgDataLayer.Tests
 
             return objectSourceService.Object;
         }
+        
+        public static ICopyService MockDataLayerCopyService(ICollection<Copy> copy)
+        {
+            var copyService = new Mock<ICopyService>();
+
+            // sourcesService.Setup(service =>
+            //         service.GetSourceTextForKey(It.IsAny<Guid>(), It.IsAny<string>()))
+            //     .ReturnsAsync((Guid key, string language) =>
+            //     {
+            //         var source = sources.FirstOrDefault(s => s.Key == key);
+            //         return source != null ? source.Text : null;
+            //     });
+            
+            copyService.Setup(service =>
+                    service.GetCopy(It.IsAny<Guid>(),It.IsAny<Language>()))
+                .ReturnsAsync((Guid key, Language language) =>
+                {
+                    return copy.FirstOrDefault(c => c.Key == key && c.Language.Id == language.Id);
+                });
+            
+            copyService.Setup(service =>
+                    service.AddCopy(It.IsAny<Copy>()))
+                .Callback((Copy cpy) => copy.Add(new Copy()
+                {
+                    // Id = Guid.NewGuid(),
+                    Key = cpy.Key,
+                    AdventureId = cpy.AdventureId,
+                    Name = cpy.Name,
+                    Text = cpy.Text,
+                    Language = cpy.Language
+                }));
+            
+            // sourcesService.Setup(service =>
+            //         service.RemoveAllSourceForAdventure(It.IsAny<int>()))
+            //     .Callback((int adventureId) =>
+            //     {
+            //         for (int i = sources.Count - 1; i >= 0; i--)
+            //         {
+            //             // Do processing here, then...
+            //             if (sources.ToArray()[i].AdventureId == adventureId)
+            //             {
+            //                 sources.Remove(sources.ToArray()[i]);
+            //             }
+            //         }
+            //     });
+            //
+            // sourcesService.Setup(service =>
+            //         service.RemoveSource(It.IsAny<int>(), It.IsAny<string>()))
+            //     .Callback((int sourceId, string language) =>
+            //     {
+            //         for (int i = sources.Count - 1; i >= 0; i--)
+            //         {
+            //             // Do processing here, then...
+            //             if (sources.ToArray()[i].Id == sourceId)
+            //             {
+            //                 sources.Remove(sources.ToArray()[i]);
+            //             }
+            //         }
+            //     });
+            //
+            // sourcesService.Setup(service =>
+            //         service.GetSourceById(It.IsAny<int>(), It.IsAny<string>()))
+            //     .ReturnsAsync((int sourceId, string language) =>
+            //     {
+            //         return sources.FirstOrDefault(en => en.Id == sourceId);
+            //     });
+            //
+            // sourcesService.Setup(service =>
+            //         service.RemoveScriptFromSources(It.IsAny<int>()))
+            //     .Callback((int scriptId) =>
+            //     {
+            //         foreach (var en in sources)
+            //         {
+            //             if (en.ScriptId == scriptId)
+            //             {
+            //                 en.Script = null;
+            //                 en.ScriptId = null;
+            //             }
+            //         }
+            //     });
+            //
+            // sourcesService.Setup(service =>
+            //         service.GetAllSourceForAdventure(It.IsAny<int>(), It.IsAny<string>()))
+            //     .ReturnsAsync((int adventureId, string language) =>
+            //     {
+            //         var enSources = sources
+            //             .Where(source => source.AdventureId == adventureId)
+            //             .Select(enSource => new Source()
+            //         {
+            //             Id = enSource.Id,
+            //             AdventureId = enSource.AdventureId,
+            //             Key = enSource.Key,
+            //             Language = Languages.ENGLISH,
+            //             Name = enSource.Name,
+            //             ScriptId = enSource.ScriptId,
+            //             Text = enSource.Text
+            //         });
+            //         return enSources.ToList();
+            //     });
+            //
+            // sourcesService.Setup(service =>
+            //         service.GetAllSourceAllLanguagesForAdventure(It.IsAny<int>()))
+            //     .ReturnsAsync((int adventureId) =>
+            //         {
+            //             var enSources = sources
+            //                 .Where(source => source.AdventureId == adventureId)
+            //                 .Select(enSource => new Source()
+            //                 {
+            //                     Id = enSource.Id,
+            //                     AdventureId = enSource.AdventureId,
+            //                     Key = enSource.Key,
+            //                     Language = Languages.ENGLISH,
+            //                     Name = enSource.Name,
+            //                     ScriptId = enSource.ScriptId,
+            //                     Text = enSource.Text
+            //                 });
+            //             return enSources.ToList();
+            //         }
+            //     );
+
+            return copyService.Object;
+        }
     }
 }

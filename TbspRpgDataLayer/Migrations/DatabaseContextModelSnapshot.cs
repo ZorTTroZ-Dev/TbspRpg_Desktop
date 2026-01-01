@@ -17,6 +17,21 @@ namespace TbspRpgDataLayer.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
 
+            modelBuilder.Entity("AdventureLanguage", b =>
+                {
+                    b.Property<int>("AdventuresId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LanguagesId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("AdventuresId", "LanguagesId");
+
+                    b.HasIndex("LanguagesId");
+
+                    b.ToTable("AdventureLanguage");
+                });
+
             modelBuilder.Entity("AdventureObjectLocation", b =>
                 {
                     b.Property<int>("AdventureObjectsId")
@@ -164,6 +179,39 @@ namespace TbspRpgDataLayer.Migrations
                     b.ToTable("Contents");
                 });
 
+            modelBuilder.Entity("TbspRpgDataLayer.Entities.Copy", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("AdventureId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<Guid>("Key")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("LanguageId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("ScriptId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LanguageId");
+
+                    b.HasIndex("ScriptId");
+
+                    b.ToTable("Copy");
+                });
+
             modelBuilder.Entity("TbspRpgDataLayer.Entities.Game", b =>
                 {
                     b.Property<int>("Id")
@@ -192,6 +240,23 @@ namespace TbspRpgDataLayer.Migrations
                     b.HasIndex("LocationId");
 
                     b.ToTable("Games");
+                });
+
+            modelBuilder.Entity("TbspRpgDataLayer.Entities.Language", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Languages");
                 });
 
             modelBuilder.Entity("TbspRpgDataLayer.Entities.LanguageSources.En", b =>
@@ -350,6 +415,21 @@ namespace TbspRpgDataLayer.Migrations
                     b.ToTable("Scripts");
                 });
 
+            modelBuilder.Entity("AdventureLanguage", b =>
+                {
+                    b.HasOne("TbspRpgDataLayer.Entities.Adventure", null)
+                        .WithMany()
+                        .HasForeignKey("AdventuresId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TbspRpgDataLayer.Entities.Language", null)
+                        .WithMany()
+                        .HasForeignKey("LanguagesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("AdventureObjectLocation", b =>
                 {
                     b.HasOne("TbspRpgDataLayer.Entities.AdventureObject", null)
@@ -446,6 +526,21 @@ namespace TbspRpgDataLayer.Migrations
                         .IsRequired();
 
                     b.Navigation("Game");
+                });
+
+            modelBuilder.Entity("TbspRpgDataLayer.Entities.Copy", b =>
+                {
+                    b.HasOne("TbspRpgDataLayer.Entities.Language", "Language")
+                        .WithMany("Copy")
+                        .HasForeignKey("LanguageId");
+
+                    b.HasOne("TbspRpgDataLayer.Entities.Script", "Script")
+                        .WithMany()
+                        .HasForeignKey("ScriptId");
+
+                    b.Navigation("Language");
+
+                    b.Navigation("Script");
                 });
 
             modelBuilder.Entity("TbspRpgDataLayer.Entities.Game", b =>
@@ -563,6 +658,11 @@ namespace TbspRpgDataLayer.Migrations
                     b.Navigation("AdventureObjectGameStates");
 
                     b.Navigation("Contents");
+                });
+
+            modelBuilder.Entity("TbspRpgDataLayer.Entities.Language", b =>
+                {
+                    b.Navigation("Copy");
                 });
 
             modelBuilder.Entity("TbspRpgDataLayer.Entities.Location", b =>
