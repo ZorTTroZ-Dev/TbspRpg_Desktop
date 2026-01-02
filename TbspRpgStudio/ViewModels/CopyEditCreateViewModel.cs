@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -16,6 +17,7 @@ public partial class CopyEditCreateViewModel(Copy copy, List<Language> languages
     [ObservableProperty] private string _name;
     [ObservableProperty] private bool _replace;
     [ObservableProperty] private Copy _copy = copy;
+    [ObservableProperty] private bool _replaceable = copy.Key != Guid.Empty;
 
     [RelayCommand]
     public void CancelEdit()

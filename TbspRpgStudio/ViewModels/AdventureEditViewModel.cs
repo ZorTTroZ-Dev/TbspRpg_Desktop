@@ -10,10 +10,12 @@ namespace TbspRpgStudio.ViewModels;
 public partial class AdventureEditViewModel : ViewModelBase
 {
     private const string CopyDestinationAdventureDescription = "COPY_DESTINATION_ADVENTURE_DESCRIPTION";
+    private const string CopyDestinationAdventureInitial = "COPY_DESTINATION_ADVENTURE_INITIAL";
 
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
     [ObservableProperty] private CopyEditLinkViewModel? _adventureDescriptionCopyEditLinkViewModel;
+    [ObservableProperty] private CopyEditLinkViewModel? _adventureInitialCopyEditLinkViewModel;
     [ObservableProperty] private ViewModelBase? _currentPaneViewModel;
 
     private AdventureEditViewModel()
@@ -45,6 +47,20 @@ public partial class AdventureEditViewModel : ViewModelBase
                         CopyDestinationAdventureDescription);
                 CurrentPaneViewModel = null;
             }
+            
+            if (m.Destination == CopyDestinationAdventureInitial)
+            {
+                if (Adventure == null) return;
+                if (Adventure.InitialSourceKey != m.Copy.Key)
+                {
+                    Adventure.InitialSourceKey = m.Copy.Key;
+                    await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
+                }
+                AdventureInitialCopyEditLinkViewModel =
+                    await CopyEditLinkViewModel.CreateAsync(Adventure.InitialSourceKey,
+                        CopyDestinationAdventureInitial);
+                CurrentPaneViewModel = null;
+            }
         });
     }
 
@@ -55,6 +71,9 @@ public partial class AdventureEditViewModel : ViewModelBase
         instance.AdventureDescriptionCopyEditLinkViewModel =
             await CopyEditLinkViewModel.CreateAsync(instance.Adventure.DescriptionSourceKey,
                 CopyDestinationAdventureDescription);
+        instance.AdventureInitialCopyEditLinkViewModel =
+            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.InitialSourceKey,
+                CopyDestinationAdventureInitial);
         instance.PaneOpen = true;
         return instance;
     }

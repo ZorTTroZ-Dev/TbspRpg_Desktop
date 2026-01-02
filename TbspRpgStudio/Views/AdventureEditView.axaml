@@ -29,6 +29,7 @@
                            VerticalAlignment="Top"
                            HorizontalAlignment="Center"/>
                 <ContentControl Content="{Binding AdventureDescriptionCopyEditLinkViewModel}"/>
+                <ContentControl Content="{Binding AdventureInitialCopyEditLinkViewModel}"/>
             </StackPanel>
         </Grid>
             
