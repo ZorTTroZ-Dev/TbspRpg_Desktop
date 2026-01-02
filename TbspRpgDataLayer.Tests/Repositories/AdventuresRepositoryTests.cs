@@ -164,7 +164,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty
+                InitialCopyKey = Guid.Empty
             };
             var repository = new AdventuresRepository(context);
             
@@ -197,7 +197,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty,
+                InitialCopyKey = Guid.Empty,
                 Games = new List<Game>()
                 {
                     new()
@@ -236,7 +236,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty
+                InitialCopyKey = Guid.Empty
             };
             await context.AddAsync(newAdventure);
             await context.SaveChangesAsync();
@@ -268,7 +268,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty,
+                InitialCopyKey = Guid.Empty,
                 InitializationScript = testScript 
             };
             var newAdventureTwo = new Adventure()
@@ -305,7 +305,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty,
+                InitialCopyKey = Guid.Empty,
                 InitializationScript = testScript 
             };
             var newAdventureTwo = new Adventure()
@@ -339,8 +339,8 @@ namespace TbspRpgDataLayer.Tests.Repositories
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -360,8 +360,8 @@ namespace TbspRpgDataLayer.Tests.Repositories
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -369,7 +369,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             
             // act
             var adventure =
-                await repository.GetAdventureWithSource(testAdventure.Id, testAdventure.DescriptionSourceKey);
+                await repository.GetAdventureWithSource(testAdventure.Id, testAdventure.DescriptionCopyKey);
             
             // assert
             Assert.NotNull(adventure);
@@ -383,8 +383,8 @@ namespace TbspRpgDataLayer.Tests.Repositories
             await using var context = new DatabaseContext(DbContextOptions);
             var testAdventure = new Adventure()
             {
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -392,7 +392,7 @@ namespace TbspRpgDataLayer.Tests.Repositories
             
             // act
             var adventure =
-                await repository.GetAdventureWithSource(testAdventure.Id, testAdventure.InitialSourceKey);
+                await repository.GetAdventureWithSource(testAdventure.Id, testAdventure.InitialCopyKey);
             
             // assert
             Assert.NotNull(adventure);

@@ -132,7 +132,7 @@ namespace TbspRpgProcessor.Tests.Processors
                 {
                     Id = 1,
                     Name = "test adventure",
-                    InitialSourceKey = Guid.NewGuid(),
+                    InitialCopyKey = Guid.NewGuid(),
                     InitializationScriptId = testScript.Id
                 }
             };
@@ -171,7 +171,7 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.Equal(testAdventures[0].Id, game.AdventureId);
             Assert.Equal(testLocations[0].Id, game.LocationId);
             Assert.Equal(2, testContents.Count);
-            Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialSourceKey));
+            Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialCopyKey));
             Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testLocations[0].SourceKey));
             Assert.Equal("{\"GameInitialized\":true}", game.GameState);
         }
@@ -186,7 +186,7 @@ namespace TbspRpgProcessor.Tests.Processors
                 {
                     Id = 1,
                     Name = "test adventure",
-                    InitialSourceKey = Guid.NewGuid(),
+                    InitialCopyKey = Guid.NewGuid(),
                     InitializationScriptId = null
                 }
             };
@@ -225,7 +225,7 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.Equal(testAdventures[0].Id, game.AdventureId);
             Assert.Equal(testLocations[0].Id, game.LocationId);
             Assert.Equal(2, testContents.Count);
-            Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialSourceKey));
+            Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testAdventures[0].InitialCopyKey));
             Assert.NotNull(testContents.FirstOrDefault(c => c.SourceKey == testLocations[0].SourceKey));
         }
 

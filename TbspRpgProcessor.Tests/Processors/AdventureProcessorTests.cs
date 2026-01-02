@@ -22,12 +22,12 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 Id = 1,
                 Name = "test_adventure",
-                InitialSourceKey = Guid.NewGuid()
+                InitialCopyKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
                 Id = 1,
-                Key = testAdventure.InitialSourceKey,
+                Key = testAdventure.InitialCopyKey,
                 Name = "test_adventure",
                 Text = "test source"
             };
@@ -70,13 +70,13 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 Id = 1,
                 Name = "test_adventure",
-                InitialSourceKey = Guid.NewGuid(),
-                DescriptionSourceKey = Guid.NewGuid()
+                InitialCopyKey = Guid.NewGuid(),
+                DescriptionCopyKey = Guid.NewGuid()
             };
             var testSource = new En()
             {
                 Id = 1,
-                Key = testAdventure.InitialSourceKey,
+                Key = testAdventure.InitialCopyKey,
                 Name = "test_adventure",
                 Text = "test source",
                 AdventureId = testAdventure.Id
@@ -84,7 +84,7 @@ namespace TbspRpgProcessor.Tests.Processors
             var testDescriptionSource = new En()
             {
                 Id = 2,
-                Key = testAdventure.DescriptionSourceKey,
+                Key = testAdventure.DescriptionCopyKey,
                 Name = "description_test_adventure",
                 Text = "test description source",
                 AdventureId = testAdventure.Id
@@ -103,7 +103,7 @@ namespace TbspRpgProcessor.Tests.Processors
                 Adventure = new Adventure()
                 {
                     Name = "new_test_adventure",
-                    InitialSourceKey = Guid.Empty
+                    InitialCopyKey = Guid.Empty
                 },
                 InitialSource = new En()
                 {
@@ -133,13 +133,13 @@ namespace TbspRpgProcessor.Tests.Processors
             {
                 Id = 1,
                 Name = "test_adventure",
-                InitialSourceKey = Guid.NewGuid(),
-                DescriptionSourceKey = Guid.NewGuid()
+                InitialCopyKey = Guid.NewGuid(),
+                DescriptionCopyKey = Guid.NewGuid()
             };
             var testDescriptionSource = new En()
             {
                 Id = 1,
-                Key = testAdventure.DescriptionSourceKey,
+                Key = testAdventure.DescriptionCopyKey,
                 Name = "description_test_adventure",
                 Text = "test description source",
                 AdventureId = testAdventure.Id
@@ -147,7 +147,7 @@ namespace TbspRpgProcessor.Tests.Processors
             var testSource = new En()
             {
                 Id = 2,
-                Key = testAdventure.InitialSourceKey,
+                Key = testAdventure.InitialCopyKey,
                 Name = "test_adventure",
                 Text = "test source",
                 AdventureId = testAdventure.Id
@@ -167,8 +167,8 @@ namespace TbspRpgProcessor.Tests.Processors
                 {
                     Id = testAdventure.Id,
                     Name = "updated_adventure_name",
-                    InitialSourceKey = testAdventure.InitialSourceKey,
-                    DescriptionSourceKey = testAdventure.DescriptionSourceKey
+                    InitialCopyKey = testAdventure.InitialCopyKey,
+                    DescriptionCopyKey = testAdventure.DescriptionCopyKey
                 },
                 InitialSource = new En()
                 {
@@ -563,7 +563,7 @@ namespace TbspRpgProcessor.Tests.Processors
             Assert.Single(adventures);
             Assert.Equal(2, copy.Count);
             Assert.Equal("new adventure", adventures[0].Name);
-            Assert.NotEqual(Guid.Empty, adventures[0].DescriptionSourceKey);
+            Assert.NotEqual(Guid.Empty, adventures[0].DescriptionCopyKey);
             Assert.Equal("description", copy.First(cpy => cpy.Language.Id == languages[0].Id).Text);
         }
         
@@ -606,7 +606,7 @@ namespace TbspRpgProcessor.Tests.Processors
             // assert
             Assert.Single(adventures);
             Assert.Equal("new adventure", adventures[0].Name);
-            Assert.Equal(Guid.Empty, adventures[0].DescriptionSourceKey);
+            Assert.Equal(Guid.Empty, adventures[0].DescriptionCopyKey);
             Assert.Empty(copy);
         }
 

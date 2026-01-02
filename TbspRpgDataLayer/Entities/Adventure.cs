@@ -7,8 +7,8 @@ namespace TbspRpgDataLayer.Entities
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public Guid InitialSourceKey { get; set; }
-        public Guid DescriptionSourceKey { get; set; }
+        public Guid InitialCopyKey { get; set; }
+        public Guid DescriptionCopyKey { get; set; }
         public int? InitializationScriptId { get; set; }
         public int? TerminationScriptId { get; set; }
         

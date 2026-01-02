@@ -54,8 +54,8 @@ namespace TbspRpgProcessor.Processors
             var adventure = new Adventure()
             {
                 Name = adventureCreateModel.Name,
-                InitialSourceKey = Guid.Empty,
-                DescriptionSourceKey = Guid.Empty,
+                InitialCopyKey = Guid.Empty,
+                DescriptionCopyKey = Guid.Empty,
                 InitializationScriptId = null,
                 TerminationScriptId = null,
                 Languages = adventureCreateModel.Languages
@@ -82,7 +82,7 @@ namespace TbspRpgProcessor.Processors
                     Save = false,
                     Languages = adventureCreateModel.Languages
                 });
-                adventure.DescriptionSourceKey = copyKey;
+                adventure.DescriptionCopyKey = copyKey;
             }
 
             await _adventuresService.SaveChanges();
@@ -98,7 +98,7 @@ namespace TbspRpgProcessor.Processors
                 adventure = new Adventure()
                 {
                     Name = adventureUpdateModel.Adventure.Name,
-                    InitialSourceKey = Guid.Empty,
+                    InitialCopyKey = Guid.Empty,
                     InitializationScriptId = adventureUpdateModel.Adventure.InitializationScriptId,
                     TerminationScriptId = adventureUpdateModel.Adventure.TerminationScriptId
                 };
@@ -124,7 +124,7 @@ namespace TbspRpgProcessor.Processors
                 Source = adventureUpdateModel.InitialSource,
                 Language = adventureUpdateModel.Language
             });
-            adventure.InitialSourceKey = dbSource.Key;
+            adventure.InitialCopyKey = dbSource.Key;
             
             // update/create description source
             adventureUpdateModel.DescriptionSource.AdventureId = adventure.Id;
@@ -134,7 +134,7 @@ namespace TbspRpgProcessor.Processors
                 Source = adventureUpdateModel.DescriptionSource,
                 Language = adventureUpdateModel.Language
             });
-            adventure.DescriptionSourceKey = dbDescriptionSource.Key;
+            adventure.DescriptionCopyKey = dbDescriptionSource.Key;
 
             await _adventuresService.SaveChanges();
         }

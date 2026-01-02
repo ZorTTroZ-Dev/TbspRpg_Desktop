@@ -655,7 +655,7 @@ end"
              var testAdventure = new Adventure()
              {
                  Id = 1,
-                 InitialSourceKey = Guid.NewGuid()
+                 InitialCopyKey = Guid.NewGuid()
              };
              var testLocation = new Location()
              {
@@ -696,7 +696,7 @@ end"
                  new()
                  {
                      Id = 1,
-                     Key = testAdventure.InitialSourceKey,
+                     Key = testAdventure.InitialCopyKey,
                      AdventureId = testAdventure.Id
                  },
                  new()

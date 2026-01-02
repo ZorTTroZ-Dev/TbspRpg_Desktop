@@ -71,7 +71,7 @@ namespace TbspRpgDataLayer.Tests
                 .ReturnsAsync((int adventureId, Guid sourceKey) =>
                 {
                     var advs = adventures.Where(a => a.Id == adventureId && (
-                        a.DescriptionSourceKey == sourceKey || a.InitialSourceKey == sourceKey));
+                        a.DescriptionCopyKey == sourceKey || a.InitialCopyKey == sourceKey));
                     return advs.Any();
                 });
 

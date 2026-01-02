@@ -177,7 +177,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty
+                InitialCopyKey = Guid.Empty
             };
             var service = CreateService(context);
         
@@ -202,7 +202,7 @@ namespace TbspRpgDataLayer.Tests.Services
             var newAdventure = new Adventure()
             {
                 Name = "test_adventure",
-                InitialSourceKey = Guid.Empty
+                InitialCopyKey = Guid.Empty
             };
             await context.AddAsync(newAdventure);
             await context.SaveChangesAsync();
@@ -268,8 +268,8 @@ namespace TbspRpgDataLayer.Tests.Services
             var testAdventure = new Adventure()
             {
                 Id = 1,
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -290,8 +290,8 @@ namespace TbspRpgDataLayer.Tests.Services
             var testAdventure = new Adventure()
             {
                 Id = 1,
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -299,7 +299,7 @@ namespace TbspRpgDataLayer.Tests.Services
             
             // act
             var adventure =
-                await service.GetAdventureWithSource(testAdventure.Id, testAdventure.DescriptionSourceKey);
+                await service.GetAdventureWithSource(testAdventure.Id, testAdventure.DescriptionCopyKey);
             
             // assert
             Assert.NotNull(adventure);
@@ -314,8 +314,8 @@ namespace TbspRpgDataLayer.Tests.Services
             var testAdventure = new Adventure()
             {
                 Id = 1,
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -323,7 +323,7 @@ namespace TbspRpgDataLayer.Tests.Services
             
             // act
             var adventure =
-                await service.GetAdventureWithSource(testAdventure.Id, testAdventure.InitialSourceKey);
+                await service.GetAdventureWithSource(testAdventure.Id, testAdventure.InitialCopyKey);
             
             // assert
             Assert.NotNull(adventure);
@@ -342,8 +342,8 @@ namespace TbspRpgDataLayer.Tests.Services
             var testAdventure = new Adventure()
             {
                 Id = 1,
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
@@ -364,15 +364,15 @@ namespace TbspRpgDataLayer.Tests.Services
             var testAdventure = new Adventure()
             {
                 Id = 1,
-                DescriptionSourceKey = Guid.NewGuid(),
-                InitialSourceKey = Guid.NewGuid()
+                DescriptionCopyKey = Guid.NewGuid(),
+                InitialCopyKey = Guid.NewGuid()
             };
             await context.AddRangeAsync(testAdventure);
             await context.SaveChangesAsync();
             var service = CreateService(context);
             
             // act
-            var useSource = await service.DoesAdventureUseSource(testAdventure.Id, testAdventure.DescriptionSourceKey);
+            var useSource = await service.DoesAdventureUseSource(testAdventure.Id, testAdventure.DescriptionCopyKey);
             
             // assert
             Assert.True(useSource);
