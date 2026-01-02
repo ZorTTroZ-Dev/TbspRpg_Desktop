@@ -9,14 +9,9 @@ using TbspRpgStudio.Messages;
 
 namespace TbspRpgStudio.ViewModels;
 
-public partial class CopyEditModifyViewModel : ViewModelBase
+public partial class CopyEditModifyViewModel(Copy copy, string copyDestination) : ViewModelBase
 {
-    [ObservableProperty] Copy _copy;
-
-    public CopyEditModifyViewModel(Copy copy)
-    {
-        Copy = copy;
-    }
+    [ObservableProperty] Copy _copy = copy;
 
     [RelayCommand]
     public void CancelEdit()
@@ -32,7 +27,6 @@ public partial class CopyEditModifyViewModel : ViewModelBase
             Save = true,
             Copy = Copy
         });
-        WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(Copy,
-            AdventureEditViewModel.COPY_DESTINATION_ADVENTURE_DESCRIPTION));
+        WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(Copy, copyDestination));
     }
 }

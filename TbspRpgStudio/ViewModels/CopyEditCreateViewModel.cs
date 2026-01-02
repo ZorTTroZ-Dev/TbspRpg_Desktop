@@ -10,14 +10,13 @@ using TbspRpgStudio.Messages;
 
 namespace TbspRpgStudio.ViewModels;
 
-public partial class CopyEditCreateViewModel(Copy copy, List<Language> languages) : ViewModelBase
+public partial class CopyEditCreateViewModel(Copy copy, List<Language> languages, string copyDestination) : ViewModelBase
 {
     [ObservableProperty] private string _text;
     [ObservableProperty] private string _name;
     [ObservableProperty] private bool _replace;
     [ObservableProperty] private Copy _copy = copy;
-    private List<Language> _languages = languages;
-    
+
     [RelayCommand]
     public void CancelEdit()
     {
@@ -50,11 +49,10 @@ public partial class CopyEditCreateViewModel(Copy copy, List<Language> languages
             {
                 Save = true,
                 Copy = newCopy,
-                Languages =  _languages
+                Languages =  languages
             });
         }
 
-        WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(Copy,
-            AdventureEditViewModel.COPY_DESTINATION_ADVENTURE_DESCRIPTION));
+        WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(Copy, copyDestination));
     }
 }

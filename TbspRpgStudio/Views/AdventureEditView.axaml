@@ -28,7 +28,7 @@
                            TextDecorations="Underline"
                            VerticalAlignment="Top"
                            HorizontalAlignment="Center"/>
-                <ContentControl Content="{Binding CopyEditLinkViewModel}"/>
+                <ContentControl Content="{Binding AdventureDescriptionCopyEditLinkViewModel}"/>
             </StackPanel>
         </Grid>
             
