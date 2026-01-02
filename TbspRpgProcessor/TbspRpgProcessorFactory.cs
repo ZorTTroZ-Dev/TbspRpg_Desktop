@@ -22,6 +22,7 @@ public class TbspRpgProcessorFactory
             dataServiceFactory.AdventureObjectService,
             dataServiceFactory.AdventureObjectSourceService,
             dataServiceFactory.CopyService,
+            dataServiceFactory.ScriptIncludesService,
             new TbspRpgUtilities(),
             loggerFactory.CreateLogger<TbspRpgProcessor>()
         );

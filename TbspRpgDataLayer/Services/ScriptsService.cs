@@ -11,7 +11,6 @@ namespace TbspRpgDataLayer.Services;
 public interface IScriptsService: IBaseService
 {
     Task<Script> GetScriptById(int scriptId);
-    Task<Script> GetScriptWithIncludedIn(int scriptId);
     Task<List<Script>> GetScriptsForAdventure(int adventureId);
     Task RemoveAllScriptsForAdventure(int adventureId);
     Task AddScript(Script script);
@@ -20,6 +19,7 @@ public interface IScriptsService: IBaseService
     void AttachScript(Script script);
     Task<bool> IsSourceKeyReferenced(int adventureId, Guid sourceKey);
     Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey);
+    Task<Script> GetScriptForAdventureWithName(int adventureId, string scriptName);
 }
 
 public class ScriptsService: IScriptsService
@@ -42,11 +42,6 @@ public class ScriptsService: IScriptsService
     public Task<Script> GetScriptById(int scriptId)
     {
         return _scriptsRepository.GetScriptById(scriptId);
-    }
-
-    public Task<Script> GetScriptWithIncludedIn(int scriptId)
-    {
-        return _scriptsRepository.GetScriptWithIncludedIn(scriptId);
     }
 
     public Task<List<Script>> GetScriptsForAdventure(int adventureId)
@@ -89,5 +84,10 @@ public class ScriptsService: IScriptsService
     public Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey)
     {
         return _scriptsRepository.GetAdventureScriptsWithSourceReference(adventureId, sourceKey);
+    }
+
+    public Task<Script> GetScriptForAdventureWithName(int adventureId, string scriptName)
+    {
+        return _scriptsRepository.GetScriptForAdventureWithName(adventureId, scriptName);
     }
 }

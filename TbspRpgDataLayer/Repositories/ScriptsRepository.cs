@@ -10,13 +10,13 @@ namespace TbspRpgDataLayer.Repositories;
 public interface IScriptsRepository: IBaseRepository
 {
     Task<Script> GetScriptById(int scriptId);
-    Task<Script> GetScriptWithIncludedIn(int scriptId);
     Task<List<Script>> GetScriptsForAdventure(int adventureId);
     Task AddScript(Script script);
     void RemoveScript(Script script);
     void RemoveScripts(ICollection<Script> scripts);
     void AttachScript(Script script);
     Task<List<Script>> GetAdventureScriptsWithSourceReference(int adventureId, Guid sourceKey);
+    Task<Script> GetScriptForAdventureWithName(int adventureId, string scriptName);
 }
 
 public class ScriptsRepository: IScriptsRepository
@@ -30,22 +30,12 @@ public class ScriptsRepository: IScriptsRepository
 
     public Task<Script> GetScriptById(int scriptId)
     {
-        return _databaseContext.Scripts.AsQueryable()
-            .Include(script => script.Includes)
-            .FirstOrDefaultAsync(script => script.Id == scriptId);
-    }
-
-    public Task<Script> GetScriptWithIncludedIn(int scriptId)
-    {
-        return _databaseContext.Scripts.AsQueryable()
-            .Include(script => script.IncludedIn)
-            .FirstOrDefaultAsync(script => script.Id == scriptId);
+        return _databaseContext.Scripts.FirstOrDefaultAsync(script => script.Id == scriptId);
     }
 
     public Task<List<Script>> GetScriptsForAdventure(int adventureId)
     {
         return _databaseContext.Scripts.AsQueryable()
-            .Include(script => script.Includes)
             .Where(script => script.AdventureId == adventureId)
             .ToListAsync();
     }
@@ -75,6 +65,13 @@ public class ScriptsRepository: IScriptsRepository
         return _databaseContext.Scripts.AsQueryable()
             .Where(script => script.AdventureId == adventureId && script.Content.Contains(sourceKey.ToString()))
             .ToListAsync();
+    }
+
+    public Task<Script> GetScriptForAdventureWithName(int adventureId, string scriptName)
+    {
+        return _databaseContext.Scripts.AsQueryable()
+            .Where(script => script.AdventureId == adventureId && script.Name == scriptName)
+            .FirstOrDefaultAsync();
     }
 
     public async Task SaveChanges()

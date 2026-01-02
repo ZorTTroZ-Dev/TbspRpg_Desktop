@@ -204,10 +204,6 @@ namespace TbspRpgDataLayer.Tests
                 .Callback((Script script) => scripts.Add(script));
             
             scriptsService.Setup(service =>
-                    service.GetScriptWithIncludedIn(It.IsAny<int>()))
-                .ReturnsAsync((int scriptId) => scripts.FirstOrDefault(s => s.Id == scriptId));
-            
-            scriptsService.Setup(service =>
                     service.RemoveScript(It.IsAny<Script>()))
                 .Callback((Script script) => scripts.Remove(script));
             
@@ -232,6 +228,14 @@ namespace TbspRpgDataLayer.Tests
                     var locs = scripts.Where(a => a.AdventureId == adventureId && 
                                                    a.Content.Contains(sourceKey.ToString()));
                     return locs.Any();
+                });
+            
+            scriptsService.Setup(service =>
+                    service.GetScriptForAdventureWithName(It.IsAny<int>(), It.IsAny<string>()))
+                .ReturnsAsync((int adventureId, string name) =>
+                {
+                    var script = scripts.Where(a => a.AdventureId == adventureId && a.Name == name);
+                    return script.FirstOrDefault();
                 });
             
             return scriptsService.Object;
@@ -723,6 +727,70 @@ namespace TbspRpgDataLayer.Tests
             //     );
 
             return copyService.Object;
+        }
+        
+        public static IScriptIncludesService MockDataLayerScriptIncludesService(ICollection<ScriptInclude> scriptIncludes)
+        {
+            var scriptIncludesService = new Mock<IScriptIncludesService>();
+            
+            scriptIncludesService.Setup(service =>
+                    service.RemoveScriptIncludes(It.IsAny<int>()))
+                .Callback((int scriptId) =>
+                {
+                    var remainingIncludes = new List<ScriptInclude>();
+                    foreach (var include in scriptIncludes)
+                    {
+                        if (include.IncludedInId != scriptId && include.IncludesId != scriptId)
+                            remainingIncludes.Add(include);
+                    }
+                    scriptIncludes = remainingIncludes;
+                });
+            
+            scriptIncludesService.Setup(service =>
+                    service.GetIncludesForScriptId(It.IsAny<int>()))
+                .ReturnsAsync((int scriptId) =>
+                {
+                    return scriptIncludes
+                        .Where(si => si.IncludedInId == scriptId)
+                        .OrderBy(si => si.Order)
+                        .ToList();
+                });
+            
+            scriptIncludesService.Setup(service =>
+                    service.AddScriptInclude(It.IsAny<ScriptInclude>()))
+                .Callback((ScriptInclude scriptInclude) => scriptIncludes.Add(new ScriptInclude()
+                {
+                    Includes = scriptInclude.Includes,
+                    IncludesId = scriptInclude.IncludesId,
+                    IncludedIn = scriptInclude.IncludedIn,
+                    IncludedInId = scriptInclude.IncludedInId,
+                    Order = scriptInclude.Order
+                }));
+            
+            scriptIncludesService.Setup(service =>
+                    service.CollectAllIncludes(It.IsAny<int>()))
+                .ReturnsAsync((int scriptId) =>
+                {
+                    void IncludeIncludes(int scriptIncludeId, List<ScriptInclude> allIncludes)
+                    {
+                        var includes = scriptIncludes
+                            .Where(si => si.IncludedInId == scriptIncludeId)
+                            .OrderBy(si => si.Order)
+                            .ToList();
+
+                        foreach (var include in includes)
+                        {
+                            allIncludes.Add(include);
+                            IncludeIncludes(include.IncludesId, allIncludes);
+                        }
+                    }
+
+                    var resultIncludes = new List<ScriptInclude>();
+                    IncludeIncludes(scriptId, resultIncludes);
+                    return resultIncludes;
+                });
+
+            return scriptIncludesService.Object;
         }
     }
 }

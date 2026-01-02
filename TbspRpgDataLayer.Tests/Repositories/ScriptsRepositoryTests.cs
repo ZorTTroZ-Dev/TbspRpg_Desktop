@@ -21,8 +21,7 @@ public class ScriptsRepositoryTests() : InMemoryTest("ScriptsRepositoryTests")
         {
             Name = "test",
             Content = "print('banana');",
-            Type = ScriptTypes.LuaScript,
-            Includes = new List<Script>()
+            Type = ScriptTypes.LuaScript
         };
         await using var context = new DatabaseContext(DbContextOptions);
         context.Scripts.Add(testScript);
@@ -34,39 +33,6 @@ public class ScriptsRepositoryTests() : InMemoryTest("ScriptsRepositoryTests")
 
         // assert
         Assert.Null(script);
-    }
-
-    [Fact]
-    public async Task GetScriptById_Valid_ReturnScriptIncludeIncludes()
-    {
-        // arrange
-        var testScript = new Script()
-        {
-            Name = "test",
-            Content = "print('banana');",
-            Type = ScriptTypes.LuaScript,
-            Includes = new List<Script>()
-            {
-                new()
-                {
-                    Name = "test_base",
-                    Content = "print('base banana');",
-                    Type = ScriptTypes.LuaScript,
-                }
-            }
-        };
-        await using var context = new DatabaseContext(DbContextOptions);
-        context.Scripts.Add(testScript);
-        await context.SaveChangesAsync();
-        var repository = new ScriptsRepository(context);
-
-        // act
-        var script = await repository.GetScriptById(testScript.Id);
-        
-        // assert
-        Assert.NotNull(script);
-        Assert.Equal(testScript.Id, script.Id);
-        Assert.Single(script.Includes);
     }
 
     #endregion
@@ -224,40 +190,7 @@ public class ScriptsRepositoryTests() : InMemoryTest("ScriptsRepositoryTests")
     }
 
     #endregion
-
-    #region RemoveIncludes
-
-    [Fact]
-    public async Task RemoveIncludes_IncludesRemoved()
-    {
-        // arrange
-        await using var context = new DatabaseContext(DbContextOptions);
-        var testScript = new Script()
-        {
-            Name = "test script"
-        };
-        var testScriptTwo = new Script()
-        {
-            Name = "test script Two",
-            Includes = new List<Script>() { testScript }
-        };
-        context.Scripts.Add(testScript);
-        context.Scripts.Add(testScriptTwo);
-        await context.SaveChangesAsync();
-        var repository = new ScriptsRepository(context);
-        
-        // act
-        var script = context.Scripts.First(script => script.Id == testScriptTwo.Id);
-        script.Includes = new List<Script>();
-        await repository.SaveChanges();
-        
-        // assert
-        Assert.Empty(context.Scripts.First(s => s.Id == testScriptTwo.Id).Includes);
-        Assert.Empty(context.Scripts.First(s => s.Id == testScript.Id).IncludedIn);
-    }
-
-    #endregion
-
+    
     #region GetAdventureScriptsWithSourceReference
 
     [Fact]
@@ -305,5 +238,85 @@ public class ScriptsRepositoryTests() : InMemoryTest("ScriptsRepositoryTests")
         Assert.Empty(scripts);
     }
 
+    #endregion
+    
+    #region GetScriptForAdventureByName
+    
+    [Fact]
+    public async Task GetScriptForAdventureByName_Exists_ReturnScript()
+    {
+        // arrange
+        var testScript = new Script()
+        {
+            Name = "test",
+            Adventure = new Adventure()
+            {
+                Name = "test_adventure"
+            },
+            Type = ScriptTypes.LuaScript
+        };
+        await using var context = new DatabaseContext(DbContextOptions);
+        context.Scripts.Add(testScript);
+        await context.SaveChangesAsync();
+        var repository = new ScriptsRepository(context);
+
+        // act
+        var script = await repository.GetScriptForAdventureWithName(testScript.AdventureId, "test");
+
+        // assert
+        Assert.NotNull(script);
+        Assert.Equal(script.Id, testScript.Id);
+    }
+    
+    [Fact]
+    public async Task GetScriptForAdventureByName_NameDoesntExist_ReturnNull()
+    {
+        // arrange
+        var testScript = new Script()
+        {
+            Name = "test",
+            Adventure = new Adventure()
+            {
+                Name = "test_adventure"
+            },
+            Type = ScriptTypes.LuaScript
+        };
+        await using var context = new DatabaseContext(DbContextOptions);
+        context.Scripts.Add(testScript);
+        await context.SaveChangesAsync();
+        var repository = new ScriptsRepository(context);
+
+        // act
+        var script = await repository.GetScriptForAdventureWithName(testScript.AdventureId, "Test"); // name case-sensitive
+
+        // assert
+        Assert.Null(script);
+    }
+    
+    [Fact]
+    public async Task GetScriptForAdventureByName_AdventureIdDoesntExist_ReturnNull()
+    {
+        // arrange
+        var testScript = new Script()
+        {
+            Name = "test",
+            Adventure = new Adventure()
+            {
+                Name = "test_adventure"
+            },
+            Type = ScriptTypes.LuaScript
+        };
+        await using var context = new DatabaseContext(DbContextOptions);
+        context.Scripts.Add(testScript);
+        await context.SaveChangesAsync();
+        var repository = new ScriptsRepository(context);
+
+        // act
+        var script = await repository.GetScriptForAdventureWithName(42, "test");
+
+        // assert
+        Assert.Null(script);
+    }
+    
     #endregion
 }

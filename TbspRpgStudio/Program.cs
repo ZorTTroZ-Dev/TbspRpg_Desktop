@@ -35,12 +35,15 @@ sealed class Program
             throw new ArgumentNullException(nameof(dbPath));
         }
         var initializeSet = bool.TryParse(configuration["Database:Initialize"], out var initializeDb);
+        var recreateSet = bool.TryParse(configuration["Database:Recreate"], out var recreateDb);
         var connectionString = $"Data Source={dbPath};";
-        if (!File.Exists(dbPath) || (initializeSet && initializeDb))
+        if (!File.Exists(dbPath) || (initializeSet && initializeDb) || (recreateSet && recreateDb))
         {
-            if (initializeSet && initializeDb && File.Exists(dbPath))
+            if (recreateSet && recreateDb && File.Exists(dbPath))
+            {
                 File.Delete(dbPath);
-            using (File.Create(dbPath)) { }
+                using (File.Create(dbPath)) { }
+            }
             TbspRpgDataServiceFactory.Connect(connectionString, loggerFactory, true);
         }
         else

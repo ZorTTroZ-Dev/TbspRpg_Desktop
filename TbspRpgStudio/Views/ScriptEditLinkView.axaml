@@ -4,14 +4,15 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="TbspRpgStudio.Views.CopyEditLinkView"
-             x:DataType="viewModels:CopyEditLinkViewModel">
+             x:Class="TbspRpgStudio.Views.ScriptEditLinkView"
+             x:DataType="viewModels:ScriptEditLinkViewModel">
     
-        <Button HorizontalAlignment="Stretch" Command="{Binding EditCopy}">
+    <Button HorizontalAlignment="Stretch" Command="{Binding EditScriptCommand}">
         <StackPanel Margin="10">
-                <TextBlock Text="{Binding CopyKey}" />
-                <Separator/>
-                <TextBlock Text="{Binding CopyText}" xml:space="preserve" Margin="0, 15"/>
+            <TextBlock Text="{Binding Header}" />
+            <Separator/>
+            <TextBlock Text="{Binding Name}" xml:space="preserve" Margin="0, 15"/>
         </StackPanel>
-        </Button>
+    </Button>
+    
 </UserControl>
