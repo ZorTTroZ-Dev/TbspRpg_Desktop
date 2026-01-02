@@ -80,7 +80,7 @@ namespace TbspRpgProcessor.Processors
             {
                 GameId = game.Id,
                 Position = (ulong)secondsSinceEpoch,
-                SourceKey = adventure.InitialSourceKey
+                SourceKey = adventure.InitialCopyKey
             });
             
             // create content entry for the initial location source key

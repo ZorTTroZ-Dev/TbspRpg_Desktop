@@ -15,7 +15,7 @@ namespace TbspRpgDataLayer.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "9.0.10");
+            modelBuilder.HasAnnotation("ProductVersion", "9.0.11");
 
             modelBuilder.Entity("AdventureLanguage", b =>
                 {
@@ -68,10 +68,10 @@ namespace TbspRpgDataLayer.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<Guid>("DescriptionSourceKey")
+                    b.Property<Guid>("DescriptionCopyKey")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid>("InitialSourceKey")
+                    b.Property<Guid>("InitialCopyKey")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("InitializationScriptId")

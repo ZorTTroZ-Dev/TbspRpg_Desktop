@@ -37,13 +37,13 @@ public partial class AdventureEditViewModel : ViewModelBase
             if (m.Destination == CopyDestinationAdventureDescription)
             {
                 if (Adventure == null) return;
-                if (Adventure.DescriptionSourceKey != m.Copy.Key)
+                if (Adventure.DescriptionCopyKey != m.Copy.Key)
                 {
-                    Adventure.DescriptionSourceKey = m.Copy.Key;
+                    Adventure.DescriptionCopyKey = m.Copy.Key;
                     await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
                 }
                 AdventureDescriptionCopyEditLinkViewModel =
-                    await CopyEditLinkViewModel.CreateAsync(Adventure.DescriptionSourceKey,
+                    await CopyEditLinkViewModel.CreateAsync(Adventure.DescriptionCopyKey,
                         CopyDestinationAdventureDescription);
                 CurrentPaneViewModel = null;
             }
@@ -51,13 +51,13 @@ public partial class AdventureEditViewModel : ViewModelBase
             if (m.Destination == CopyDestinationAdventureInitial)
             {
                 if (Adventure == null) return;
-                if (Adventure.InitialSourceKey != m.Copy.Key)
+                if (Adventure.InitialCopyKey != m.Copy.Key)
                 {
-                    Adventure.InitialSourceKey = m.Copy.Key;
+                    Adventure.InitialCopyKey = m.Copy.Key;
                     await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
                 }
                 AdventureInitialCopyEditLinkViewModel =
-                    await CopyEditLinkViewModel.CreateAsync(Adventure.InitialSourceKey,
+                    await CopyEditLinkViewModel.CreateAsync(Adventure.InitialCopyKey,
                         CopyDestinationAdventureInitial);
                 CurrentPaneViewModel = null;
             }
@@ -69,10 +69,10 @@ public partial class AdventureEditViewModel : ViewModelBase
         var instance = new AdventureEditViewModel();
         instance.Adventure = await TbspRpgDataServiceFactory.Load().AdventuresService.GetAdventureById(adventureId);
         instance.AdventureDescriptionCopyEditLinkViewModel =
-            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.DescriptionSourceKey,
+            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.DescriptionCopyKey,
                 CopyDestinationAdventureDescription);
         instance.AdventureInitialCopyEditLinkViewModel =
-            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.InitialSourceKey,
+            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.InitialCopyKey,
                 CopyDestinationAdventureInitial);
         instance.PaneOpen = true;
         return instance;

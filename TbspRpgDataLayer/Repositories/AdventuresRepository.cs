@@ -87,8 +87,8 @@ namespace TbspRpgDataLayer.Repositories
             return _databaseContext.Adventures.AsQueryable()
                 .FirstOrDefaultAsync(adventure =>
                     adventure.Id == adventureId &&
-                    (adventure.DescriptionSourceKey == sourceKey 
-                     || adventure.InitialSourceKey == sourceKey));
+                    (adventure.DescriptionCopyKey == sourceKey 
+                     || adventure.InitialCopyKey == sourceKey));
         }
 
         public async Task SaveChanges()

@@ -22,7 +22,7 @@ public partial class AdventureViewModel : ViewModelBase
         // load the description
         var copyService = TbspRpgDataServiceFactory.Load().CopyService;
         var appState = ApplicationState.Load();
-        var description = await copyService.GetCopyTextForKey(adventure.DescriptionSourceKey, appState.Language);
+        var description = await copyService.GetCopyTextForKey(adventure.DescriptionCopyKey, appState.Language);
         return new AdventureViewModel()
         {
             Id = adventure.Id,
@@ -36,8 +36,8 @@ public partial class AdventureViewModel : ViewModelBase
         return new Adventure()
         {
             Name = adventureViewModel.Name,
-            DescriptionSourceKey = Guid.Empty,
-            InitialSourceKey =  Guid.Empty,
+            DescriptionCopyKey = Guid.Empty,
+            InitialCopyKey =  Guid.Empty,
             InitializationScriptId = null,
             TerminationScriptId = null
         };
