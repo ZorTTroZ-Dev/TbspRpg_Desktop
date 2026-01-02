@@ -9,12 +9,13 @@ namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureEditViewModel : ViewModelBase
 {
-    // ReSharper disable once InconsistentNaming
-    public static readonly string COPY_DESTINATION_ADVENTURE_DESCRIPTION = "COPY_DESTINATION_ADVENTURE_DESCRIPTION";
-    
+    private const string CopyDestinationAdventureDescription = "COPY_DESTINATION_ADVENTURE_DESCRIPTION";
+    private const string CopyDestinationAdventureInitial = "COPY_DESTINATION_ADVENTURE_INITIAL";
+
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
-    [ObservableProperty] private CopyEditLinkViewModel? _copyEditLinkViewModel;
+    [ObservableProperty] private CopyEditLinkViewModel? _adventureDescriptionCopyEditLinkViewModel;
+    [ObservableProperty] private CopyEditLinkViewModel? _adventureInitialCopyEditLinkViewModel;
     [ObservableProperty] private ViewModelBase? _currentPaneViewModel;
 
     private AdventureEditViewModel()
@@ -33,7 +34,7 @@ public partial class AdventureEditViewModel : ViewModelBase
         WeakReferenceMessenger.Default.Register<AdventureEditViewModel, AdventureEditCopyChangedMessage>(this,
             async (w, m) =>
         {
-            if (m.Destination == COPY_DESTINATION_ADVENTURE_DESCRIPTION)
+            if (m.Destination == CopyDestinationAdventureDescription)
             {
                 if (Adventure == null) return;
                 if (Adventure.DescriptionSourceKey != m.Copy.Key)
@@ -41,7 +42,23 @@ public partial class AdventureEditViewModel : ViewModelBase
                     Adventure.DescriptionSourceKey = m.Copy.Key;
                     await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
                 }
-                CopyEditLinkViewModel = await CopyEditLinkViewModel.CreateAsync(Adventure.DescriptionSourceKey);
+                AdventureDescriptionCopyEditLinkViewModel =
+                    await CopyEditLinkViewModel.CreateAsync(Adventure.DescriptionSourceKey,
+                        CopyDestinationAdventureDescription);
+                CurrentPaneViewModel = null;
+            }
+            
+            if (m.Destination == CopyDestinationAdventureInitial)
+            {
+                if (Adventure == null) return;
+                if (Adventure.InitialSourceKey != m.Copy.Key)
+                {
+                    Adventure.InitialSourceKey = m.Copy.Key;
+                    await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
+                }
+                AdventureInitialCopyEditLinkViewModel =
+                    await CopyEditLinkViewModel.CreateAsync(Adventure.InitialSourceKey,
+                        CopyDestinationAdventureInitial);
                 CurrentPaneViewModel = null;
             }
         });
@@ -51,7 +68,12 @@ public partial class AdventureEditViewModel : ViewModelBase
     {
         var instance = new AdventureEditViewModel();
         instance.Adventure = await TbspRpgDataServiceFactory.Load().AdventuresService.GetAdventureById(adventureId);
-        instance.CopyEditLinkViewModel = await CopyEditLinkViewModel.CreateAsync(instance.Adventure.DescriptionSourceKey);
+        instance.AdventureDescriptionCopyEditLinkViewModel =
+            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.DescriptionSourceKey,
+                CopyDestinationAdventureDescription);
+        instance.AdventureInitialCopyEditLinkViewModel =
+            await CopyEditLinkViewModel.CreateAsync(instance.Adventure.InitialSourceKey,
+                CopyDestinationAdventureInitial);
         instance.PaneOpen = true;
         return instance;
     }

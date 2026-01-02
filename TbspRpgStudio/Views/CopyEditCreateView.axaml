@@ -23,7 +23,7 @@
                      AcceptsReturn="True" AcceptsTab="True" TextWrapping="Wrap" />
             <Grid ColumnDefinitions="*, *">
                 <TextBlock Grid.Column="0" Text="Replace Existing" FontSize="20"/>
-                <CheckBox Grid.Column="1" IsChecked="{Binding Replace}"></CheckBox>
+                <CheckBox Grid.Column="1" IsEnabled="{Binding Replaceable}" IsChecked="{Binding Replace}"></CheckBox>
             </Grid>
             <StackPanel Margin="0, 40, 0, 0">
                 <TextBlock Text="Preview" FontSize="20" />

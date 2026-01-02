@@ -8,9 +8,9 @@ using TbspRpgStudio.Messages;
 
 namespace TbspRpgStudio.ViewModels;
 
-public partial class CopyEditSelectViewModel(List<Copy> copy) : ViewModelBase
+public partial class CopyEditSelectViewModel(List<Copy> copy, string copyDestination) : ViewModelBase
 {
-    private List<Copy> _copy = copy;
+    private readonly List<Copy> _copy = copy;
     [ObservableProperty] private List<Copy> _filteredCopy = copy;
     [ObservableProperty] private string _copyNameFilter = "";
     [ObservableProperty] private Copy? _selectedCopy;
@@ -41,7 +41,6 @@ public partial class CopyEditSelectViewModel(List<Copy> copy) : ViewModelBase
     public void Save()
     {
         if (SelectedCopy != null)
-            WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(SelectedCopy,
-                AdventureEditViewModel.COPY_DESTINATION_ADVENTURE_DESCRIPTION));
+            WeakReferenceMessenger.Default.Send(new AdventureEditCopyChangedMessage(SelectedCopy, copyDestination));
     }
 }

@@ -16,12 +16,16 @@ public partial class CopyEditLinkViewModel : ViewModelBase
     [ObservableProperty] private Copy? _copy;
     [ObservableProperty] private string _copyText = "";
     [ObservableProperty] private string _copyKey = "";
+    private readonly string _copyDestination;
 
-    private CopyEditLinkViewModel() { }
-
-    public static async Task<CopyEditLinkViewModel?> CreateAsync(Guid copyKey)
+    private CopyEditLinkViewModel(string copyDestination)
     {
-        var instance = new CopyEditLinkViewModel();
+        _copyDestination = copyDestination;
+    }
+
+    public static async Task<CopyEditLinkViewModel?> CreateAsync(Guid copyKey, string  copyDestination)
+    {
+        var instance = new CopyEditLinkViewModel(copyDestination);
         var appState = ApplicationState.Load();
         instance.Copy = await TbspRpgDataServiceFactory.Load().CopyService.GetCopy(copyKey, appState.Language);
         instance.CopyKey = instance.Copy == null ? "" : instance.Copy.Key.ToString();
@@ -32,6 +36,7 @@ public partial class CopyEditLinkViewModel : ViewModelBase
     [RelayCommand]
     public void EditCopy()
     {
-        WeakReferenceMessenger.Default.Send(new CopyEditMessage(new CopyEditViewModel(Copy.Key)));
+        if (Copy != null)
+            WeakReferenceMessenger.Default.Send(new CopyEditMessage(new CopyEditViewModel(Copy.Key, _copyDestination)));
     }
 }
