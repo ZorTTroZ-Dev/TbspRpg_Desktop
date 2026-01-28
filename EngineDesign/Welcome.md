@@ -1,0 +1,1 @@
+This will contain design, tasks and issues for the TbspRpg Player and TbspRpg Studio.

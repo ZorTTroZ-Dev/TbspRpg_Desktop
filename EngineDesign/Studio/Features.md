@@ -1,0 +1,2 @@
+- [ ] Script Editor - Allow user to edit a script attached to an adventure, location or route.
+	- [ ] 
