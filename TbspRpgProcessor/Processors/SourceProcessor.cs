@@ -166,8 +166,7 @@ namespace TbspRpgProcessor.Processors
                     AdventureId = source.AdventureId.Value,
                     Name = source.Name + "_script",
                     Type = ScriptTypes.LuaScript,
-                    Content = GenerateSourceScript(source.Text),
-                    Includes = new List<Script>()
+                    Content = GenerateSourceScript(source.Text)
                 },
                 Save = false
             });

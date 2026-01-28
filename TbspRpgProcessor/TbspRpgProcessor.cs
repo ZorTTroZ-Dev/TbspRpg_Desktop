@@ -24,7 +24,7 @@ public interface ITbspRpgProcessor
     
     Task<string> ExecuteScript(ScriptExecuteModel scriptExecuteModel);
     Task RemoveScript(ScriptRemoveModel scriptIdRemoveModel);
-    Task UpdateScript(ScriptUpdateModel scriptUpdateModel);
+    Task<Script> UpdateScript(ScriptUpdateModel scriptUpdateModel);
     
     #endregion
 
@@ -110,6 +110,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
     private readonly IAdventureObjectService _adventureObjectService;
     private readonly IAdventureObjectSourceService _adventureObjectSourceService;
     private readonly ICopyService _copyService;
+    private readonly IScriptIncludesService _scriptIncludesService;
     
     private readonly TbspRpgUtilities _tbspRpgUtilities;
     
@@ -128,6 +129,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         IAdventureObjectService adventureObjectService,
         IAdventureObjectSourceService adventureObjectSourceService,
         ICopyService copyService,
+        IScriptIncludesService scriptIncludesService,
         TbspRpgUtilities tbspRpgUtilities,
         ILogger<TbspRpgProcessor> logger)
     {
@@ -141,6 +143,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         _adventureObjectService = adventureObjectService;
         _adventureObjectSourceService = adventureObjectSourceService;
         _copyService = copyService;
+        _scriptIncludesService = scriptIncludesService;
         _tbspRpgUtilities = tbspRpgUtilities;
         _logger = logger;
     }
@@ -202,6 +205,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
             _locationsService,
             _sourcesService,
             _gamesService,
+            _scriptIncludesService,
             _logger);
     }
 
@@ -217,7 +221,7 @@ public class TbspRpgProcessor: ITbspRpgProcessor
         return _scriptProcessor.RemoveScript(scriptIdRemoveModel);
     }
 
-    public Task UpdateScript(ScriptUpdateModel scriptUpdateModel)
+    public Task<Script> UpdateScript(ScriptUpdateModel scriptUpdateModel)
     {
         LoadScriptProcessor();
         return _scriptProcessor.UpdateScript(scriptUpdateModel);

@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -12,8 +10,8 @@ using TbspRpgStudio.Messages;
 namespace TbspRpgStudio.ViewModels;
 
 public partial class CopyEditLinkViewModel : ViewModelBase
-{
-    [ObservableProperty] private Copy? _copy;
+{ 
+    private Copy? _copy;
     [ObservableProperty] private string _copyText = "";
     [ObservableProperty] private string _copyKey = "";
     private readonly string _copyDestination;
@@ -27,16 +25,16 @@ public partial class CopyEditLinkViewModel : ViewModelBase
     {
         var instance = new CopyEditLinkViewModel(copyDestination);
         var appState = ApplicationState.Load();
-        instance.Copy = await TbspRpgDataServiceFactory.Load().CopyService.GetCopy(copyKey, appState.Language);
-        instance.CopyKey = instance.Copy == null ? "" : instance.Copy.Key.ToString();
-        instance.CopyText = instance.Copy == null ? "" : instance.Copy.Text;
+        instance._copy = await TbspRpgDataServiceFactory.Load().CopyService.GetCopy(copyKey, appState.Language);
+        instance.CopyKey = instance._copy == null ? "" : instance._copy.Key.ToString();
+        instance.CopyText = instance._copy == null ? "" : instance._copy.Text;
         return instance;
     }
 
     [RelayCommand]
     public void EditCopy()
     {
-        if (Copy != null)
-            WeakReferenceMessenger.Default.Send(new CopyEditMessage(new CopyEditViewModel(Copy.Key, _copyDestination)));
+        if (_copy != null)
+            WeakReferenceMessenger.Default.Send(new CopyEditMessage(new CopyEditViewModel(_copy.Key, _copyDestination)));
     }
 }

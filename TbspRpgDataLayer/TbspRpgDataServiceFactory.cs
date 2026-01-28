@@ -22,6 +22,7 @@ public class TbspRpgDataServiceFactory
     public readonly IAdventureObjectSourceService AdventureObjectSourceService;
     public readonly ILanguagesService LanguagesService;
     public readonly ICopyService CopyService;
+    public readonly IScriptIncludesService ScriptIncludesService;
     
     private TbspRpgDataServiceFactory(string connectionString, ILoggerFactory loggerFactory, bool initialize = false)
     {
@@ -65,6 +66,9 @@ public class TbspRpgDataServiceFactory
         var adventureObjectSourceRepository = new AdventureObjectSourceRepository(_dbContext);
         AdventureObjectSourceService = new AdventureObjectSourceService(adventureObjectSourceRepository,
             loggerFactory.CreateLogger<AdventureObjectSourceService>());
+        var scriptIncludesRepository = new ScriptIncludesRepository(_dbContext);
+        ScriptIncludesService = new ScriptIncludesService(scriptIncludesRepository,
+            loggerFactory.CreateLogger<ScriptIncludesService>());
     }
     
     ~TbspRpgDataServiceFactory()

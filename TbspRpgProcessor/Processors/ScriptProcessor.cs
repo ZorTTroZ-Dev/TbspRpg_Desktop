@@ -16,7 +16,7 @@ public interface IScriptProcessor
 {
     Task<string> ExecuteScript(ScriptExecuteModel scriptExecuteModel);
     Task RemoveScript(ScriptRemoveModel scriptIdRemoveModel);
-    Task UpdateScript(ScriptUpdateModel scriptUpdateModel);
+    Task<Script> UpdateScript(ScriptUpdateModel scriptUpdateModel);
     Task<Script> CreateScript(ScriptCreateModel scriptCreateModel);
 }
 
@@ -28,6 +28,7 @@ public class ScriptProcessor : IScriptProcessor
     private readonly ILocationsService _locationsService;
     private readonly ISourcesService _sourcesService;
     private readonly IGamesService _gamesService;
+    private readonly IScriptIncludesService _scriptIncludesService;
     private readonly ILogger _logger;
 
     public ScriptProcessor(IScriptsService scriptsService,
@@ -36,6 +37,7 @@ public class ScriptProcessor : IScriptProcessor
         ILocationsService locationsService,
         ISourcesService sourcesService,
         IGamesService gamesService,
+        IScriptIncludesService scriptIncludesService,
         ILogger logger)
     {
         _scriptsService = scriptsService;
@@ -44,6 +46,7 @@ public class ScriptProcessor : IScriptProcessor
         _locationsService = locationsService;
         _sourcesService = sourcesService;
         _gamesService = gamesService;
+        _scriptIncludesService = scriptIncludesService;
         _logger = logger;
     }
     
@@ -104,12 +107,11 @@ public class ScriptProcessor : IScriptProcessor
         }
         
         // load any includes
-        if (scriptExecuteModel.Script.Includes != null)
+        var scriptIncludes = await _scriptIncludesService.CollectAllIncludes(
+            scriptExecuteModel.Script.Id);
+        foreach (var include in scriptIncludes)
         {
-            foreach (var include in scriptExecuteModel.Script.Includes)
-            {
-                luaState.DoString(include.Content);
-            }
+            luaState.DoString(include.Includes.Content);
         }
 
         // load the script
@@ -127,7 +129,7 @@ public class ScriptProcessor : IScriptProcessor
 
     public async Task RemoveScript(ScriptRemoveModel scriptRemoveModel)
     {
-        var dbScript = await _scriptsService.GetScriptWithIncludedIn(scriptRemoveModel.ScriptId);
+        var dbScript = await _scriptsService.GetScriptById(scriptRemoveModel.ScriptId);
         if (dbScript == null)
         {
             throw new ArgumentException("invalid script id");
@@ -140,7 +142,7 @@ public class ScriptProcessor : IScriptProcessor
         await _sourcesService.RemoveScriptFromSources(scriptRemoveModel.ScriptId);
         
         // remove this script from being included in other scripts
-        dbScript.IncludedIn = new List<Script>();
+        _scriptIncludesService.RemoveScriptIncludes(dbScript.Id);
         
         // then delete the script
         _scriptsService.RemoveScript(dbScript);
@@ -156,42 +158,40 @@ public class ScriptProcessor : IScriptProcessor
             AdventureId = scriptCreateModel.script.AdventureId,
             Name = scriptCreateModel.script.Name,
             Type = scriptCreateModel.script.Type,
-            Content = scriptCreateModel.script.Content,
-            Includes = new List<Script>()
+            Content = scriptCreateModel.script.Content
         };
-        foreach (var include in scriptCreateModel.script.Includes)
-        {
-            _scriptsService.AttachScript(include);
-            script.Includes.Add(include);
-        }
+        
+        // can't have a script in this adventure with the same name restriction necessary for include system
+        var scriptWithName = await _scriptsService.GetScriptForAdventureWithName(script.AdventureId,  script.Name);
+        if (scriptWithName != null)
+            throw new ArgumentException("script with name already exists");
+        
         await _scriptsService.AddScript(script);
         if (scriptCreateModel.Save)
             await _scriptsService.SaveChanges();
         return script;
     }
 
-    public async Task UpdateScript(ScriptUpdateModel scriptUpdateModel)
+    public async Task<Script> UpdateScript(ScriptUpdateModel scriptUpdateModel)
     {
         if (scriptUpdateModel.script.Id == TbspRpgUtilities.DB_EMPTY_ID)
         {
             var script = await CreateScript(new ScriptCreateModel()
             {
                 script = scriptUpdateModel.script,
-                Save = false
+                Save = true
             });
+            return script;
         }
-        else
-        {
-            // update existing script
-            var dbScript = await _scriptsService.GetScriptById(scriptUpdateModel.script.Id);
-            if (dbScript == null)
-                throw new ArgumentException("invalid script id");
-            dbScript.Name = scriptUpdateModel.script.Name;
-            dbScript.Type = scriptUpdateModel.script.Type;
-            dbScript.Content = scriptUpdateModel.script.Content;
-            dbScript.Includes = scriptUpdateModel.script.Includes;
-        }
-
+        
+        // update existing script
+        var dbScript = await _scriptsService.GetScriptById(scriptUpdateModel.script.Id);
+        if (dbScript == null)
+            throw new ArgumentException("invalid script id");
+        dbScript.Name = scriptUpdateModel.script.Name;
+        dbScript.Type = scriptUpdateModel.script.Type;
+        dbScript.Content = scriptUpdateModel.script.Content;
         await _scriptsService.SaveChanges();
+        return dbScript;
     }
 }

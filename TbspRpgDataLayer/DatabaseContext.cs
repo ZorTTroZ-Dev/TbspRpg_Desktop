@@ -14,6 +14,7 @@ namespace TbspRpgDataLayer
         public DbSet<En> SourcesEn { get; set; }
         public DbSet<Esp> SourcesEsp { get; set; }
         public DbSet<Script> Scripts { get; set; }
+        public DbSet<ScriptInclude> ScriptIncludes { get; set; }
         public DbSet<AdventureObject> AdventureObjects { get; set; }
         public DbSet<AdventureObjectGameState> AdventureObjectGameStates { get; set; }
         public DbSet<Language> Languages { get; set; }
@@ -122,10 +123,20 @@ namespace TbspRpgDataLayer
             #endregion
 
             #region Relations
+            
+            modelBuilder.Entity<ScriptInclude>()
+                .HasKey(ss => new { ss.IncludedInId, ss.IncludesId });
 
-            modelBuilder.Entity<Script>()
-                .HasMany(s => s.Includes)
-                .WithMany(s => s.IncludedIn);
+            // Configure the relationships
+            modelBuilder.Entity<ScriptInclude>()
+                .HasOne(ss => ss.IncludedIn)
+                .WithMany(s => s.Includes)
+                .HasForeignKey(ss => ss.IncludedInId);
+
+            modelBuilder.Entity<ScriptInclude>()
+                .HasOne(ss => ss.Includes)
+                .WithMany(s => s.IncludedIn)
+                .HasForeignKey(ss => ss.IncludesId);
             
             modelBuilder.Entity<Adventure>()
                 .HasMany(a => a.Games)

@@ -2,7 +2,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:vm="using:TbspRpgStudio.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="TbspRpgStudio.Views.CopyEditView"
              xmlns:viewModels="clr-namespace:TbspRpgStudio.ViewModels"
@@ -63,5 +62,7 @@ Create Tab
     - "Preview" window
     - Save button delete current source if now unused, set selected source to be this new source, force editor to load change
     - cancel clears adventure edit pane with now updates
+    
+    TODO: If empty source either prevent edit or create new source for edit tab
 -->
 </UserControl>

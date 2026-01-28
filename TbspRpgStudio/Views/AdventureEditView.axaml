@@ -28,8 +28,12 @@
                            TextDecorations="Underline"
                            VerticalAlignment="Top"
                            HorizontalAlignment="Center"/>
+                <TextBlock Text="Description" FontSize="20" Margin="0, 10"/>
                 <ContentControl Content="{Binding AdventureDescriptionCopyEditLinkViewModel}"/>
+                <TextBlock Text="Initial Copy" FontSize="20" Margin="0, 10"/>
                 <ContentControl Content="{Binding AdventureInitialCopyEditLinkViewModel}"/>
+                <TextBlock Text="Initialization Script" FontSize="20" Margin="0, 10"/>
+                <ContentControl Content="{Binding AdventureInitScriptEditLinkViewModel}" />
             </StackPanel>
         </Grid>
             

@@ -9,13 +9,15 @@ namespace TbspRpgStudio.ViewModels;
 
 public partial class AdventureEditViewModel : ViewModelBase
 {
-    private const string CopyDestinationAdventureDescription = "COPY_DESTINATION_ADVENTURE_DESCRIPTION";
-    private const string CopyDestinationAdventureInitial = "COPY_DESTINATION_ADVENTURE_INITIAL";
+    private const string CopyDestinationAdventureDescription    = "COPY_DESTINATION_ADVENTURE_DESCRIPTION";
+    private const string CopyDestinationAdventureInitial        = "COPY_DESTINATION_ADVENTURE_INITIAL";
+    private const string ScriptDestinationAdventureInit         = "SCRIPT_DESTINATION_ADVENTURE_INIT";
 
     [ObservableProperty] private Adventure? _adventure;
     [ObservableProperty] private bool _paneOpen;
     [ObservableProperty] private CopyEditLinkViewModel? _adventureDescriptionCopyEditLinkViewModel;
     [ObservableProperty] private CopyEditLinkViewModel? _adventureInitialCopyEditLinkViewModel;
+    [ObservableProperty] private ScriptEditLinkViewModel? _adventureInitScriptEditLinkViewModel;
     [ObservableProperty] private ViewModelBase? _currentPaneViewModel;
 
     private AdventureEditViewModel()
@@ -25,11 +27,34 @@ public partial class AdventureEditViewModel : ViewModelBase
             CurrentPaneViewModel = m.SourceEditViewModel;
         });
         
+        WeakReferenceMessenger.Default.Register<AdventureEditViewModel, ScriptEditMessage>(this, (w, m) =>
+        {
+            CurrentPaneViewModel = m.ScriptEditViewModel;
+        });
+        
         WeakReferenceMessenger.Default.Register<AdventureEditViewModel, AdventureEditCancelPaneMessage>(
             this, (w, m) =>
         {
             CurrentPaneViewModel = null;
         });
+        
+        WeakReferenceMessenger.Default.Register<AdventureEditViewModel, AdventureEditScriptChangedMessage>(this,
+            async (w, m) =>
+            {
+                if (m.Destination == ScriptDestinationAdventureInit)
+                {
+                    if (Adventure == null) return;
+                    Adventure.InitializationScript = m.Script;
+                    await TbspRpgDataServiceFactory.Load().AdventuresService.SaveChanges();
+                    AdventureInitScriptEditLinkViewModel =
+                        await ScriptEditLinkViewModel.CreateAsync(Adventure.InitializationScriptId, Adventure.Id,
+                            ScriptDestinationAdventureInit);
+                    if (m.CloseEditor)
+                    {
+                        CurrentPaneViewModel = null;
+                    }
+                }
+            });
         
         WeakReferenceMessenger.Default.Register<AdventureEditViewModel, AdventureEditCopyChangedMessage>(this,
             async (w, m) =>
@@ -74,6 +99,9 @@ public partial class AdventureEditViewModel : ViewModelBase
         instance.AdventureInitialCopyEditLinkViewModel =
             await CopyEditLinkViewModel.CreateAsync(instance.Adventure.InitialCopyKey,
                 CopyDestinationAdventureInitial);
+        instance.AdventureInitScriptEditLinkViewModel =
+            await ScriptEditLinkViewModel.CreateAsync(instance.Adventure.InitializationScriptId, adventureId,
+                ScriptDestinationAdventureInit);
         instance.PaneOpen = true;
         return instance;
     }

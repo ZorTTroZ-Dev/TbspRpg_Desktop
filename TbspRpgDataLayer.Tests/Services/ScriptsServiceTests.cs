@@ -29,8 +29,7 @@ public class ScriptsServiceTests() : InMemoryTest("ScriptsServiceTests")
         {
             Name = "test",
             Content = "print('banana');",
-            Type = ScriptTypes.LuaScript,
-            Includes = new List<Script>()
+            Type = ScriptTypes.LuaScript
         };
         await using var context = new DatabaseContext(DbContextOptions);
         context.Scripts.Add(testScript);
@@ -42,39 +41,6 @@ public class ScriptsServiceTests() : InMemoryTest("ScriptsServiceTests")
 
         // assert
         Assert.Null(script);
-    }
-
-    [Fact]
-    public async Task GetScriptById_Valid_ReturnScriptIncludeIncludes()
-    {
-        // arrange
-        var testScript = new Script()
-        {
-            Name = "test",
-            Content = "print('banana');",
-            Type = ScriptTypes.LuaScript,
-            Includes = new List<Script>()
-            {
-                new()
-                {
-                    Name = "test_base",
-                    Content = "print('base banana');",
-                    Type = ScriptTypes.LuaScript,
-                }
-            }
-        };
-        await using var context = new DatabaseContext(DbContextOptions);
-        context.Scripts.Add(testScript);
-        await context.SaveChangesAsync();
-        var service = CreateService(context);
-
-        // act
-        var script = await service.GetScriptById(testScript.Id);
-        
-        // assert
-        Assert.NotNull(script);
-        Assert.Equal(testScript.Id, script.Id);
-        Assert.Single(script.Includes);
     }
 
     #endregion
