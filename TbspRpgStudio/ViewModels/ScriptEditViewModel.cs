@@ -47,7 +47,7 @@ public partial class ScriptEditViewModel: ViewModelBase
             int index = 0;
             foreach (var script in vm.Scripts)
             {
-                if (script.IsNewTab) continue;
+                if (script.IsSpecialTab) continue;
                 if (script.GetScript().Name == m.Script.Name)
                 {
                     newPrimaryScriptIndex = index;
@@ -106,6 +106,14 @@ public partial class ScriptEditViewModel: ViewModelBase
             Name = "+++",
             Content = ""
         }, false, false, adventureScripts));
+        
+        // add the copy tab
+        Scripts.Add(new ScriptViewModel(new Script()
+        {
+            Id = -1,
+            Name = "+cpy+",
+            Content = ""
+        }, false, false, null));
     }
     
     [RelayCommand]
