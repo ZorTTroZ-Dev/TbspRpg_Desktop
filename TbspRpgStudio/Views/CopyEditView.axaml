@@ -25,9 +25,9 @@
             </ComboBox>
             </Grid>
         </StackPanel>
-        <TabControl Margin="5">
-            <TabItem Header="Edit">
-                <ContentControl Content="{Binding CopyEditModifyViewModel}"/>
+        <TabControl Margin="5" SelectedIndex="{Binding SelectedIndex}">
+            <TabItem Header="Edit" IsVisible="{Binding !ReadOnly}">
+                <ContentControl Content="{Binding CopyEditModifyViewModel}" />
             </TabItem>
             <TabItem Header="Select">
                 <ContentControl Content="{Binding CopyEditSelectViewModel}"/>

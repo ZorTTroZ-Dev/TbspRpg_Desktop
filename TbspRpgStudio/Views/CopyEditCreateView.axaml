@@ -9,9 +9,12 @@
              x:DataType="viewModels:CopyEditCreateViewModel">
     
     <DockPanel>
-        <Grid ColumnDefinitions="*, *" DockPanel.Dock="Bottom">
+        <Grid ColumnDefinitions="*, *" DockPanel.Dock="Bottom" IsVisible="{Binding !ReadOnly}">
             <Button Grid.Column="0" Command="{Binding CancelEdit}">Cancel</Button>
             <Button Grid.Column="1" HorizontalAlignment="Right" Name="SaveButton" Command="{Binding SaveCommand}">Save</Button>
+        </Grid>
+        <Grid ColumnDefinitions="1*" DockPanel.Dock="Bottom" IsVisible="{Binding CopyEnabled}">
+            <Button Grid.Column="0" HorizontalAlignment="Right" Name="CopyButton" Click="CopyButton_OnClick">Copy</Button>
         </Grid>
         <StackPanel Margin="0, 40, 0, 0">
             <Grid ColumnDefinitions="*, *">

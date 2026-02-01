@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Messaging;
@@ -21,12 +22,14 @@ public partial class ScriptViewModel:  ViewModelBase
 
         if (IsNewTab && scripts != null)
             ViewModel = new ScriptEditNewTabViewModel(scripts);
+        else if (IsCopyTab)
+            ViewModel = new CopyEditViewModel(Guid.Empty, "", true, true);
         else
             ViewModel = new LuaScriptEditorViewModel(_script, isPrimary);
         
         WeakReferenceMessenger.Default.Register<ScriptViewModel, ScriptModifiedMessage>(this, (w, m) =>
         {
-            if (IsNewTab) return;
+            if (IsSpecialTab) return;
             var viewModel = (LuaScriptEditorViewModel)ViewModel;
             if (_name != viewModel.Name)
             {
@@ -46,12 +49,16 @@ public partial class ScriptViewModel:  ViewModelBase
             }
         });
     }
+
+    public bool IsSpecialTab => IsCopyTab || IsNewTab;
     
     public bool IsNewTab => _script.Name == "+++";
 
+    public bool IsCopyTab => _script.Name == "+cpy+";
+
     public bool HasChanged()
     {
-        if (IsNewTab) return false;
+        if (IsSpecialTab) return false;
         var viewModel = (LuaScriptEditorViewModel)ViewModel;
         return _script.Name != viewModel.Name || _script.Content != viewModel.EditorContent;
     }
@@ -59,7 +66,7 @@ public partial class ScriptViewModel:  ViewModelBase
     public Script UpdatedScript {
         get
         {
-            if (IsNewTab) return _script;
+            if (IsSpecialTab) return _script;
             var viewModel = (LuaScriptEditorViewModel)ViewModel;
             _script.Name = viewModel.Name;
             _script.Content = viewModel.EditorContent;
@@ -83,14 +90,14 @@ public partial class ScriptViewModel:  ViewModelBase
     {
         get
         {
-            if (IsNewTab) return false;
+            if (IsSpecialTab) return false;
             if (ViewModel != null)
                 return ((LuaScriptEditorViewModel)ViewModel).IsPrimary;
             return false;
         }
         set
         {
-            if (IsNewTab) return;
+            if (IsSpecialTab) return;
             if (ViewModel != null)
                 ((LuaScriptEditorViewModel)ViewModel).IsPrimary = value;
         }
